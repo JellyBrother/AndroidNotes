@@ -49,6 +49,7 @@ CodeGlance（右边可以预览代码，实现快速定位）
 findBugs-IDEA（查找bug的插件，Android Studio也提供了代码审查的功能（Analyze-Inspect Code…））
 AndroidSourceViewer (安卓源码查看)
 gerrit 代码提交审核工具，需要领导审核之后，才正式进git仓库。
+findViewByMe 在布局文件中右键，然后选择findViewByMe
 
 ### 代码注释
  /**
