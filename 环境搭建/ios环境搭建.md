@@ -1,0 +1,57 @@
+环境配置：
+1、在主工程下面配置  .bash_profile  文件
+2、修改里面的电脑名字为自己的电脑名字
+3、将sdk和gradle配置到自己的电脑目录下
+6、.brash_profile 是mac机器的环境变量配置文件，需要保存在根目录下面
+
+mac机器上面的命令：
+open --打开文件
+exit --退出命令
+adb shell --进入手机
+ls --查看文件列表
+
+vim ~/.brash_profile  --查看mac的系统配置文件
+source ~/.brash_profile  --保存mac的系统配置文件
+sudo spctl --master-disable  --增大mac系统的权限
+chmod 777 adv_make.sh   --开通adv_make.sh脚本执行权限
+ctrl + l --清理日志
+ctrl + c --中断运行
+
+mac机器.bash_profile文件配置
+
+#open ~/.bash_profile  打开ios的环境变量配置。
+#source ~/.bash_profile  修改文件后，执行这个命令生效。
+
+export PATH=${PATH}:/Users/jelly/workspace/sdk/platform-tools
+export PATH=${PATH}:/Users/jelly/workspace/sdk/tools
+export PATH=${PATH}:/Users/jelly/workspace/sdk/tools/bin
+
+export GRADLE_HOME=/Users/jelly/workspace/gradle/gradle-4.6
+export PATH=$PATH:$GRADLE_HOME/bin
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+export PATH=$PATH:$JAVA_HOME/bin
+
+export ANDROID_HOME=/Users/jelly/workspace/sdk
+
+# Setting PATH for Python 3.6
+# The original version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.6/bin:${PATH}"
+export PATH
+# Setting PATH for Python 3.6
+# The original version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.6/bin:${PATH}"
+export PATH
+
+# Setting PATH for Python 3.6
+# The original version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.6/bin:${PATH}"
+export PATH
+
+# display git branch name
+function parse_git_branch_and_add_brackets {
+	git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\[\1\]/'
+}
+PS1="\h@\u:\w\[\033[0;32m\]\$(parse_git_branch_and_add_brackets)\[\033[0m\]\$ "
+
+
