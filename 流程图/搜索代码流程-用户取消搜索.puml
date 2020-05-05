@@ -1,0 +1,11 @@
+@startuml
+title 主页搜索代码流程-用户取消搜索
+start
+repeat
+:主页;
+:点击搜索;
+:开启搜索动画，进入搜索模式;
+:重置搜索状态;
+repeat while (用户是否取消搜索) is (是)
+stop
+@enduml

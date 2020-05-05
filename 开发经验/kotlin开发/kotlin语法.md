@@ -1,0 +1,284 @@
+### @Jvm的理解
+[具体参考](https://blog.csdn.net/qijingwang/article/details/86162648)
+该系列注解是方便java调用kotlin。
+kotlin的静态方法和静态变量会被放在 companion object 当中，成为伴生方法和伴生常量。
+@JvmStatic 静态方法 
+@JvmStatic 
+fun method() {
+}
+@JvmField 静态变量
+@JvmField 
+val BIG_INTEGER = BigInteger.ONE
+ 
+### 用?和?:基本上能避免程序中出现的所有NullPointerException
+[具体参考](https://www.jianshu.com/p/51b2e5aa3dd8)
+需要注意的是，可为空的变量不能赋值给不可为空的变量
+val room: Room? = Room()    // 先实例化一个room，并且room可以为空
+val room: Room? = null  // 不实例化了，开始room就是空的
+val room: Room = Room()   // 实例化一个room，并且room永远不能为空
+val room = Room()   // 和上一行代码一样，是KT最常用的简写语法
+Log.d("TAG", "-->> room name = ${room?.roomName}") // 因为在调用时加上了问号，所以程序不会抛出异常
+Elvis操作符?:，s ?: "" //如果 s == null 则返回 ""，否则返回 s 本身
+val roomList: ArrayList<Room>? = null
+if (roomList?.size ?: 0 > 0) {// 这一行添加了?:，如果不加，就会抛异常。当roomList为null的时，它的size返回就是"null"，"null"不可以和int值比大小。
+    Log.d("TAG", "-->> 房间数不是0")
+}
+kotlin 中定义方法时，默认接收的是 非 null 参数。如果定义某个方法可以接收 null参数，则在声明方法参数时在参数后面加上？。
+fun test(str1:String?){    //String 后面的 ？ 就表示该方法可以接收 null 作为参数
+}
+lateinit var nicknameEditText: EditText // 延后赋值
+* Kotlin 中避免空指针
+fun strLen(s: String) = s.length
+strLen(null); // 编译报错
+允许 strLen 函数可以传 null 怎么办呢？ 在参数类型后面加上 ? ，表示该参数可以为 null
+fun strLenSafe(s: String?) = if (s != null) s.length else 0
+* s?.toUpperCase() // 如果 s == null 那么 s?.toUpperCase() 返回 null，如果 s!=null 那就正常调用，正常返回。
+* 非空断言：!!
+var str:String? //str可以为空
+fun test(s: String) { //test参数不可为空
+}
+test(str!!) //非空断言，加上!!可以编译通过，但实际上str出现了空，就会报空指针异常。
+*可空类型的扩展函数
+如：isNullOrBlank、isNullOrEmpty
+
+### Kotlin中when
+[具体参考](https://www.jianshu.com/p/5960a52fe491)
+* 其实kotlin中的when就是java的switch
+enum class Anima { //kotlin的枚举要加关键字class
+    DOG, BEAR
+}
+fun useWhen(anima: Anima) {
+    // when 使用枚举对象作为参数，需要把该枚举类的所有对象列举完,枚举对象作为 when 参数不需要 else 分支
+    when (anima) {
+        Anima.DOG -> println("${Anima.DOG}在Week中的索引是${Anima.BEAR.DOG}") // 枚举的索引ordinal
+        Anima.BEAR -> println("${Anima.BEAR}在Week中的索引是${Anima.BEAR.ordinal}") // 枚举的索引ordinal
+    }
+}
+
+### 定义函数
+* fun sum(a: Int, b: Int) = a + b //⾃动推断返回值类型
+fun sum(a:Int , b:Int):Int{
+    return a+b
+}
+var sum={x:Int , y:Int -> x+y} //声明函数sum,接收两个Int类型参数 x、y，返回 x+y 的值
+sum(3,5) //调用使用 var 声明的函数 sum
+var sum:(Int,Int)->Int={x,y -> x+y}   //声明函数sum,它接收的参数是两个Int， 返回一个Int，对应的表达式是 {x,y->x+y}
+sum(4,4)    //调用函数sum
+* fun printSum(a: Int, b: Int): Unit {//函数返回⽆意义的值
+    println("sum of $a and $b is ${a + b}")
+}
+* Varargs 可变数量的参数
+fun <T> listOf(vararg items: T): List<T> {
+    println(items.javaClass)     // javaClass类型
+    return Arrays.asList(*items) // *展开操作符，意思是不管items是对象还是集合，会组合到一个集合里面，如果不使用*，就跟传入的集合一模一样。牵扯到下面的坑
+}
+* 原始类型数组 Arrays.asList 返回的集合大小为 1，如果是 复杂类型的数组，Arrays.asList 返回的集合大小为数组的大小
+int[] intArr = {1, 2, 3};// 原始类型数组
+List list = Arrays.asList(intArr); // asList里面使用的是泛型T，当 一维原始类型的数组 当做给可变参数的时候，编译器会把这个可变参数编译成一个 二维数组
+println(list.size());   //size = 1
+Integer[] intArr ={1, 2, 3};// 复杂类型的数组
+List list = Arrays.asList(intArr);
+println(list.size());  //size = 3
+* fun getRoundArea(PI:Float=3.14 , radius:Float):Float{    
+    //为变量PI赋予了默认值 3.14,这样，调用该方法时可以不再传递PI。但，如果我们想传入的值和默认值不一致时还是需要传入的
+    return PI*radius*radius
+}
+var a=getRoundArea(radius=5.0f) //我们需要的PI值与默认值一致，此时不需要再传入PI值。只需要通过 radius=5.0f 声明我们传入了半径值
+* 顶级函数
+没有类包裹的函数，Kotlin会生成一个文件名一样的类，调用方式为：文件名.函数()
+也可以在文件顶部添加@file:JvmName("aa")，则无论文件名怎么改变，调用方式为：aa.函数()
+* 扩展函数
+扩展函数是在类的外部定义，但是可以像类成员一样调用该函数。本质是静态函数，所以不能被复写。
+// 为String对象添加lastChar，lastChar方法返回Char类型，this为调用调用方。
+fun String.lastChar(): Char = this.get(this.length - 1)
+"Kotlin".lastChar() // 函数调用
+* 中缀函数 infix
+public infix fun <A, B> A.to(that: B): Pair<A, B> = Pair(this, that)
+1 to "one"   //函数的中缀调用 
+循环的时候讲到的until、downTo、step 也是中缀函数
+* 本地函数-函数里面嵌套函数  当函数内部有重复函数，但是又不暴露给外部使用的时候，使用本地函数
+fun saveUser(user: User) {
+    fun validate(value: String, fieldName: String) { 
+        if (value.isEmpty()) {
+            throw IllegalArgumentException("Can't save user ${user.id}: " + "$fieldName is empty")
+        }
+    }
+    validate(user.name, "Name") 
+    validate(user.address, "Address")
+}
+* 匿名函数
+(fun(x: Int, y: Int): Int {
+    val result = x + y
+    println("sum:$result")
+    return result
+})(1, 9) //sum:10
+
+### 定义变量
+* val 只读局部变量
+在命名数字常量时可以使用下划线间隔，让数值更易读，示例如下：
+val oneMillion = 1_000_000                   //普通int数据
+val bytes = 0b11010010_01101001_10010100_10010010  //二进制类型
+* var 可重新赋值的变量
+private var _table: Map<String, Int>? = null
+* const 编译期常量
+const val SUBSYSTEM_DEPRECATED: String = "This subsystem is deprecated"
+* lateinit 延迟初始化属性与变量，可以避免非空断言
+lateinit var subject: TestSubject
+subject.isInitialized //检测⼀个 lateinit var 是否已初始化：
+
+### 字符串模板
+* " ",被两个双引号包裹的内容是普通字符串，支持转义字符。
+* """ """，被一对三引号包裹的内容是原样字符串，不支持转义字符，其中的内容被定义成什么样，输出的时候就是什么样。
+当使用正则表达式的时候，用三引号字符串，直接写，不需要针对特殊字符判断作处理。
+当为json字符串的时候，三引号字符串，可以忽视json里面的特殊字符。
+* 字符串模板格式 ${占位字符串}
+* equals(,) 中第二个参数为 true时 效果等价于Java中的 equalsIgnoreCase()
+
+### 检测某个值是否是某种类型（智能类型转换）
+if (obj is String) {// 相当于java的instanceof 
+    // 不需要手动做类型转换操作
+    obj.substring(0, obj.length / 2)
+}
+(drawable as? Animatable)?.start()  //安全强转as?，drawable是Animatable类型，则转换为Animatable，不是该类型，则转换成null。
+
+### 区间in
+声明一个区间数组
+var nums1=1..100  //表示我们声明了一个闭区间数组，其中包含的数值为 1-100。 .. 表示闭区间
+var nums2=1 util 100 //前闭后开区间，取值 1-99. util 表示前闭后开区间
+var a = b in (0,10)
+区间分为开区间 、闭区间 、半开区间 。
+开区间的表示方式为 ( a , b ) , 表示该范围内的数据 自 a 开始 到 b 结束，但不包含 a 和 b
+闭区间的表示方式为 [ a , b ] , 表示该范围内的数据 自 a 开始到 b 结束，包含 a 和 b
+半开区间有两种方式：( a , b ] 和 [ a ,b ) 。前者表示不包含 a 但是 包含 b , 后者表示 包含 a 但不包含 b
+
+### 数组
+* 数组.reversed() //数组内容反转
+* 数组.count() //获取数组的容量，等价于Java中的 数组.length
+* var nums = arrayOf(1, 2, 3, 4, 5)
+for (index in nums.indices) {   // indices数组的索引
+    println(nums[index])    //打印根据索引获得的数据
+}
+* var list1=listOf(元素1，元素2，元素3)    //声明List时主要是通过 listOf()实现
+for（(index,value) in list.withIndex()）{    //重点是 withIndex() 方法，index 接收索引，value 接收对应的值
+}
+* var map=TreeMap<String,String>()    //声明 map
+map["好"]=good
+* var arr2 = arrayOfNulls<Int>(5)  //创建一个空数组，该数组接收的数据类型为 Int，最多能放入5个元素
+arr2.set(0, 1)
+arr2.set(1, 2)
+println(arr2[1])
+* for(i in 0..100){ // 闭区间遍历
+    println(i)
+}
+* for(i in 0 until 100){// 半闭区间
+    println(i)
+}
+* for(i in 100 downTo 0){// 闭区间倒序遍历
+    println(i)
+}
+* for( i in 100 downTo 0 step 2){// 步长(step) 默认是 1，可以通过 step 关键字来指定步长
+    println(i)
+}
+
+### 利用递归实现 阶乘函数
+* fun fact(num: BigInteger): BigInteger {// 用BigInteger来装大数据
+    if (num == BigInteger.ONE) {
+        return BigInteger.ONE
+    } 
+    return num * fact(num - BigInteger.ONE)
+}
+* 什么是尾调用
+function f() {
+  let m = 1;
+  let n = 2;
+  return g(m + n);
+}
+f();
+// 等同于 会及时释放m和n的内存
+function f() {
+  return g(3);
+}
+f();
+// 等同于 会及时释放之前的调用记录
+g(3);
+* 尾调用优化
+没优化之前：上述函数会保存num个调用记录，用于下次计算，非常消耗内存
+优化之后：直接参数代入，不会保留之前的调用记录，内存会及时释放。
+@scala.annotation.tailrec // java标记是否符合尾递归，编译器会运行时检查，不是符合就会编译期报错。
+// tailrec是kotlin标记尾递归，编译器会运行时检查，不是符合就会编译期报错。
+tailrec fun fact(num: BigInteger, total: BigInteger): BigInteger {// 用BigInteger来装大数据
+    if (num == BigInteger.ONE) {
+        return total
+    }
+    return fact(num - BigInteger.ONE, num * total)
+}
+fact(BigInteger("50"), BigInteger("1")); // 开始递归
+
+### 创建类
+* 构造函数constructor(w: Int) {}
+* 被继承的父类必须用 open 修饰，表示允许其他类继承该类，继承的格式：class 子类：父类()
+* 父类中的方法如果允许子类重写，也需要用 open 修饰
+* 重写父类方法时需要用 override 修复重写后的方法
+* 抽象的关键字 abstract
+* 抽象类和方法不需要用 open 声明可以被继承/实现
+* 单例模式：object
+
+### 代理和委托 关键字by
+代理，做别人委托的事情
+委托，把自己不干的事情交给别人做
+interface IWashBow {
+    fun washBow()
+}
+object BigHeadSon : IWashBow {
+    override fun washBow() {
+        println("小头儿子开始洗碗")
+    }
+}
+class SmallHeadFather : IWashBow by BigHeadSon {
+    override fun washBow() {
+        println("大头爸爸委托小头儿子洗碗")
+        BigHeadSon.washBow()
+        println("大头爸爸委托完毕")
+    }
+}
+
+### 印章类/密封类 (Sealed Class)
+* 印章类的特点
+子类类型有限的类成为 印章类/密封类
+印章类使用 sealed 作为修饰符
+印章类本身没有构造方法
+* 印章类与枚举的区别
+都是有限的数据
+枚举更注重具体的数据
+印章类更注重数据的类型
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
