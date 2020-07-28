@@ -97,7 +97,23 @@ onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, St
 * 通知主程序处理SSL客户端认证请求。如果需要提供密钥，主程序负责显示UI界面。有三个响应方法：proceed(), cancel() 和 ignore()。如果调用proceed()和cancel()，webview将会记住response，对相同的host和port地址不再调用onReceivedClientCertRequest方法。如果调用ignore()方法，webview则不会记住response。该方法在UI线程中执行，在回调期间，连接被挂起。默认cancel()，即无客户端认证
 onReceivedClientCertRequest(WebView view, ClientCertRequest request)
 
-
+### [FATAL:crashpad_client_linux.cc(536)] Render process (6248)'s crash wasn't handled by all associated  webviews, triggering application crash.
+修改原因：在高版本上系统webview已经切换为多进程，如果系统webview子进程挂掉，会回调onHandlerRenderProcessGone，告知客户端内核发生了崩溃，客户端可以做一些操作，处理完之后返回true即可，如果返回为false，会出现白屏问题。如果客户端不做处理，则主进程也会一起崩溃。
+解决方法：复写webview onRenderProcessGone方法，防止webview子进程挂掉导致进程崩溃
+@Override
+public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (!detail.didCrash()) {
+            if (mWebView != null && mConversationContainer != null) {
+                mConversationContainer.removeView(mWebView);
+                mWebView.destroy();
+                mWebView = null;
+            }
+            return true; // The app continues executing.
+        }
+    }
+    return super.onRenderProcessGone(view, detail);
+}
 
 
 

@@ -33,9 +33,7 @@ C:\Users\72077879>adb shell "dumpsys activity | grep mResume" 查看当前页面
 Monkey命令
 说明：com.htc.Weather为包名，100是事件计数（即让Monkey程序模拟100次随机用户事件）。
 指定多个包：com.htc.Weather\com.htc.pdfreadercom.htc.photo.widgets
-adb shell monkey -pcom.htc.Weather –p com.htc.pdfreader  -pcom.htc.photo.widgets 100
-
-
+adb shell monkey -p com.htc.Weather –p com.htc.pdfreader  -p com.htc.photo.widgets 100
 
 ### 查看设备
 adb  devices 这个命令是查看当前连接的设备, 连接到计算机的android设备或者模拟器将会列出显示。
@@ -128,7 +126,7 @@ adb reboot
 ### 获取序列号
 adb get-serialno
 ### 获取 MAC 地址
-adb shell  cat /sys/class/net/wlan0/address
+adb shell cat /sys/class/net/wlan0/address
 7c:7d:**:**:**:**
 ### 查看设备型号
 adb shell getprop ro.product.model
@@ -146,8 +144,16 @@ Physical density: 480
 adb shell pm list permissions 
 ### 查看系统的危险权限dangerous permissions
 adb shell pm list permissions -d -g
-
-
+### 输出当前的堆栈信息
+adb shell dumpsys activity activities > 1
+### 查看当前页面
+adb shell "dumpsys activity | grep mResume" 
+### 广播资源占用
+adb shell am broadcast -a android.intent.action.ACTION_DEVICE_STORAGE_LOW
+adb shell am broadcast -a android.intent.action.DEVICE_STORAGE_OK
+adb shell dumpsys > sdcard/DEVICE_STORAGE_OK.txt
+adb pull /sdcard/DEVICE_STORAGE_OK.txt D:\
+在DEVICE_STORAGE_OK.txt文件里面统计邮件接收android.intent.action.DEVICE_STORAGE_OK广播的次数，之前是两次，现在是一次。
 
 
 
