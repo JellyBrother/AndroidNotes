@@ -1,3 +1,6 @@
+### adb命令
+[Process Status](https://www.jianshu.com/p/d18ed08b40c4)
+
 显示帮助信息：adb  help
 查看设备： adb  devices
 adb install com.sina.weibo	
@@ -154,7 +157,8 @@ adb shell am broadcast -a android.intent.action.DEVICE_STORAGE_OK
 adb shell dumpsys > sdcard/DEVICE_STORAGE_OK.txt
 adb pull /sdcard/DEVICE_STORAGE_OK.txt D:\
 在DEVICE_STORAGE_OK.txt文件里面统计邮件接收android.intent.action.DEVICE_STORAGE_OK广播的次数，之前是两次，现在是一次。
-
+### adb连接
+如果确认电脑能够识别，先使用手机拨号盘------拨：*#558#*，进入工厂测试界面-----品质验证测试-----开发调试----勾选上调试端口
 
 
 
