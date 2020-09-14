@@ -63,13 +63,14 @@ long use = total - free;//使用了的内存
 内存没有释放或者释放不完全，导致内存持续增加。到最后内存溢出。
 * 单例导致对象不能回收
 * 静态变量赋值大
-* handle(当非静态内部类对象的生命周期比外部类对象的生命周期长),消息在队列中未处理或者正在处理。
+* Handler(当非静态内部类对象的生命周期比外部类对象的生命周期长),消息在队列中未处理或者正在处理。
 * 未取消注册或回调导致内存泄露
 * 集合中的对象未清理造成内存泄露
 * WebView造成内存泄露
 * 计时或循环任务一直运行，没有取消
 * listview没有复用，一直创建新对象
 * 文件读写及时关闭
+* Handler静态或者在页面onDestory的时候mHandler.removeMessages();都可以解决Handler内存溢出问题。
 解决:
 * 对异常进行监控、日志打印、日志上传到服务器，进行持续跟踪改进。
 * 使用LeakCanary和Profiler工具进行分析。
@@ -85,16 +86,6 @@ Runtime.getRuntime().freeMemory();//可用内存
 long use = total - free;//使用了的内存
 
 ### 应用程序无响应（ANR）
-* 看events_log的am_anr|am_low_memory，了解当前是否低内存，是否多个应用anr。找到自己应用anr的地方，看当前界面的生命周期。
-* 看main_log的ANR in，当前cpu的使用状态，是否占用很高，是否负载很重，anr发生的时长。
-* 看dropbox的trace文件，cpu使用情况，io情况，cpu运行状态，主线程执行情况，是否有锁占用，跨进程通信，是否有具体代码行。
-* 主线程做了很多耗时的操作
-文件读写，循环操作，数据库操作
-* 死锁
-发生死锁的线程一般处于MONITOR状态或者WAIT状态，等待其他进程的锁或者monitor，而其他进程又在等待另外线程的锁或者monitor，一直这样依赖下去，直到形成一个环。
-* 主线程等待
-发生ANR的主线程正处于monitor状态，也就是它在等待一个synchronized块或者方法，但是目前这个monitor正在被tid=11的线程持有，所以造成了主线程被阻塞，从而发生了ANR
-* 耗时的动画
 * 在events_log文件里面找到进程id： am_anr|am_low_memory
 * dropbox的anr日志看main线程打印
 * 在main_log文件里面找到报ANR的时间点：Application is not responding:  和 ANR in
@@ -114,12 +105,56 @@ watchdog  去kernel_log中看io,看是否有等待或者被锁
 RMS-Reclaim  去main看内存
 RMS-policy：MemTotal  去main看内存
 87% 1172/system_server: 55% user + 31% kernel / faults: 26122 minor  //这里如果100%以上就是CPU太高
-69% TOTAL: 12% user + 32% kernel + 14% iowait + 3.6% irq + 5.9% softirq //这里是80%以上CPU太高
+  50% 138/kswapd0: 0% user + 50% kernel //kswapd的CPU占用高，Kernel层内存交换进程，通常值低于25%。
+69% TOTAL: 12% user + 32% kernel + 14% iowait + 3.6% irq + 5.9% softirq //这里是80%以上CPU太高，io操作cpu占用很高，通常值低于10%。
 trace记录的anr和sys记录的anr时间可能相差很大，需要核对里面的进程id。
 主线程state=R说明系统cpu可以分配，Runnable表示正在运行，没有堵塞。state为s，cpu不给资源。
-kswap内存使用，超过35%找人确认为什么高。
 大于10，系统负载重。
 06-25 01:59:13.400  9635  9653 W Monkey  : Load: 38.8 / 33.99 / 32.35
+* 看events_log的am_anr|am_low_memory，了解当前是否低内存，是否多个应用anr。找到自己应用anr的地方，看当前界面的生命周期。
+* 看main_log的ANR in，当前cpu的使用状态，是否占用很高，是否负载很重，anr发生的时长。
+* 看dropbox的trace文件，cpu使用情况，io情况，cpu运行状态，主线程执行情况，是否有锁占用，跨进程通信，是否有具体代码行。
+kswapd耗时长, CPU占用高,导致ANR  
+   1). 根据日志可知，Email进程当前处于登录界面，无其他异常，也无明显耗时操作
+   2). 当前系统严重过载，（Load:40.18 / 41.16 / 43.28， 正常数值是10）//07-01 21:25:45.380  1444  1509 I AnrManager: Load: 40.18 / 41.16 / 43.28
+   3). kswapd cpu占用过高：kernel层一直占用，该进程一般是内存低或者内存碎片过多时进行内存页面交换，CPU高于39%属于不正常，Kernel层内存交换进程，通常值低于25%
+cpu饥饿导致系统卡顿，当前系统繁忙，为了优先保证系统进程执行，暂停了com.tencent.mt应用14.262ms。
+Line 101085: 07-01 20:25:15.307791 10171 10183 W com.tencent.mt: Suspending all threads took: 14.262mskernel 
+log显示kswapd交换频繁:触发低内存杀死进程
+Line 93072: <6>[80822.561532]  (6)[127:kswapd0]lowmemorykiller: ^RSC kswapd0 127 cost 1309 us lowmem_scan r 26077
+
+### 广播anr：
+无序广播不会anr。
+默认APP在发送广播时发送的是background broadcast。如果APP想要发送foreground broadcast，需要在准备发送的Intent中增加一个Flag，代码如下： intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+前台广播：当BroadcastReceiver在10秒内没有处理完该broadcast时，会触发ANR。Timeout的时间定义在：ActivityManagerService.BROADCAST_FG_TIMEOUT=10*1000;
+后台广播：当BroadcastReceiver在60秒内没有处理完该broadcast时，会触发ANR。Timeout的时间定义在：ActivityManagerService. BROADCAST_BG_TIMEOUT =60*1000；
+AMS在发送mOrderedBroadcasts队列中的broadcast给BroadcastReceiver时，会先判断该BroadcastReceiver所在的APP进程是否已存在，如果不存在，就会先创建该APP进程。并且，创建该APP进程所消耗的时间也算在Timeout时间之内。
+(1) 导致BroadcastReceiver Timeout类型的ANR有三种情况：
+*创建APP进程耗时太久，超过了Timeout时间。这种情况不多见。
+*APP进程的Main Thread处理的事情太多，没有时间执行BroadcastReceiver. onReceive()方法。
+*APP进程的Main Thread执行BroadcastReceiver. onReceive()过长。这种情况最多见。
+(2)当出现BroadcastReceiver Timeout类型的ANR时，会打印以下信息：
+BroadcastQueue: Timeout of broadcast BroadcastRecord{15f4f607 u0 com.tf.broadcastanrdemo} - receiver=android.os.BinderProxy@12d8940f, started 10000ms ago
+BroadcastQueue: Receiver during timeout: BroadcastFilter{273fd6a5 u0 ReceiverList{15edcc9c 24578 com.example.testBroadcast.bctwo/10129/u0 remote:12d8940f}}
+其中，蓝色和红色部分log会被具体的broadcast替代。从这两句log我们可以看出：APP进程(packageName= com.tf.broadcastanrdemo)在处理Action= com.example.testbroadcast.bctwo的broadcast时，发生了ANR。
+注意：只有当发生ANR的APP进程中存在前台显示的Activity时，或者用户在’开发者选项’中将’显示所有“应用无响应”(ANR)’的选项选中，AMS才会弹出ANR对话框。否则AMS会直接杀掉该APP进程。
+PS: 对于接收同一个广播，在相同优先级的情况下，动态注册优先级别高于静态注册。在动态注册中，最早动态注册优先级别最高；在静态注册中，最早安装的程序，静态注册优先级别最高
+
+### ANR抓取trace命令
+有时候缺少anr进程trace, 必现场景可以使用以下命令抓取trace信息：
+一、本地抓取trace命令： $chmod 777 /data/anr
+$rm /data/anr/traces.txt
+$ps //anr进程pid
+$kill -3 PID //anr进程pid
+$adb pull /data/anr/traces.txt
+PS: 若上述命令无法生成traces.txt, 需：
+    * 先进/data目录
+    * 然后chmod 777 /anr
+二、本地查看CPU使用率命令：
+  方法1：adb shell top -n 1 -d 0.5 | grep proc_ id
+            （adb shell top -m 10 -s cpu 该命令会显示CPU使用率最高的前十个应用）
+  方法2：adb shell dumpsys cpuinfo | grep proc_pid
+  方法3：开发者选项中-》显示CPU使用情况
 
 ### 页面性能优化：
 * 复杂布局：减少布局嵌套
@@ -885,6 +920,11 @@ android:windowSoftInputMode="stateVisible|adjustPan"
 使用mWebView.loadUrl("chrome://crash");测试，会复现这个异常。
 多个WebView使用的是同一个RenderProcess（渲染进程），当渲染进程崩溃的时候，会回调WebViewClient的onRenderProcessGone方法，让应用自己处理该异常，需要返回true，否则也应用会崩溃。
 继承WebViewClient，重写WebViewClient的onRenderProcessGone方法，使用WebView的地方都需要设置这个WebViewClient：
+下面处理比较简单，实际处理应该为：
+1、WebView外层包裹FrameLayout，移除的时候，获取getLayoutParams，然后重新设置添加到FrameLayout中。
+2、WebView的WebSettings需要获取并重新设置。
+3、WebView的其他属性需要获取并重新设置。
+4、异常次数的判断处理和最终异常的处理。
 @Override
 public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
