@@ -1,0 +1,53 @@
+### 技术架构
+HarmonyOS整体遵从分层设计，从下向上依次为：内核层、系统服务层、框架层和应用层。
+* 内核层
+- 内核子系统：HarmonyOS采用多内核设计，支持针对不同资源受限设备选用适合的OS内核。内核抽象层（KAL，KernelAbstract Layer）通过屏蔽多内核差异，对上层提供基础的内核能力，包括进程/线程管理、内存管理、文件系统、网络管理和外设管理等。
+- 驱动子系统：HarmonyOS驱动框架（HDF）是HarmonyOS硬件生态开放的基础，提供统一外设访问能力和驱动开发、管理框架。
+* 系统服务层
+- 系统基本能力子系统集：为分布式应用在HarmonyOS多设备上的运行、调度、迁移等操作提供了基础能力，由分布式软总线、分布式数据管理、分布式任务调度、方舟多语言运行时、公共基础库、多模输入、图形、安全、AI等子系统组成。其中，方舟运行时提供了C/C++/JS多语言运行时和基础的系统类库，也为使用方舟编译器静态化的Java程序（即应用程序或框架层中使用Java语言开发的部分）提供运行时。
+- 基础软件服务子系统集：为HarmonyOS提供公共的、通用的软件服务，由事件通知、电话、多媒体、DFX、MSDP&DV等子系统组成。
+- 增强软件服务子系统集：为HarmonyOS提供针对不同设备的、差异化的能力增强型软件服务，由智慧屏专有业务、穿戴专有业务、IoT专有业务等子系统组成。
+- 硬件服务子系统集：为HarmonyOS提供硬件服务，由位置服务、生物特征识别、穿戴专有硬件服务、IoT专有硬件服务等子系统组成。
+* 框架层
+框架层为HarmonyOS的应用程序提供了Java/C/C++/JS等多语言的用户程序框架和Ability框架，以及各种软硬件服务对外开放的多语言框架API；同时为采用HarmonyOS的设备提供了C/C++/JS等多语言的框架API，不同设备支持的API与系统的组件化裁剪程度相关。
+* 应用层
+应用层包括系统应用和第三方非系统应用。HarmonyOS的应用由一个或多个FA（Feature Ability）或PA（Particle Ability）组成。其中，FA有UI界面，提供与用户交互的能力；而PA无UI界面，提供后台运行任务的能力以及统一的数据访问抽象。基于FA/PA开发的应用，能够实现特定的业务功能，支持跨设备调度与分发，为用户提供一致、高效的应用体验。
+
+### 应用基础知识
+* APP
+- HarmonyOS的应用软件包以APP Pack（Application Package）形式发布，它是由一个或多个HAP（HarmonyOS Ability Package）以及描述每个HAP属性的pack.info组成。HAP是Ability的部署包，HarmonyOS应用代码围绕Ability组件展开。
+一个HAP是由代码、资源、第三方库及应用配置文件组成的模块包，可分为entry和feature两种模块类型，如图1所示。
+- entry：应用的主模块。一个APP中，对于同一设备类型必须有且只有一个entry类型的HAP，可独立安装运行。
+feature：应用的动态特性模块。一个APP可以包含一个或多个feature类型的HAP，也可以不含。只有包含Ability的HAP才能够独立运行。
+* Ability
+Ability是应用所具备的能力的抽象，一个应用可以包含一个或多个Ability。Ability分为两种类型：FA（Feature Ability）和PA（Particle Ability）。FA/PA是应用的基本组成单元，能够实现特定的业务功能。FA有UI界面，而PA无UI界面。
+* 配置文件
+配置文件 (config.json) 是应用的Ability信息，用于声明应用的Ability，以及应用所需权限等信息。
+* pack.info
+描述应用软件包中每个HAP的属性，由IDE编译生成，应用市场根据该文件进行拆包和HAP的分类存储。HAP的具体属性包括：
+delivery-with-install: 表示该HAP是否支持随应用安装。
+name：HAP文件名。
+module-type：模块类型，entry或feature。
+device-type：表示支持该HAP运行的设备类型。
+
+### 术语
+Ability应用的重要组成部分，是应用所具备能力的抽象。Ability分为两种类型，Feature Ability和Particle Ability。
+AbilityForm表单，是Feature Ability的一种界面展示形式，用于嵌入到其他应用中并作为其界面的一部分显示，并支持基础的交互功能。
+AbilitySlice切片，是单个可视化界面及其交互逻辑的总和，是Feature Ability的组成单元。一个Feature Ability可以包含一组业务关系密切的可视化界面，每一个可视化界面对应一个AbilitySlice。
+ANS（Ability Notification Service），是HarmonyOS中负责处理通知的订阅、发布和更新等操作的系统服务。
+CES（Common Event Service），是HarmonyOS中负责处理公共事件的订阅、发布和退订的系统服务。
+DV（Device Virtualization），设备虚拟化，通过虚拟化技术可以实现不同设备的能力和资源融合。
+FA（Feature Ability），元程序，代表有界面的Ability，用于与用户进行交互。
+HAP（HarmonyOS Ability Package），一个HAP文件包含应用的所有内容，由代码、资源、三方库及应用配置文件组成，其文件后缀名为.hap。
+HDF（HarmonyOS Driver Foundation），HarmonyOS驱动框架，提供统一外设访问能力和驱动开发、管理框架。
+IDN（Intelligent Distributed Networking），是HarmonyOS特有的分布式组网能力单元。开发者可以通过IDN获取分布式网络内的设备列表以及注册分布式网络内设备在网状态变化信息。
+MSDP（Mobile Sensing Development Platform），移动感知平台。MSDP子系统提供两类核心能力：分布式融合感知和分布式设备虚拟化两大部分。
+分布式融合感知：借助HarmonyOS分布式能力，将各设备感知源进行汇总融合，对用户的空间状态、移动状态、手势、健康状态等进行精准感知，构建全场景泛在基础感知能力，支撑智慧生活新体验。
+分布式器件虚拟化：借助HarmonyOS分布式能力，构筑器件虚拟化平台，将外部设备的各类器件（如Camera、显示器、SPK/MIC等）虚拟化为本地设备的器件延伸使用。同时具备将自身器件共享给其他设备使用的能力。
+PA（Particle Ability），元服务，代表无界面的Ability，主要为Feature Ability提供支持，例如作为后台服务提供计算能力，或作为数据仓库提供数据访问能力。
+SA（System Ability），即系统能力，是由OS提供的基础软件服务和硬件服务。
+Super virtual device，超级虚拟终端亦称超级终端，通过分布式技术将多个终端的能力进行整合，存放在一个虚拟的硬件资源池里，根据业务需要统一管理和调度终端能力，来对外提供服务。
+
+
+
+

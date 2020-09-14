@@ -1,0 +1,9 @@
+### 技术栈
+webrtc技术、编码、解码、录制、渲染、FFmepg、流媒体协议（HLS、RTP、RTMP）、文件格式（flv、mp4）、音频（aac、ADTS）、视频（h264、nalu、pps、sps）
+
+
+
+
+
+
+
