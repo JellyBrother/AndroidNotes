@@ -1,5 +1,31 @@
 ### 技术栈
+[入门](https://blog.csdn.net/dev_csdn/article/details/78738806)
+[入门](https://www.jianshu.com/p/11155c7e8b09)
+[FFmpeg开发笔记](https://blog.csdn.net/qq21497936/article/details/104071063)
+RTC技术：
+[开源ProjectRTC](https://github.com/pchab/ProjectRTC)
+[开源iOSRTC](https://github.com/digixtechnology/iOSRTC)
+[开源AndroidRTC](https://github.com/pchab/AndroidRTC)
+[开源Java-WebSocket](https://github.com/TooTallNate/Java-WebSocket)
+[ddssingsong/webrtc_android](https://github.com/ddssingsong/webrtc_android)
 webrtc技术、编码、解码、录制、渲染、FFmepg、流媒体协议（HLS、RTP、RTMP）、文件格式（flv、mp4）、音频（aac、ADTS）、视频（h264、nalu、pps、sps）
+音视频技术大牛：
+http://blog.csdn.net/leixiaohua1020
+http://blog.csdn.net/cosmoslife
+http://blog.csdn.net/Solstice
+https://blog.csdn.net/newarow
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
