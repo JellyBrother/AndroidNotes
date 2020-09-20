@@ -47,15 +47,45 @@ View及父View必须处于可见
 父View不能有FOCUS_BLOCK_DESCENDANTS属性
 
 ### 屏幕适配
-values-3840x2160 新建一些尺寸文件夹，存放尺寸，以px为单位
-有些地方测量宽高，动态设置。
+* android中的dp在渲染前会将dp转为px，计算公式：
+px = density * dp;
+density = dpi / 160;
+px = dp * (dpi / 160);
+* values-3840x2160 新建一些尺寸文件夹，存放尺寸，以px为单位
+* 有些地方测量宽高，动态设置。
 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(lineCheckImageWith, lineImageHeight);
 layoutParams.setMargins(0, 0, lineImageMargin, 0);
 ivws.setLayoutParams(layoutParams);
+* 今日头条的适配方案
+[Android屏幕适配](https://mp.weixin.qq.com/s/d9QCoBP6kV9VSWvVldVVwA)
+[demo](https://github.com/JessYanCoding/AndroidAutoSize)
 
-
-
-
+### Leanback库
+https://blog.csdn.net/xct841990555/article/details/83448982
+https://www.cnblogs.com/dasusu/p/7460409.html
+<uses-sdk tools:overrideLibrary="android.support.v17.leanback" />
+<uses-feature
+    android:name="android.software.leanback"
+    android:required="false" />
+<uses-feature
+    android:name="android.hardware.touchscreen"
+    android:required="false" />
+<uses-feature
+    android:name="android.hardware.location.gps"
+    android:required="false" />
+<application
+    android:allowBackup="false"
+    android:hardwareAccelerated="true"
+    android:largeHeap="true"
+    android:supportsRtl="true"
+    android:theme="@style/Theme.Leanback"
+    tools:replace="allowBackup,label,icon,theme,name">
+implementation 'com.android.support:recyclerview-v7:27.1.0'
+implementation 'com.android.support:leanback-v17:27.1.0'   //主要是这个
+implementation 'com.android.support:recommendation:27.1.0'
+implementation 'com.android.support:preference-leanback-v17:27.1.0'
+appcompatV7=com.android.support\:appcompat-v7\:22.0.0
+leanbackV17=com.android.support\:leanback-v17\:22.0.0
 
 
 

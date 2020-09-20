@@ -122,6 +122,8 @@
 [焦点处理流程](https://www.jianshu.com/p/053ea7cd27b3)
 [按键焦点分析与实战应用](https://www.jianshu.com/p/97a22c035268)
 [Android TV开发 开源项目收集](https://blog.csdn.net/jun5753/article/details/78662918)
+[Android TV开发 开源项目收集](https://gitee.com/kumei/Android_tv_libs)
+[Android屏幕适配](https://mp.weixin.qq.com/s/d9QCoBP6kV9VSWvVldVVwA)
 
 ### 音视频
 [入门](https://blog.csdn.net/dev_csdn/article/details/78738806)
