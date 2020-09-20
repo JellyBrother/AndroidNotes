@@ -1,1 +1,1 @@
-C:\Users\72071152\AppData\Local\Android\Sdk\platform-tools\hprof-conv.exe source.hprof target.hprof
+AppData\Local\Android\Sdk\platform-tools\hprof-conv.exe source.hprof target.hprof
