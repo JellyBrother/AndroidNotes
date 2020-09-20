@@ -8,6 +8,7 @@
 [Android Studio](http://www.android-studio.org/)
 [玩安卓](https://www.wanandroid.com/)
 [Gityuan](http://gityuan.com/)
+[内存泄漏](https://www.jianshu.com/p/7759e25c5927)
 [老罗的android之旅](https://www.kancloud.cn/alex_wsc/androids/473769)
 [老罗的android之旅](https://blog.csdn.net/itismelzp/article/details/78194922?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param)
 
@@ -59,7 +60,7 @@
 [启动优化](https://blog.csdn.net/qian520ao/article/details/81908505)
 [启动流程](https://www.jianshu.com/p/657336b545bd)
 
-### 邮件协议
+### 协议
 [IMAP与POP3的区别](https://jingyan.baidu.com/article/ad310e8012fb231848f49e49.html)
 [IMAP，POP3及Exchange协议讲解](http://www.exchangecn.com/exchange2016/20170906_5712.html)
 [IMAP，POP3及Exchange协议讲解](https://blog.csdn.net/a2758963/article/details/43148923)
@@ -113,10 +114,32 @@
 [AccessibilityService](https://www.jianshu.com/p/4cd8c109cdfb)
 [adb模拟操作](https://blog.csdn.net/questions000/article/details/79172357)
 
+### 电视机
+[Android TV](https://www.jianshu.com/c/3f0ab61a1322)
+[Android TV](https://www.cnblogs.com/plokmju/p/android_tv.html)
+[Android焦点分发和移动的原理](https://www.jianshu.com/p/be7e84832632)
+[焦点处理流程](https://www.jianshu.com/p/673f7f9cd763)
+[焦点处理流程](https://www.jianshu.com/p/053ea7cd27b3)
+[按键焦点分析与实战应用](https://www.jianshu.com/p/97a22c035268)
+[Android TV开发 开源项目收集](https://blog.csdn.net/jun5753/article/details/78662918)
 
+### 音视频
+[入门](https://blog.csdn.net/dev_csdn/article/details/78738806)
+[入门](https://www.jianshu.com/p/11155c7e8b09)
+[FFmpeg开发笔记](https://blog.csdn.net/qq21497936/article/details/104071063)
+RTC技术：
+[开源ProjectRTC](https://github.com/pchab/ProjectRTC)
+[开源iOSRTC](https://github.com/digixtechnology/iOSRTC)
+[开源AndroidRTC](https://github.com/pchab/AndroidRTC)
+[开源Java-WebSocket](https://github.com/TooTallNate/Java-WebSocket)
+[ddssingsong/webrtc_android](https://github.com/ddssingsong/webrtc_android)
+[音视频技术大牛](http://blog.csdn.net/leixiaohua1020)
+[音视频技术大牛](http://blog.csdn.net/cosmoslife)
+[音视频技术大牛](http://blog.csdn.net/Solstice)
+[音视频技术大牛](https://blog.csdn.net/newarow)
 
-
-
+### 设计模式
+[23种设计模式](http://c.biancheng.net/design_pattern/)
 
 
 

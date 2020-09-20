@@ -416,13 +416,13 @@ com.hotimg.view.MapAreaView
 [具体参考](https://blog.csdn.net/DT235201314/article/details/78133932)
 * 把要用的图片调整为合适的大小后（重要），导入到Dreamweaver中，在图片上，把需要添加事件的部分建立图片“热区”，然后映射到手机上的相应区域。
 for(String key : keys) {
-				idenId = mContext.getResources().getIdentifier(key, "array", mContext.getPackageName());
-				int[] paths = mContext.getResources().getIntArray(idenId);
-				idenId = mContext.getResources().getIdentifier(key + "_code", "array", mContext.getPackageName());
-				String[] ptKeys = mContext.getResources().getStringArray(idenId);
-				bodyArea = new MapArea(ptKeys, paths);
-				mMapArea.put(key, bodyArea);
-			}
+    idenId = mContext.getResources().getIdentifier(key, "array", mContext.getPackageName());
+    int[] paths = mContext.getResources().getIntArray(idenId);
+    idenId = mContext.getResources().getIdentifier(key + "_code", "array", mContext.getPackageName());
+    String[] ptKeys = mContext.getResources().getStringArray(idenId);
+    bodyArea = new MapArea(ptKeys, paths);
+    mMapArea.put(key, bodyArea);
+}
 * 进行不同材质机器的兼容
 private float toDip(Context context,float pxValue){
 	final float scale = context.getResources().getDisplayMetrics().density;
@@ -575,39 +575,39 @@ $ adb shell am set-inactive <packageName> false
 在唤醒应用后观察它的行为。确保应用从待机模式正常恢复。您应特别检查应用的通知和后台作业是否继续按预期运行。
 
  public static void testPowerManager(Context context) {
-        final PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    final PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 //        powerManager.isRebootingUserspaceSupported();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // 如果设备当前处于空闲模式，则返回true。
-            boolean isDeviceIdleMode = powerManager.isDeviceIdleMode();
-            // 返回给定的应用程序包名称是否在设备的电源白名单中。
-            boolean isIgnoringBatteryOptimizations = powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
-            boolean isInteractive = powerManager.isInteractive();
-            // 如果设备当前处于省电模式，则返回true。
-            boolean isPowerSaveMode = powerManager.isPowerSaveMode();
-            LogUtils.d(TAG, "testPowerManager: isDeviceIdleMode:" + isDeviceIdleMode+"*isIgnoringBatteryOptimizations*"+
-                    isIgnoringBatteryOptimizations+"*isInteractive*"+isInteractive+"*isPowerSaveMode*"+isPowerSaveMode);
-        }
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            // 此功能检查设备是否已实现“持续性能模式”。
-            boolean isSustainedPerformanceModeSupported = powerManager.isSustainedPerformanceModeSupported();
-            LogUtils.d(TAG, "testPowerManager: isSustainedPerformanceModeSupported:" + isSustainedPerformanceModeSupported);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // 此函数返回设备的当前热状态。
-            int currentThermalStatus = powerManager.getCurrentThermalStatus();
-            LogUtils.d(TAG, "testPowerManager: currentThermalStatus:" + currentThermalStatus);
-            // 用于更改热状态，监听回调将被排队在主线程上的任务
-            powerManager.addThermalStatusListener(new PowerManager.OnThermalStatusChangedListener(){
-
-                @Override
-                public void onThermalStatusChanged(int status) {
-                    powerManager.removeThermalStatusListener(this);
-                    LogUtils.d(TAG, "testPowerManager: addThermalStatusListener onThermalStatusChanged:" + status);
-                }
-            });
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // 如果设备当前处于空闲模式，则返回true。
+        boolean isDeviceIdleMode = powerManager.isDeviceIdleMode();
+        // 返回给定的应用程序包名称是否在设备的电源白名单中。
+        boolean isIgnoringBatteryOptimizations = powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
+        boolean isInteractive = powerManager.isInteractive();
+        // 如果设备当前处于省电模式，则返回true。
+        boolean isPowerSaveMode = powerManager.isPowerSaveMode();
+        LogUtils.d(TAG, "testPowerManager: isDeviceIdleMode:" + isDeviceIdleMode+"*isIgnoringBatteryOptimizations*"+
+                isIgnoringBatteryOptimizations+"*isInteractive*"+isInteractive+"*isPowerSaveMode*"+isPowerSaveMode);
     }
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        // 此功能检查设备是否已实现“持续性能模式”。
+        boolean isSustainedPerformanceModeSupported = powerManager.isSustainedPerformanceModeSupported();
+        LogUtils.d(TAG, "testPowerManager: isSustainedPerformanceModeSupported:" + isSustainedPerformanceModeSupported);
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // 此函数返回设备的当前热状态。
+        int currentThermalStatus = powerManager.getCurrentThermalStatus();
+        LogUtils.d(TAG, "testPowerManager: currentThermalStatus:" + currentThermalStatus);
+        // 用于更改热状态，监听回调将被排队在主线程上的任务
+        powerManager.addThermalStatusListener(new PowerManager.OnThermalStatusChangedListener(){
+
+            @Override
+            public void onThermalStatusChanged(int status) {
+                powerManager.removeThermalStatusListener(this);
+                LogUtils.d(TAG, "testPowerManager: addThermalStatusListener onThermalStatusChanged:" + status);
+            }
+        });
+    }
+}
 
 ### 闹钟
 alarmManager.set设置的时间不准，测试看到设置为20秒，实际为5秒。 
@@ -680,10 +680,10 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 * 辅助服务模式监听，耗性能，而且需要用户手动开启
 继承AccessibilityService，在onAccessibilityEvent(AccessibilityEvent event)方法中，通过AccessibilityEvent来判断
 if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
-        accessibilityEvent.getPackageName().equals("com.android.systemui") &&
-        accessibilityEvent.getClassName().equals("com.android.systemui.statusbar.phone.PhoneStatusBar$ExpandedDialog") ||
-        accessibilityEvent.getClassName().equals("android.widget.FrameLayout") ||
-        accessibilityEvent.getClassName().equals("com.android.systemui.statusbar.StatusBarService$ExpandedDialog")) {
+    accessibilityEvent.getPackageName().equals("com.android.systemui") &&
+    accessibilityEvent.getClassName().equals("com.android.systemui.statusbar.phone.PhoneStatusBar$ExpandedDialog") ||
+    accessibilityEvent.getClassName().equals("android.widget.FrameLayout") ||
+    accessibilityEvent.getClassName().equals("com.android.systemui.statusbar.StatusBarService$ExpandedDialog")) {
 }
 
 ### 通知状态监听

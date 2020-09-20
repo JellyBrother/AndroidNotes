@@ -155,7 +155,7 @@ Change全部勾选
 ### 添加推送sdk
 1、push sdk
 2、如果已安装sso debug apk，卸载掉
-3、安装最新Mms apk
+3、安装最新 apk
 4、手动新建会话，输入号码**，给这个号码发一条文本消息（内容随意）。退出会话，再进去，继续发消息，应该就会收到推送的内容。
 核对是否push的是最新的sdk命令
 adb shell ls -l system/priv-app/RcsSDK

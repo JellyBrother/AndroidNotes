@@ -19,9 +19,6 @@
 ### 附件下载多次查看，提示附件不存在
 应用启动的时候，删除了文件夹，需要添加例外
 
-### RMS文件打开失败，要提示无权限。
-生成的rms文档，然后外网去打开怎么可能，不存在这种场景，服务器物理都是隔离的。
-
 ### 设置弹框的时候，控件宽高没有根据屏幕大小变化。
 获取手机的宽高在初始化进行，切换横竖屏的时候，没有再次赋值。
 
@@ -115,7 +112,6 @@ trace记录的anr和sys记录的anr时间可能相差很大，需要核对里面
 * 看main_log的ANR in，当前cpu的使用状态，是否占用很高，是否负载很重，anr发生的时长。
 * 看dropbox的trace文件，cpu使用情况，io情况，cpu运行状态，主线程执行情况，是否有锁占用，跨进程通信，是否有具体代码行。
 kswapd耗时长, CPU占用高,导致ANR  
-   1). 根据日志可知，Email进程当前处于登录界面，无其他异常，也无明显耗时操作
    2). 当前系统严重过载，（Load:40.18 / 41.16 / 43.28， 正常数值是10）//07-01 21:25:45.380  1444  1509 I AnrManager: Load: 40.18 / 41.16 / 43.28
    3). kswapd cpu占用过高：kernel层一直占用，该进程一般是内存低或者内存碎片过多时进行内存页面交换，CPU高于39%属于不正常，Kernel层内存交换进程，通常值低于25%
 cpu饥饿导致系统卡顿，当前系统繁忙，为了优先保证系统进程执行，暂停了com.tencent.mt应用14.262ms。
@@ -361,14 +357,13 @@ sdk缺失文件
 查看jdk有没有tools.jar，没有就需要重新安装jdk。
 
 ### 手机连接不上云端
-* 点击云端手机驱动安装
 * 安装完成后，重启本地机和云端
 * 点击云端设备打钩
 * 打开手机的开发者模式进行手机连接，注意数据线和手机的插口稳定。
 * 安装PC端手机助手，等待电脑给手机端安装手机助手。
 * adb devices查看连接状态
 * 开启开发者模式：*#*#7777#*#*
-* 开启USB调试端口：*#558# -> 品质验证测试 -> 开发调试 -> 勾选“调试端口”
+* 开启USB调试端口：*#558# -> 验证测试 -> 开发调试 -> 勾选“调试端口”
 
 ### 很多文件提示找不到包
 需要配置以下环境
@@ -399,7 +394,7 @@ distributionUrl=https\://services.gradle.org/distributions/gradle-5.4.1-all.zip
 ### git拉取代码的时候报错：Permission denied (publickey)
 * git配置账号
 git config --global user.name **osc（gerrit网站，路径Settings的名字）
-git config --global user.email **osc@*.com（gerrit网站，路径Settings的邮箱）
+git config --global user. **osc@*.com（gerrit网站，路径Settings的邮箱）
 * 生成ssh key，并配置到gerrit（如果本地已经有ssh文件，就会生成不了）
 a 使用ssh-keygen -t rsa -C "**osc@*.com"命令生成ssh key（邮箱后缀为@*.com）；
 b 复制public key文件内容，public key路径如下：C:\Users\你的用户名\.ssh\id_rsa.pub；
@@ -464,7 +459,7 @@ ParcelFileDescriptor的getFile方法
 
 ### 代码提示@SuppressLint("NewApi")
 原因是有些api不适应低版本，如果在类的前面加这个标签，会导致低版本不兼容，而且不容易发现。
-解决方法：1、该类继续v7包兼容类。2、对类里面的方法进行版本兼容处理。
+解决方法：1、该类继承v7包兼容类。2、对类里面的方法进行版本兼容处理。
 
 ### 资源泄露：Resource leak
 TypedArray使用完没有调用：typedArray.recycle();
@@ -545,7 +540,6 @@ public SQLiteDatabase getReadableDatabase() {
         }
         String sql = "PRAGMA temp_store_directory = '" + tmpDirPath + "'";
         try {
-            // helper.getReadableDatabase().execSQL(sql);
             super.getReadableDatabase().execSQL(sql);
         } catch (Throwable e) {
             // ignore
@@ -726,9 +720,9 @@ a界面跳转b界面，b界面切换深色模式，a和b都会重新走页面的
 
 ### 下载大于int值字节的附件时，下载一半就不显示进度条。
 int属于Java中的整型，长度为4字节32bit，取值-2^31 （-2,147,483,648）到 2^31-1（2,147,483,647），变量初始化默认值为0，包装类Integer
-之前为：listener.loadAttachmentProgress(pos * 100 / size); 
+之前为：listener.loadProgress(pos * 100 / size); 
 这里的pos * 100大于int最大值的时候，是负数。
-现在改为：listener.loadAttachmentProgress((int) (pos / (float) size * 100));
+现在改为：listener.loadProgress((int) (pos / (float) size * 100));
 
 ### AES/ECB/PKCS5Padding加密改为AES/CBC/PKCS5Padding
 // AES加密算法、CBC(有向量模式)、PKCS5Padding: 加密内容不足8位用余位数补足8位

@@ -216,6 +216,7 @@ public class Provider extends ContentProvider {
         writer.println();
     }
 
+    // 这个SharedPreference的接口
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if ("".equals(key)) {

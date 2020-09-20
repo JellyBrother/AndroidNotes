@@ -31,7 +31,6 @@ pm install [options]	安装应用
 pm uninstall [options]	卸载应用
 adb shell pm clear 清除包数据
 C:\Users\72077879>adb shell "dumpsys activity | grep mResume" 查看当前页面
-    mResumedActivity: ActivityRecord{8466ad6 u0 com.google.android.gm/com.google.android.libraries.eas.onboarding.OnboardingActivity d0 s139 t139}
 
 Monkey命令
 说明：com.htc.Weather为包名，100是事件计数（即让Monkey程序模拟100次随机用户事件）。
@@ -159,6 +158,36 @@ adb pull /sdcard/DEVICE_STORAGE_OK.txt D:\
 在DEVICE_STORAGE_OK.txt文件里面统计邮件接收android.intent.action.DEVICE_STORAGE_OK广播的次数，之前是两次，现在是一次。
 ### adb连接
 如果确认电脑能够识别，先使用手机拨号盘------拨：*#558#*，进入工厂测试界面-----品质验证测试-----开发调试----勾选上调试端口
+### 查看内存
+adb shell dumpsys meminfo
+查看某apk的内存
+adb shell dumpsys meminfo 包名
+或者adb shell dumpsys meminfo pid
+adb shell dumpsys meminfo com.duowan.mobile
+### 查看cpu
+adb shell top -m 10 -s cpu   //按照cpu排序，显示前10个
+或者adb shell dumpsys cpuinfo
+### 查看电池电量
+adb shell dumpsys battery
+### adb远程连接
+ifconfig
+adb connect 192.168.31.196:5555
+adb disconnect 192.168.31.120
+### 设置（获取）IP、网关、dns信息，需要获取root权限
+[参考](https://blog.csdn.net/Liuqz2009/article/details/52094154?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~first_rank_v2~rank_v25-4-52094154.nonecase&utm_term=adb%E4%BF%AE%E6%94%B9ip%20android)
+[参考](https://blog.csdn.net/henni_719/article/details/62416537?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~first_rank_v2~rank_v25-3-62416537.nonecase&utm_term=adb%20ping%E5%91%BD%E4%BB%A4)
+[参考](https://blog.csdn.net/michaelwubo/article/details/48464757)
+adb shell
+netcfg
+ifconfig eth0 //查看eth0的ip
+getprop net.eth0.dns1 //查看eth0的dns
+ifconfig eth0 192.168.0.173 netmask 255.255.255.0 //设置eth0的ip
+route add default gw 192.168.0.1 dev eth0 //设置网关
+setprop net.eth0.dns1 8.8.8.8  //添加dns
+adb shell ping -c 4 www.baidu.com  //ping4次后停止ping
+
+
+
 
 
 

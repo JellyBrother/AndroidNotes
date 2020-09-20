@@ -1,0 +1,74 @@
+### API 的差异
+都是 Android 系统，在手机上能用的那一套 API，在智能电视上都可以用到。智能电视用到的 API，算是移动开发的一个补充。
+举个最简单的例子，在手机上操作，点击一个内容只有两态，普通态和按下态，而在电视上是有三态的，无焦点态、获取焦点态和按下态，这就需要在移动开发中根本不会用到的 android:focusableInTouchMode 属性来支持。
+另外还有一些对焦点的处理，例如焦点动画、焦点记录、焦点寻址等，虽然 Android 是以就近原则来计算方向操作时，下一个获取焦点的控件，但是有时候还是需要我们通过代码去控制它的寻址效果。
+
+### 涉及的工具
+只需要保证开发设备和调试设备，ADB 连接通畅，通过 ChromeADB，实现一些遥控器的简单上下左右的操作。
+
+### 音视频
+智能电视虽然可以安装一些 App，可最终还是要回归本质，看电视。大部分电视 App，都是围绕着音视频方向，做内容分发。
+有关音视频方向，简单点呢找个 Github 上的开源库封装一下也能用，但是不了解细节出了问题也很难排查。想要向这个方向研究，推荐一本前爱奇艺音视频方向专家何俊林的书《Android 音视频开发》。
+如果让我针对智能电视的音视频，只提一个建议，那肯定是慎用硬解，慎用硬解，慎用硬解。
+这很好理解，现在一台智能电视比很多手机都便宜，最大的成本占比在屏幕上，可想而知它的其他硬件，还不如小米几百块的手机。
+当你使用硬解的时候，在一些低端设备上的表现就不可控了，会碰到非常恶心的黑屏、马赛克、花屏等问题。所以如果你的经验没那么丰富，推荐直接使用软解。
+
+### 投屏协议
+智能电视联网后，我们就不必将看电视这个动作局限在直播中。要想将手机上的内容投到电视上播放，这就涉及到投屏的协议。
+市面上存在很多投屏的协议，但凡对投屏有点想法的都会定制一套投屏的协议。主流的只有两个 Google 的 DLNA 和 Apple 的 AirPlay，这已经是属于现在智能电视出厂时的标配。
+ConnectSDK 是一个全平台的 SDK，接入也有明确的文档和示例，这里就不详细讲解了。
+官网：http://connectsdk.com/
+Github：https://github.com/connectsdk
+
+### 本地服务
+还是为了解决电视上操作困难的问题，例如最简单的一个需求，想要把下载好的蓝光高清的电影，Copy 到电视上观看，操作难度都都不小。
+所以不少 App 都通过搭建本地服务的方式，方便用户在电视和其他设备之间传输文件。
+在 Android 上，开启一个 HTTP 服务的方法，有很多开源项目可供选择。
+这里推荐 nanohttpd，只需一个文件就可以在 Android 上实现一个本地的 HTTP 服务器。并且使用的人很多，上传文件、webserver 等已经被实现了，开箱即用。
+Github：https://github.com/NanoHttpd/nanohttpd
+
+### 检查电视设备
+public static boolean isTV(Context context) {
+    UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+    if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+### 检查硬件Features
+if (context.getPackageManager().hasSystemFeature("android.hardware.telephony")) {
+}
+
+### 获取焦点的前提
+View#isFocusable返回true, 如果在触摸模式, 则View#isFocusableInTouchMode也要返回true
+View及父View必须处于可见
+父View不能有FOCUS_BLOCK_DESCENDANTS属性
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
