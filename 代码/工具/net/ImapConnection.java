@@ -14,31 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.*.*.store;
-
 import android.text.TextUtils;
 import android.util.Base64;
-
-import com.android.*.DebugUtils;
-import com.android.*.*Application;
-import com.android.*.*.internet.AuthenticationCache;
-import com.android.*.*.store.ImapStore.ImapException;
-import com.android.*.*.store.imap.ImapConstants;
-import com.android.*.*.store.imap.ImapList;
-import com.android.*.*.store.imap.ImapResponse;
-import com.android.*.*.store.imap.ImapResponseParser;
-import com.android.*.*.store.imap.ImapUtility;
-import com.android.*.*.transport.DiscourseLogger;
-import com.android.*.*.transport.*Transport;
-import com.android.*common.Logging;
-import com.android.*common.*.AuthenticationFailedException;
-import com.android.*common.*.AuthenticationFailedException2;
-import com.android.*common.*.CertificateValidationException;
-import com.android.*common.*.Folder;
-import com.android.*common.*.MessagingException;
-import com.android.*.utils.LogUtils;
-import com.*.*.*Preferences;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

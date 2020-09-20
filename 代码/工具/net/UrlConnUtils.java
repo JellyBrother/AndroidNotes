@@ -1,5 +1,3 @@
-package com.*.net.urlconn;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

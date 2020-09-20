@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.exchange.service;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,22 +22,6 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
-
-import com.android.*common.Device;
-import com.android.*common.internet.MimeUtility;
-import com.android.*common.provider.Account;
-import com.android.*common.provider.*Content;
-import com.android.*common.provider.HostAuth;
-import com.android.*common.utility.*ClientConnectionManager;
-import com.android.*common.utility.StackTraceDumper;
-import com.android.exchange.Eas;
-import com.android.exchange.EasResponse;
-import com.android.exchange.eas.EasConnectionCache;
-import com.android.exchange.utility.CurlLogger;
-import com.android.exchange.utility.WbxmlResponseLogger;
-import com.android.*.utils.LogUtils;
-import com.*.*.content.ContentExs;
-import com.*.library.coroutinex.jvm.SimpleExecutorJvm;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;

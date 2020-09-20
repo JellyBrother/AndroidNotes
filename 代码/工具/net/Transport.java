@@ -13,22 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.android.*.*.transport;
-
 import android.content.Context;
 import android.text.TextUtils;
-
-import com.android.*.DebugUtils;
-import com.android.*common.Logging;
-import com.android.*common.*.CertificateValidationException;
-import com.android.*common.*.MessagingException;
-import com.android.*common.provider.HostAuth;
-import com.android.*common.utility.SSLUtils;
-import com.android.*.analytics.Analytics;
-import com.android.*.utils.LogUtils;
-import com.*.*.common.request.ffpm.FFPMLocaleRequest;
-import com.*.*.lang.StringEx;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

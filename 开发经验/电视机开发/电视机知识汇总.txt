@@ -46,6 +46,12 @@ View#isFocusable返回true, 如果在触摸模式, 则View#isFocusableInTouchMod
 View及父View必须处于可见
 父View不能有FOCUS_BLOCK_DESCENDANTS属性
 
+### 屏幕适配
+values-3840x2160 新建一些尺寸文件夹，存放尺寸，以px为单位
+有些地方测量宽高，动态设置。
+LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(lineCheckImageWith, lineImageHeight);
+layoutParams.setMargins(0, 0, lineImageMargin, 0);
+ivws.setLayoutParams(layoutParams);
 
 
 

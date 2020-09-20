@@ -14,28 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.*.*.transport;
-
 import android.content.Context;
 import android.util.Base64;
-
-import com.android.*.*.Sender;
-import com.android.*.*.internet.AuthenticationCache;
-import com.android.*common.Logging;
-import com.android.*common.internet.Rfc822Output;
-import com.android.*common.*.Address;
-import com.android.*common.*.AuthenticationFailedException;
-import com.android.*common.*.CertificateValidationException;
-import com.android.*common.*.MessagingException;
-import com.android.*common.provider.Account;
-import com.android.*common.provider.Credential;
-import com.android.*common.provider.*Content;
-import com.android.*common.provider.*Content.Message;
-import com.android.*common.provider.HostAuth;
-import com.android.*common.utility.EOLConvertingOutputStream;
-import com.android.*.utils.LogUtils;
-import com.*.*.data.AppDataManager;
-import com.*.*.lang.StringEx;
 
 import java.io.IOException;
 import java.net.Inet6Address;

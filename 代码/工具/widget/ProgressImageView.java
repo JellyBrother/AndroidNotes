@@ -1,5 +1,3 @@
-package com.*.weight;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -9,9 +7,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
-
-import com.*.R;
-import com.*.utils.IPreferences;
 
 public class ProgressImageView extends ImageView {
     private Resources resources;
