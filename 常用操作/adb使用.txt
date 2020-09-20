@@ -132,7 +132,6 @@ adb shell cat /sys/class/net/wlan0/address
 7c:7d:**:**:**:**
 ### 查看设备型号
 adb shell getprop ro.product.model
-HUAWEI RIO-AL00
 ### 查看 Android 系统版本
 adb shell getprop ro.build.version.release
 9.0

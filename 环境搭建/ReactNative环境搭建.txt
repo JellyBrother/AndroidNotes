@@ -89,7 +89,4 @@ npm config delete proxy
 
 C:\Users\Shinelon>npm config set no-proxy .*.com
 
-C:\Users\Shinelon>npm config set registry http://*w3cloudkg*-sit1.*huawei*.com/ccloud/nexus/content/groups/npm-all/
-
-
 npm install -g angular-cli

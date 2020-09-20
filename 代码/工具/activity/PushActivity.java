@@ -681,7 +681,7 @@ public class PushActivity extends BaseDetailActivity<PushViewModel> {
             dialog.setCancelable(false);
             dialog.getLeftButton().setTextColor(getResources().getColor(R.color.*_gray9));
             dialog.getLeftButton().setTypeface(Typeface.DEFAULT);
-            dialog.getRightButton().setTextColor(getResources().getColor(R.color.welink_main_color));
+            dialog.getRightButton().setTextColor(getResources().getColor(R.color.));
             dialog.getRightButton().setTypeface(Typeface.DEFAULT);
             dialog.setMsg(getString(R.string.*__draft_tips));
             dialog.setNegativeButton(getString(R.string.*__clear_draft), new View.OnClickListener() {

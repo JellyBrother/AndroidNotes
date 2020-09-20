@@ -34,8 +34,8 @@ TraceView、SystemTrace
     1）Before: PointCut之前执行
     2）After: PointCut之后执行
     3）Around: PointCut之前、之后分别执行
- 过滤显示耗时 Displayed com.android.mms/.ui.ConversationList
- 启动时间统计： adb shell am start -S -R 5 -W com.android.mms/.ui.ConversationList 
+ 过滤显示耗时 Displayed */.ui.ConversationList
+ 启动时间统计： adb shell am start -S -R 5 -W */.ui.ConversationList 
 
 
 

@@ -17,7 +17,7 @@ implementation 'org.aspectj:aspectjrt:1.8.9'
 public class TimeCounterAop {
     private final static String TAG = TimeCounterAop.class.getSimpleName();
 
-    @Around("execution(* com.android.mms.MmsApplication.**(..))")
+    @Around("execution(* *.Application.**(..))")
     public void onMmsApplicationMethodAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         processMethod(proceedingJoinPoint);
     }

@@ -1,4 +1,3 @@
-package com.vivo.email;
 
 import org.junit.After;
 import org.junit.AfterClass;
