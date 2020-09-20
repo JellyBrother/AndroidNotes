@@ -1,4 +1,3 @@
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -7,7 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class ExampleUnitTest {
-    private String mark = "";
+    private String mark = "ExampleUnitTest";
 
     @Before
     public void testBefore() {

@@ -22,3 +22,5 @@ insert into stuinfo(sid,sname,sclass) values (3,'码仙3',1003);
 
 
 
+
+

@@ -123,6 +123,7 @@
 [按键焦点分析与实战应用](https://www.jianshu.com/p/97a22c035268)
 [Android TV开发 开源项目收集](https://blog.csdn.net/jun5753/article/details/78662918)
 [Android TV开发 开源项目收集](https://gitee.com/kumei/Android_tv_libs)
+[Android TV开发 开源项目收集](https://www.jianshu.com/p/b286e087b074)
 [Android屏幕适配](https://mp.weixin.qq.com/s/d9QCoBP6kV9VSWvVldVVwA)
 
 ### 音视频
@@ -142,6 +143,8 @@ RTC技术：
 
 ### 设计模式
 [23种设计模式](http://c.biancheng.net/design_pattern/)
+
+
 
 
 

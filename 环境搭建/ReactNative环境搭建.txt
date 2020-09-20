@@ -90,3 +90,4 @@ npm config delete proxy
 C:\Users\Shinelon>npm config set no-proxy .*.com
 
 npm install -g angular-cli
+

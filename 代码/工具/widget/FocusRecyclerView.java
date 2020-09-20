@@ -51,7 +51,6 @@ public class FocusRecyclerView extends RecyclerView {
         } else {
             return super.dispatchKeyEvent(event);
         }
-
         if (this.getChildAt(0) == null) {
             return super.dispatchKeyEvent(event);
         }
