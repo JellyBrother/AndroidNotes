@@ -19,7 +19,6 @@ Retained Heap 保留堆，是指当前类被回收时垃圾回收器应该回收
 with outgoing references 内部持有哪些对象
 with incoming references 被哪些对象持有
 
-
 ### 之前处理的经验-不一定是内存溢出的经验
 * 用异常捕获
 * 放子线程
@@ -56,6 +55,10 @@ with incoming references 被哪些对象持有
 - 创建内部类的地方用静态。
 WeakReference<Activity> ref = new WeakReference<Activity>(this);
 Activity activity = ref.get();
+
+
+
+
 
 
 
