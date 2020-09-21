@@ -832,6 +832,9 @@ observable.subscribeOn(Schedulers.io())
         .subscribe(subscriber);
 * 添加多个局部变量，先置为false，在各个线程执行完毕后，判断这些变量统一为true时，再处理。
 * 使用锁，先wait，各个线程执行完毕后，各自调用notify，都notify了就会自动执行。
+创建线程的构造函数时传入锁和list，并在线程内置为全局变量，总入口创建线程1，线程2，锁，list，从而实现list的同步。
+需要注意的是lock.wait()地方要避免执行不全或者执行不到的问题（不要放到判断语句内，实在需要，可以多个地方wait或者死循环wait）。
+* Condition是个接口，基本的方法就是await()和signal()方法
 * 通过线程池submit方法拿到Future，future.get()来得到执行结果，get是堵塞的，会一直等待线程执行完毕，然后处理。
 Future<String> future = mThreadPool.submit(new Runnable() {
     @Override
@@ -866,8 +869,46 @@ fun main() {
     }
     println("上面的协程代码并不会阻塞掉线程")
 }
+* 使用CountDownLatch
+* 使用volatile和while语句轮询
+给List添加volatile，一个线程执行List添加，另外一个线程B死循环判断集合大小，当判断成立后抛出异常中断循环，并进行捕获。
 
 ### swapper或sched的进程ID为0，负责分页，实际上是内核的一部分，而不是普通的用户模式进程。进程ID 1通常是初始化进程（init），主要负责启动和关闭系统
+
+### onSaveInstanceState和onRestoreInstanceState
+onSaveInstanceState 
+当Activity可能被异常销毁，系统会调用onSaveInstanceState()方法来保存当前Activity的状态，这个方法的调用时机在onStop()之前，和onPause()没有既定的时序关系，可能在之前，也可能在之后调用
+onRestoreInstanceState()
+Activity被异常销毁后重新创建时，系统调用onRestoreInstanceState()，把onSaveInstanceState()之前所保存的Bundle对象作为参数传给onRestoreInstanceState()和onCreate()方法，进行数据和状态的恢复，按照时序上来说，onRestoreInstanceState()的调用时机在onStart()之后；
+如果只是回到桌面，然后再返回。是会onSaveInstanceState，但是不会调用onRestoreInstanceState，所以设值最好再onResume
+
+### CountDownLatch
+countdownlatch 是一个同步类工具，不涉及锁定，当count的值为零时当前线程继续运行，不涉及同步，只涉及线程通信的时候，使用它较为合适
+主线程main被end.await();阻塞，两个副线程继续往下运行，因为benin已经为0，所以不阻塞，操作两次end的downcount之后，主线程继续往下执行。如果不理解可以将线程数改成3试一下
+注：end.countDown() 可以在多个线程中调用 计算调用次数是所有线程调用次数的总和
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

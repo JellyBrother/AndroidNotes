@@ -27,6 +27,7 @@
 [java内存模型](https://www.jianshu.com/p/15106e9c4bf3)
 [java加密](https://www.cnblogs.com/caizhaokai/p/10944667.html)
 [JAVA小细节](https://www.cnblogs.com/zhuchunlei/p/9802132.html)
+[多线程](https://blog.csdn.net/u011635492/article/details/83043212)
 [ConcurrentHashMap](https://blog.csdn.net/u012403290/article/details/67636469)
 
 ### 代码仓库地址
