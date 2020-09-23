@@ -936,10 +936,47 @@ public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail)
     return false;
 }
 
+### RxJava2的switchIfEmpty操作不了list == null || list.isEmpty()的情况
+observable1.switchIfEmpty(observer2);
+* 首先RxJava对list == null就有判空处理，直接报错的，所以observable1数据不能传null，内部判空new ArrayList()。
+* list.isEmpty()时需要filter过滤处理
+ observable1.filter(new Func1<List, Boolean>() {
+    @Override
+    public Boolean call(ArrayList list) {
+        if (list == null || list.isEmpty()) {
+            return true;// 注意返回true才是执行switchIfEmpty(observer2)的关键
+        }
+        return false;
+    }
+}).switchIfEmpty(observer2);
 
+### 安卓判断网络连接mNetworkInfo.isAvailable()有问题，实际上有网络，而api却返回false。
+public boolean isNetworkConnected(Context context) {  
+    if (context == null) {
+        return false;  
+    }
+    ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);  
+    if (mConnectivityManager == null) {
+        return false;  
+    }
+    NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();  // 获取当前活跃的网络信息，老的废弃了
+    if (mNetworkInfo == null) {
+        return false;  
+    }
+    // return mNetworkInfo.isAvailable();  // 网络是否可用，网上大多推荐这个api，其实不对，framwork有问题，会判断不准确。
+    return mNetworkInfo.isConnected();  // 推荐使用这个api，网络是否连接
+} 
 
-
-
+### 安卓分区存储
+* https://www.jianshu.com/p/271bbd13bfcf
+公有目录：Downloads、Documents、Pictures 、DCIM、Movies、Music、Ringtones等，仍然使用READ_EXTERNAL_STORAGE和WRITE_EXTERNAL_STORAGE作为存储相关运行时权限。
+地址：/storage/emulated/0/Downloads(Pictures)等公有目录下的文件不会跟随APP卸载而删除。
+APP私有目录
+地址：/storage/emulated/0/Android/data/包名/files
+* 所有文件只能存放在私有目录或者安卓指定的公有目录,私有目录是随便存取的，共有目录只能通过特定api进行存取，特定目录的文件格式会发生改变，下载目录是.tmp格式文件，没法展示在图片列表。
+* 问题复现步骤：安卓11.0-清除应用缓存-卸载应用-删除根目录文件夹-重新安装-下载文件-当调用到file.exists的时候是false，file.mkdirs的时候也是false。
+解决：* 不适配：targetSdkVersion 28就行，如果是targetSdkVersion 29 就需要加上<android:requestLegacyExternalStorage="true">
+* 需要跟需求确认是否适配分区存储，需要整理最新的方案。使用getContentResolver进行insert和openFileDescriptor和delete和openInputStream
 
 
 
