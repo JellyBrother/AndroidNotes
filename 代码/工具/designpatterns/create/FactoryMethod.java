@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.create;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 工厂方法模式”是对简单工厂模式的进一步抽象化，其好处是可以使系统在不修改原来代码的情况下引进新的产品，即满足开闭原则。
  * 优点：
@@ -11,7 +13,7 @@ package com.jelly.app.main.designpatterns.create;
  * 增加了系统的抽象性和理解难度
  * 抽象产品只能生产一种产品，此弊端可使用抽象工厂模式解决。
  */
-public class FactoryMethod {
+public class FactoryMethod implements ITest {
 
     public interface IProduct {
         void show();
@@ -83,5 +85,12 @@ public class FactoryMethod {
             }
             return product;
         }
+    }
+
+    @Override
+    public void test() {
+        IFactory factory1 = new Factory1();
+        IProduct product = factory1.newProduct(FactoryMethod.Factory1.FACTORY_TYPE1);
+        product.show();
     }
 }

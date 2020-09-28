@@ -1,3 +1,35 @@
+### 目录结构
+```
+└───designpatterns/             // 设计模式
+  ├───behavioral/               // 行为型模式
+   ├───TemplateMethod           // 模板方法
+   ├───StrategyPattern          // 策略
+   ├───CommandPattern           // 命令模式
+   ├───ChainResponsibilityPattern           // 职责链模式
+   ├───StatePattern             // 状态
+   ├───ObserverPattern          // 观察者模式
+   ├───MediatorPattern          // 中介者模式
+   ├───IteratorPattern          // 迭代器模式
+   ├───VisitorPattern           // 访问者模式
+   ├───MementoPattern           // 备忘录模式
+   └───InterpreterPattern       // 解释器
+  ├───create/                   // 创建型模式
+   ├───AbstractFactory          // 抽象工厂
+   ├───BuilderPattern           // 建造者
+   ├───BuilderPattern2          // 建造者
+   ├───FactoryMethod            // 工厂方法模式
+   ├───SimpleFactory            // 简单工厂模式
+   └───Singleton                //单例
+  └───structural/               //结构型模式
+   ├───AdapterPattern           // 适配器模式
+   ├───BridgePattern            // 桥接
+   ├───CompositePattern         // 组合
+   ├───DecoratorPattern         // 装饰
+   ├───FacadePattern            // 外观
+   ├───FlyweightPattern         // 享元
+   └───ProxyPattern             //代理模式的定义
+```
+
 ### 设计模式
 http://c.biancheng.net/view/1369.html
 可分为创建型模式、结构型模式和行为型模式 3 种。

@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.structural;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 装饰（Decorator）模式的定义：指在不改变现有对象结构的情况下，动态地给该对象增加一些职责（即增加其额外功能）的模式，它属于对象结构型模式。
  * 装饰（Decorator）模式的主要优点有：
@@ -7,7 +9,7 @@ package com.jelly.app.main.designpatterns.structural;
  * 可以设计出多个不同的具体装饰类，创造出多个不同行为的组合。
  * 其主要缺点是：装饰模式增加了许多子类，如果过度使用会使程序变得很复杂。
  */
-public class DecoratorPattern {
+public class DecoratorPattern implements ITest {
 
     public interface ICar {
         void run();
@@ -61,5 +63,13 @@ public class DecoratorPattern {
             // 装饰后执行
             System.out.println("affter FuTeCar run");
         }
+    }
+
+    @Override
+    public void test() {
+        FuTeCar fuTeCar = new FuTeCar();
+        fuTeCar.run();
+        RedCar redCar = new RedCar(fuTeCar);
+        redCar.run();
     }
 }

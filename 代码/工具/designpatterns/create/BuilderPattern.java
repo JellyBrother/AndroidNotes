@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.create;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 建造者（Builder）模式的定义：指将一个复杂对象的构造与它的表示分离，使同样的构建过程可以创建不同的表示，这样的设计模式被称为建造者模式。它是将一个复杂的对象分解为多个简单的对象，然后一步一步构建而成。它将变与不变相分离，即产品的组成部分是不变的，但每一部分是可以灵活选择的。
  * 优点如下：
@@ -11,7 +13,7 @@ package com.jelly.app.main.designpatterns.create;
  * 如果产品的内部变化复杂，如果产品内部发生变化，则建造者也要同步修改，后期维护成本较大。
  * 这种建造者模式，可以复用已有对象的参数，任意设置参数。
  */
-public class BuilderPattern {
+public class BuilderPattern implements ITest {
 
     public static final class Product {
         private String partA;
@@ -86,5 +88,17 @@ public class BuilderPattern {
                 return new Product(this);
             }
         }
+    }
+
+    @Override
+    public void test() {
+        Product product = new Product.Builder()
+                .partA("aa").partB("bb").partC("cc")
+                .builder();
+        product.show();
+        Product product2 = product.newBuilder()
+                .partA("aaaa").partB("bbbb")
+                .builder();
+        product2.show();
     }
 }

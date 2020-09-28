@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.create;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 简单工厂模式
  * 工厂模式的定义：定义一个创建产品对象的工厂接口，将产品对象的实际创建工作推迟到具体子工厂类当中。这满足创建型模式中所要求的“创建与使用相分离”的特点。
@@ -13,7 +15,7 @@ package com.jelly.app.main.designpatterns.create;
  * 系统扩展困难，一旦增加新产品不得不修改工厂逻辑，在产品类型较多时，可能造成逻辑过于复杂
  * 简单工厂模式使用了 static 工厂方法，造成工厂角色无法形成基于继承的等级结构。
  */
-public class SimpleFactory {
+public class SimpleFactory implements ITest {
 
     public interface IProduct {
         void show();
@@ -51,5 +53,12 @@ public class SimpleFactory {
             }
             return product;
         }
+    }
+
+    @Override
+    public void test() {
+        Factory factory = new Factory();
+        IProduct product = factory.newProduct(SimpleFactory.Factory.FACTORY_TYPE1);
+        product.show();
     }
 }

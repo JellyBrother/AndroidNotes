@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.structural;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 代理模式的定义：由于某些原因需要给某对象提供一个代理以控制对该对象的访问。这时，访问对象不适合或者不能直接引用目标对象，代理对象作为访问对象和目标对象之间的中介。
  * 代理模式的主要优点有：
@@ -11,7 +13,7 @@ package com.jelly.app.main.designpatterns.structural;
  * 在客户端和目标对象之间增加一个代理对象，会造成请求处理速度变慢；
  * 增加了系统的复杂度；
  */
-public class ProxyPattern {
+public class ProxyPattern implements ITest {
 
     public interface INetWork {
         void request();
@@ -45,5 +47,11 @@ public class ProxyPattern {
         private void endRequest() {
             System.out.println("Proxy endRequest");
         }
+    }
+
+    @Override
+    public void test() {
+        Proxy proxy = new Proxy();
+        proxy.request();
     }
 }

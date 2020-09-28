@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.structural;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 桥接（Bridge）模式的定义如下：将抽象与实现分离，使它们可以独立变化。它是用组合关系代替继承关系来实现，从而降低了抽象和实现这两个可变维度的耦合度。
  * 桥接（Bridge）模式的优点是：
@@ -7,7 +9,7 @@ package com.jelly.app.main.designpatterns.structural;
  * 其实现细节对客户透明。
  * 缺点是：由于聚合关系建立在抽象层，要求开发者针对抽象化进行设计与编程，这增加了系统的理解与设计难度。
  */
-public class BridgePattern {
+public class BridgePattern implements ITest {
 
     public interface ICar {
         void run();
@@ -42,5 +44,12 @@ public class BridgePattern {
             iCar.run();
             System.out.println("F2Car video");
         }
+    }
+
+    @Override
+    public void test() {
+        F1Car f1Car = new F1Car();
+        F2Car f2Car = new F2Car(f1Car);
+        f2Car.video();
     }
 }

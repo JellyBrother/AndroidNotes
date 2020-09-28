@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.structural;
 
+import com.jelly.app.main.designpatterns.ITest;
+
 /**
  * 外观（Facade）模式的定义：是一种通过为多个复杂的子系统提供一个一致的接口，而使这些子系统更加容易被访问的模式。该模式对外有一个统一接口，外部应用程序不用关心内部子系统的具体的细节，这样会大大降低应用程序的复杂度，提高了程序的可维护性。
  * 外观（Facade）模式是“迪米特法则”的典型应用，它有以下主要优点。
@@ -10,7 +12,7 @@ package com.jelly.app.main.designpatterns.structural;
  * 不能很好地限制客户使用子系统类。
  * 增加新的子系统可能需要修改外观类或客户端的源代码，违背了“开闭原则”。
  */
-public class FacadePattern {
+public class FacadePattern implements ITest {
 
     public static class SystemManager {
         private static final SystemManager instance = new SystemManager();
@@ -20,8 +22,8 @@ public class FacadePattern {
         }
 
         // 这里可以对内部子系统进行抽取，对外暴露接口访问。
-        private System1 system1;
-        private System2 system2;
+        private ISystem1 system1;
+        private ISystem2 system2;
 
         private SystemManager() {
             FacadePattern facadePattern = new FacadePattern();
@@ -35,15 +37,32 @@ public class FacadePattern {
         }
     }
 
-    public class System1 {
+    public interface ISystem1 {
+        void sayHello1();
+    }
+
+    public interface ISystem2 {
+        void sayHello2();
+    }
+
+    public class System1 implements ISystem1 {
+
+        @Override
         public void sayHello1() {
             System.out.println("System1 sayHello1");
         }
     }
 
-    public class System2 {
+    public class System2 implements ISystem2 {
+
+        @Override
         public void sayHello2() {
             System.out.println("System2 sayHello2");
         }
+    }
+
+    @Override
+    public void test() {
+        SystemManager.getInstance().show();
     }
 }

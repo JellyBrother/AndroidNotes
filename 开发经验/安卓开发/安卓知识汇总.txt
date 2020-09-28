@@ -887,6 +887,52 @@ countdownlatch 是一个同步类工具，不涉及锁定，当count的值为零
 主线程main被end.await();阻塞，两个副线程继续往下运行，因为benin已经为0，所以不阻塞，操作两次end的downcount之后，主线程继续往下执行。如果不理解可以将线程数改成3试一下
 注：end.countDown() 可以在多个线程中调用 计算调用次数是所有线程调用次数的总和
 
+### 计算UI给的一张图片，在手机中实际占用内存大小
+以一张112px*131px的图片（png和jpg格式）在1080px（宽）*1920px（高）像素的6英寸（对角线）手机为例：
+屏幕大小：指屏幕对角线的长度，使用“寸”度量，如6英寸手机
+分辨 率：分辨率指手机屏幕的像素点个数，如1080px（宽）*1920px（高）
+每英寸像素：Pixels per Inch 又称为DPI（Dots Per Inch）,即屏幕密度，由对角线像素点数除以屏幕大小 得到，通常达到400PPI已经是非常高的屏幕密度
+每英寸的像素 = 1080px*1080px+1920px*1920px 开平方后除以6=1166400+3686400=4852800开平方=2203/6=367
+独立像素密度dp：density-independent pixel(密度无关像素)各种屏幕密度不同导致同样像素大小的长度，在不同密度的屏幕上的显示长度不同，
+相同长度的屏幕高密度屏幕包含更多像素点，android 系统使用mdpi即密度值为160的屏幕作为标准，在这个屏幕上1px=1dp，
+因此我们可以使用不同密度的比例计算出对应屏幕的px与dp比例关系。
+dp/dip：全称是Density-independent pixel ，中文名是 “密度无关像素”  dip = px / (dpi / 160) 屏幕密度为160时，1px=1dp
+各个文件夹对应的尺寸
+assets（density是160，densityDpi是1倍）
+drawable(density是160，densityDpi是1倍)，
+drawable-ldpi（分辨率240*320，density是0-120，densityDpi是0.75倍），
+drawable-mdpi（分辨率320*480，density是120-160，densityDpi是1倍），
+drawable-hdpi（分辨率480*800，density是160-240，densityDpi是1.5倍），
+drawable-xhdpi（分辨率720*1080，density是240-320，densityDpi是2倍），
+drawable-xxhdpi（分辨率1080*1920，density是320-480，densityDpi是3倍），
+drawable-xxxdpi（最高分辨率，density是480-640，densityDpi是4倍）
+市面上大多数是1080*1920的手机了，一般设计也是在这个像素上面切图，对应文件夹是drawable-xxhdpi
+112px*131px的png图片，图片格式是ARGB_8888，电脑上面显示20.57kb
+实际程序加载的bitmap大小是:112*131*4 = 58688B，因为带有半透明，背景色会随控件背景色变化
+Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"));// 不设置，默认是8888
+112px*131px的jpg图片，图片格式是RGB_565，电脑上面显示20.57kb
+实际程序加载的bitmap大小是:112*131*2 = 29344，变小的原因是没有了A通道（半透明），背景默认是白色的了
+Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"), null, Option().also{
+    it.inPreferredconfig = Bitmap.Config.RGB_565 
+});
+如果这张png图片是在drawable-xxhdpi（分辨率1080*1920，density是320-480，densityDpi是3倍）切的，
+那在1080px（宽）*1920px（高）像素的6英寸手机的实际占用内存大小是：58688/3*（367/160）= 44799
+367/160 = 2.29 是这台手机对应的实际倍数，对应的3倍是理论倍数。
+看需要适配多少机型：需要适配720手机就切720图片，放drawable-xhdpi文件夹下面，1080切的图片就放drawable-xxhdpi文件夹下，不要放混和少图片就行。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

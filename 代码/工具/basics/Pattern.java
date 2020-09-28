@@ -1,4 +1,4 @@
-package com.jelly.app.main.designpatterns.structural;
+package com.jelly.app.main.basics;
 
 public class Pattern {
 
