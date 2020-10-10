@@ -989,10 +989,38 @@ SparseArray存的时候是put(key,value);，取的时候用的valueAt(position)�
 * 所有子控件设置不能点击android:enabled = "false"
 * 父控件onInterceptTouchEvent和onTouchEvent都返回true，消费掉事件。
 
+### SharePreference
+* SharePreferences不支持多进程
+Google并不希望SharePreferences用于多进程，因为不安全，commit函数一般会在当前线程直接写文件，而apply则提交一个事务到已给线程池，之后直接返回。
+SharePreferences在新建的有个mode参数，可以指定它的加载模式，MODE_MULTI_PROCESS是Google提供的一个多进程模式
+* SharePreferences的commit与apply一个是同步一个是异步（大部分场景下）
+* 不要使用SharePreferences存储太大的数据
+读取xml配置，如果其他线程想要在读取之前就是用的话，就会被阻塞，一直wait等待，直到数据读取完成。--是同步的
+使用xml解析工具XmlUtils，直接在当前线程读取xml文件，如果xml文件稍大，尽量不要在主线程读取，读取完成之后，xml中的配置项都会被加载到内存，再次访问的时候，其实访问的是内存缓存。
 
-
-
-
+### SharePreference可以跨进程吗
+* 跨进程一般使用ContentProvider，没有用过SharePreference进行跨进程。
+* 网上说多进程不安全。
+可以通过SharePreference先取出来，然后给ContentProvider分享。另外一个获取到后，进行存储。
+* 非要用的流程：
+- 清单文件的apllication配置android:sharedUserId="com.xxx"，需要共享的双方配置一样的sharedUserId
+- 存值
+SharedPreferences preferences = context.getSharedPreferences(USER_LISTS, Context.MODE_PRIVATE);
+SharedPreferences.Editor edit = preferences.edit();
+edit.putString(key, value);
+edit.commit();
+- 取值
+Context pkgContext =null;
+try {
+    pkgContext =   createPackageContext("com.netease.nim.demo", CONTEXT_IGNORE_SECURITY);
+} catch (PackageManager.NameNotFoundException e) {
+}
+if(pkgContext !=null){
+    SharedPreferences preferences = pkgContext.getSharedPreferences("userlists", Context.MODE_MULTI_PROCESS);
+    String userbeans = preferences.getString("userbeans", null);
+}
+- 注意事项：打包apk时，如果出现  INSTALL_FAILED_SHARED_USER_COMPATIBLE 错误提示，请确认已安装的应用已卸载（未添加sharedUserId版本）。
+两个应用是否在使用同一个debug—keystone签名 
 
 
 

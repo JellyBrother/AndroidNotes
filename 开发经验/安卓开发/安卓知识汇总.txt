@@ -920,6 +920,48 @@ Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"), null, Option()
 367/160 = 2.29 是这台手机对应的实际倍数，对应的3倍是理论倍数。
 看需要适配多少机型：需要适配720手机就切720图片，放drawable-xhdpi文件夹下面，1080切的图片就放drawable-xxhdpi文件夹下，不要放混和少图片就行。
 
+### Loop
+* 在安卓30中，子线程可以更新按钮和文本（存一度怀疑），但是不能弹框，调用Looper.prepare();和Looper.loop();就可以。
+* 子线程调用Looper.prepare();和Looper.loop();更新UI，会导致该子线程无法销毁（因为Looper是死循环），从而堵塞线程池的队列，最终导致异常，触发线程池相应的策略。
+* 一个应用可以有多个进程，一个进程只有一个主线程，一个主线程(也叫UI线程)只有一个Looper。一个线程只能有一个Looper，多个线程可以有多个Looper。
+* Looper是MessageQueue的管理者。每一个MessageQueue都不能脱离Looper而存在，Looper对象的创建是通过prepare函数来实现的。同时每一个Looper对象和一个线程关联。
+
+### Android如何保证一个线程最多只能有一个Looper？
+* Looper的构造方法为private，所以不能直接使用其构造方法创建。
+若在已有Looper的线程中调用Looper.prepare()会抛出RuntimeException(“Only one Looper may be created per thread”)。
+* prepare()方法中调用了ThreadLocal的get和set方法实现线程安全，所以整个过程没有添加同步锁。
+可以将ThreadLocal理解为一块存储区，将这一大块存储区分割为多块小的存储区，每一个线程拥有一块属于自己的存储区，那么对自己的存储区操作就不会影响其他线程。对于ThreadLocal<Looper>，则每一小块存储区中就保存了与特定线程关联的Looper。
+
+### Android中为什么主线程不会因为Looper.loop()里的死循环卡死？（Linux的pipe/epoll机制）
+在主线程的MessageQueue没有消息时，便阻塞在loop的queue.next()中的nativePollOnce()方法里，
+此时主线程会释放CPU资源进入休眠状态，直到下个消息到达或者有事务发生，通过往pipe管道写端写入数据来唤醒主线程工作。
+这里采用的epoll机制，是一种IO多路复用机制，可以同时监控多个描述符，当某个描述符就绪(读或写就绪)，则立刻通知相应程序进行读或写操作，
+本质同步I/O，即读写是阻塞的。 所以说，主线程大多数时候都是处于休眠状态，并不会消耗大量CPU资源。
+
+### 主线程和子线程通信
+* 主线程创建Handler，Handler会自动关联主线程的Looper和MessageQueue（每个线程只有一个）。
+* 子线程调用 mHandler.sendMessage(message);的时候，最终调用enqueueMessage，将message放入MessageQueue
+* 而主线程的Looper会死循环，监听到有消息时，会主动从MessageQueue中取，从而实现了通信。
+
+### 子线程和子线程中使用Handler通信
+* 在子线程1中创建Handler1，在子线程2中通过Handler1发送消息，在Handler1的handleMessage就是子线程1的执行。
+* 要子线程创建Handler：
+- Handler handler = new Handler(Looper.getMainLooper());// 还是主线程的Handler
+- Handler handler = new Handler(Looper.myLooper());// 子线程的Handler
+- Looper.prepare();Handler handler = new Handler();Looper.loop();// 子线程的Handler
+* 但是没法实现信息交互，就像主线程和子线程一样，主线程没法将获取到的message再处理后传值给子线程。（只能加锁等待）
+
+### Looper
+* Looper.loop();后面的代码不会执行，因为Looper.loop();会堵塞线程，需要先调用quit退出才能执行。
+handler.getLooper().quit();或者Looper.myLooper().quit();// 参考HandlerThread
+* Looper.loop();会堵塞线程，因为此时子程序已经切换到了主线程，从而可以在Looper.prepare()后执行UI操作。而且必须Looper.loop();才能真正显示。
+* 每个线程只有一个Looper，是通过ThreadLocal来保证的，ThreadLocal会是线程的暂存区域。当线程创建Looper的时候会判断ThreadLocal是否有了，有的话会抛异常。
+if (sThreadLocal.get() != null) 
+    throw new RuntimeException("Only one Looper may be created per thread");
+
+### 上下文
+
+### window
 
 
 
