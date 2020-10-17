@@ -1,0 +1,80 @@
+### 建立父类Head
+里面封装LinkedHashMap，头部的各个参数使用get和set方法进行封装。
+举例：
+public void setCookie(String cookie) {
+	if (TextUtils.isEmpty(cookie)) {
+		return;
+	}
+	// 其实都不用判断，put方法就应该有判断
+	mMap.put("cookie",cookie);
+}
+
+public String getCookie() {
+	return mMap.get(cookie);
+}
+
+### RequestHead
+继承Head，提供各个方法返回Map，各个方法对应各个请求默认的头部。
+举例：
+public Map getFansRequestHead() {
+	setCookie(DataSaveUtil.getCookie());
+	setTooken("222");
+	...
+	return mMap;
+}
+
+### ResponseHead
+继承Head，提供各个方法解析String，进行设值，并对应的存储。
+举例：
+public void setResponseHead(String jsonString) {
+	try {
+		JSONObject jsonObject = new JSONObject(jsonString);
+		String cookie = jsonObject.optString("cookie");
+		if (!TextUtils.isEmpty(cookie)) {
+			// 其实都不用判断，put方法就应该有判断
+			mMap.put("cookie",cookie);
+			DataSaveUtil.saveCookie()
+		}
+		...
+	} catch (Exception e) {
+		e.printStackTrace();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

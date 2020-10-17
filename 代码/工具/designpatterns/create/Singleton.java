@@ -1,5 +1,7 @@
 package com.jelly.app.main.designpatterns.create;
 
+import java.io.Serializable;
+
 /**
  * 单例（Singleton）模式的定义：指一个类只有一个实例，且该类能自行创建这个实例的一种模式。例如，Windows 中只能打开一个任务管理器，这样可以避免因打开多个任务管理器窗口而造成内存资源的浪费，或出现各个窗口显示内容的不一致等错误。
  * 单例模式的优点：
@@ -12,59 +14,91 @@ package com.jelly.app.main.designpatterns.create;
  * 单例模式的功能代码通常写在一个类中，如果功能设计不合理，则很容易违背单一职责原则。
  */
 public class Singleton {
+    /**
+     * 饿汉式
+     */
+    public static class HungrySingleton {
+        private static final HungrySingleton INSTANCE = new HungrySingleton();
+
+        private HungrySingleton() {
+        }
+
+        public static HungrySingleton getInstance() {
+            return INSTANCE;
+        }
+    }
+
+    /**
+     * 饿汉式
+     */
+    public static class HungrySingleton2 implements Serializable {
+        private static final long serialVersionUID = 6133201454552796162L;
+
+        private static HungrySingleton2 INSTANCE;
+
+        static {
+            try {
+                INSTANCE = new HungrySingleton2();
+            } catch (NoSuchMethodError e) {
+            }
+        }
+
+        private HungrySingleton2() throws NoSuchMethodError {
+            if (INSTANCE != null) {// 防止反射
+                throw new NoSuchMethodError();
+            }
+        }
+
+        public static HungrySingleton2 getInstance() {
+            return INSTANCE;
+        }
+
+        /**
+         * 解决序列化与反序列化破坏单例模式的问题
+         */
+        private Object readResolve() {
+            return HungrySingleton.getInstance();
+        }
+    }
 
     /**
      * 懒汉式
      */
     public static class LazySingleton {
-        private static volatile LazySingleton instance = null;    //保证 instance 在所有线程中同步
+        private static volatile LazySingleton INSTANCE = null;    //保证 instance 在所有线程中同步
 
         private LazySingleton() {
         }    //private 避免类在外部被实例化
 
         public static synchronized LazySingleton getInstance() {
             //getInstance 方法前加同步
-            if (instance == null) {
+            if (INSTANCE == null) {
                 synchronized (LazySingleton.class) {
-                    if (instance == null) {
-                        instance = new LazySingleton();
+                    if (INSTANCE == null) {
+                        INSTANCE = new LazySingleton();
                     }
                 }
             }
-            return instance;
+            return INSTANCE;
         }
     }
 
     /**
-     * 饿汉式
+     * 懒汉式
      */
-    public static class HungrySingleton {
-        private static final HungrySingleton instance = new HungrySingleton();
-
-        private HungrySingleton() {
+    public static class LazySingleton2 {
+        private LazySingleton2() {
         }
 
-        public static HungrySingleton getInstance() {
-            return instance;
-        }
-    }
-
-    /**
-     * 饿汉式
-     */
-    public static class HungrySingleton2 {
-        private HungrySingleton2() {
+        public static LazySingleton2 getInstance() {
+            return InnerClass.INSTANCE;
         }
 
-        public static HungrySingleton2 getInstance() {
-            return SingletonInstanceHolder.INSTANCE;
-        }
-
-        private static class SingletonInstanceHolder {
-            private SingletonInstanceHolder() {
+        private static class InnerClass {
+            private InnerClass() {
             }
 
-            public static final HungrySingleton2 INSTANCE = new HungrySingleton2();
+            private static final LazySingleton2 INSTANCE = new LazySingleton2();
         }
     }
 }

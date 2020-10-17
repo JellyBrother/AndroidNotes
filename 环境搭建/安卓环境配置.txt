@@ -33,6 +33,8 @@
 C:\Program Files\Android\gradle-5.4.1-all\bin
 file:///C:/Program Files/Android/gradle-5.4.1-all.zip
 distributionUrl=https\://services.gradle.org/distributions/gradle-5.4.1-all.zip
+GRADLE_HOME
+C:\Users\Administrator\.gradle\wrapper\dists\gradle-5.4.1-all\3221gyojl5jsh0helicew7rwx\gradle-5.4.1\bin
 
 ### Android studio配置
 弹出顶部菜单：View-ToolBar勾选

@@ -960,11 +960,13 @@ if (sThreadLocal.get() != null)
     throw new RuntimeException("Only one Looper may be created per thread");
 
 ### 上下文
-
-### window
-
-
-
+Activity继承ContextThemeWrapper继承ContextWrapper继承Context
+Application继承ContextWrapper继承Context
+Service继承ContextWrapper继承Context
+PhoneWindow继承Window，由WindowManagerService管理
+DecorView继承FrameLayout，由PhoneWindow拿到ViewRootImpl进行管理，是所有应用窗口的根View 。
+每一个Activity都包含一个Window对象，Window对象通常由PhoneWindow实现。该类是一个抽象类，提供了绘制窗口的一组通用API。可以将之理解为一个载体，各种View在这个载体上显示。
+PhoneWindow内部包含了一个DecorView对象。DectorView对象是所有应用窗口(Activity界面)的根View。 PhoneWindow类是把一个FrameLayout类即DecorView对象进行一定的包装，将它作为应用窗口的根View，并提供一组通用的窗口操作接口。
 
 
 
