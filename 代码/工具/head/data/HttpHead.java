@@ -1,4 +1,6 @@
-package com.jelly.app.main.head;
+package com.jelly.app.main.head.data;
+
+import com.jelly.app.main.head.HeadConstant;
 
 public class HttpHead extends Head {
 
@@ -8,6 +10,10 @@ public class HttpHead extends Head {
 
     public String getCookie() {
         return get(HeadConstant.Key.COMMON_COOKIE);
+    }
+
+    public void setCookieUrl(String cookieUrl) {
+        put(HeadConstant.Key.COMMON_COOKIE_URL, cookieUrl);
     }
 
     public void setToken(String token) {

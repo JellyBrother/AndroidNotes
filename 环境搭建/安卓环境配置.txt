@@ -51,6 +51,13 @@ findBugs-IDEA（查找bug的插件，Android Studio也提供了代码审查的�
 AndroidSourceViewer (安卓源码查看)
 gerrit 代码提交审核工具，需要领导审核之后，才正式进git仓库。
 findViewByMe 在布局文件中右键，然后选择findViewByMe
+Gerrit代码审查
+Android Drawable Preview   Drawable预览插件
+JSON To Kotlin Class   Json 转 Kotlin Bean 插件
+### 火狐插件
+JSON Lite
+### 谷歌插件
+
 
 ### 代码注释
  /**
@@ -166,10 +173,13 @@ adb uninstall
 
 git reset --soft HEAD^  剔除本次提交，并保存本地
 
-
-
-
-
+### 序列化
+* AndroidStudio快捷生成Serializable的UID
+setting-editor-Inspections-Serializtion issues-开启 Serializable class without serialVersionUID
+当类实现Serializable接口的时候的，右边会提示：添加serialVersionUID
+* AndroidStudio快捷生成Parcelable代码
+setting-plugins-找到android Parcelable code generator 安装即可
+当类实现Parcelable接口的代码，window快捷键：Alt+Insert，选择Parcelable即可。
 
 
 

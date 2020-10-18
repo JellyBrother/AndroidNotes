@@ -1,5 +1,7 @@
 package com.jelly.app.main.security;
 
+import android.util.Base64;
+
 import java.security.AlgorithmParameters;
 import java.security.Key;
 
@@ -89,5 +91,111 @@ public class EncryptionUtils {
         AlgorithmParameters params = AlgorithmParameters.getInstance(KEY_ALGORITHM);
         params.init(new IvParameterSpec(key));
         return params;
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将需要加密的byte[]加密成byte[]
+     */
+    public static byte[] encryptB2B(byte[] data) throws Exception {
+        return encrypt(data, KEY_BYTES);
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将需要加密的byte[]加密成String
+     */
+    public static String encryptB2S(byte[] data) throws Exception {
+        byte[] bytes = encrypt(data, KEY_BYTES);
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将需要加密的String加密成byte[]
+     */
+    public static byte[] encryptS2B(String data) throws Exception {
+        return encrypt(data.getBytes("utf-8"), KEY_BYTES);
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将需要加密的String加密成String
+     */
+    public static String encryptS2S(String data) throws Exception {
+        byte[] bytes = encrypt(data.getBytes("utf-8"), KEY_BYTES);
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将加密的byte[]解密成byte[]
+     */
+    public static byte[] decryptB2B(byte[] data) throws Exception {
+        return decrypt(data, KEY_BYTES);
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将加密的byte[]解密成String
+     */
+    public static String decryptB2S(byte[] data) throws Exception {
+        byte[] bytes = decrypt(data, KEY_BYTES);
+        return new String(bytes, "utf-8");
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将加密的String解密成byte[]
+     */
+    public static byte[] decryptS2B(String data) throws Exception {
+        return decrypt(Base64.decode(data, Base64.DEFAULT), KEY_BYTES);
+    }
+
+    /**
+     * Description：使用私钥KEY_BYTES，将加密的String解密成String
+     */
+    public static String decryptS2S(String data) throws Exception {
+        byte[] bytes = decrypt(Base64.decode(data, Base64.DEFAULT), KEY_BYTES);
+        return new String(bytes, "utf-8");
+    }
+
+    /**
+     * Description：使用外部私钥key，将需要加密的byte[]加密成String
+     */
+    public static String encryptB2S(byte[] data, byte[] key) throws Exception {
+        byte[] bytes = encrypt(data, key);
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    /**
+     * Description：使用外部私钥key，将需要加密的String加密成byte[]
+     */
+    public static byte[] encryptS2B(String data, byte[] key) throws Exception {
+        return encrypt(data.getBytes("utf-8"), key);
+    }
+
+    /**
+     * Description：使用外部私钥key，将需要加密的String加密成String
+     */
+    public static String encryptS2S(String data, byte[] key) throws Exception {
+        byte[] bytes = encrypt(data.getBytes("utf-8"), key);
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    /**
+     * Description：使用外部私钥key，将需要解密的byte[]解密成String
+     */
+    public static String decryptB2S(byte[] data, byte[] key) throws Exception {
+        byte[] bytes = decrypt(data, key);
+        return new String(bytes, "utf-8");
+    }
+
+    /**
+     * Description：使用外部私钥key，将需要解密的String解密成byte[]
+     */
+    public static byte[] decryptS2B(String data, byte[] key) throws Exception {
+        return decrypt(Base64.decode(data, Base64.DEFAULT), key);
+    }
+
+    /**
+     * Description：使用外部私钥key，将需要解密的String解密成String
+     */
+    public static String decryptS2S(String data, byte[] key) throws Exception {
+        byte[] bytes = decrypt(Base64.decode(data, Base64.DEFAULT), key);
+        return new String(bytes, "utf-8");
     }
 }
