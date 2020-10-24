@@ -1,11 +1,6 @@
-adb install -r 需要安装的包
-adb push 打包好的包  /sdcard/bundles  --将文件推送到手机目录下
-adb pull /sdcard/ /Users/*/Desktop/ 将手机内容推送到电脑
-gradlew clean assembleRelease
-
-打包
-1、执行gradle clean 
-2、执行gradle assembleUatDebug  执行gradle assembleProductionDebug
+git常见问题：
+https://zhuanlan.zhihu.com/p/159766744
+https://www.pianshen.com/article/9895765273/
 
 git操作
 git clone 拉取代码
@@ -26,51 +21,8 @@ git拉取代码的时候有冲突时：
 4、把缓存的代码弹出 git stash pop
 5、解决冲突
 
-mac机器上面的命令：
-open --打开文件
-exit --退出命令
-adb shell --进入手机
-ls --查看文件列表
-
-vim ~/.brash_profile  --查看mac的系统配置文件
-source ~/.brash_profile  --保存mac的系统配置文件
-sudo spctl --master-disable  --增大mac系统的权限
-chmod 777 adv_make.sh   --开通adv_make.sh脚本执行权限
-ctrl + l --清理日志
-ctrl + c --中断运行
-
-输出当前的堆栈信息adb shell dumpsys activity activities > 1
-adb shell "dumpsys activity | grep mResume" 查看当前页面
-adb shell
-adb pull /sdcard/Bluetooth/ D:\Download
-adb push D:\Download /sdcard/Bluetooth/
-adb devices查看连接状态
-adb shell dumpsys meminfo [-d] 查看 app（进程）的内存占用情况。
-adb root 查看是否root
-where adb
-where fastboot
-adb root
-adb reboot remount
-adb remount
-adb root
-$ adb disable-verity
-$ adb reboot
-$ adb root
-$ adb remount
-adb reboot bootloader
-adb devices 
-fastboot devices 
-
 cls清理屏幕
 cd ..返回上级目录
-
-编译命令：
-release版本：
-gradlew clean assembleRelease
-Debug版本：
-gradlew clean assembleDebug
---stacktrace -info
---stacktrace -debug
 
 git地址：http://smartgit/gerrit/#/dashboard/self
 gerrit   

@@ -795,7 +795,6 @@ String s2 = Base64.decode(s1, Base64.DEFAULT);// 对s1进行解码
 byte[] b2 = decrypt(s2, KEY_BYTES);// 对解码后的s2进行解密
 String s3 = new String(b2, "utf-8");// 现在得到的s3就是："好好学习，天天向上"
 
-
 ### 正则表达式内存溢出
 表达式为：text =text.replaceAll("<!--(.|[\r\n])*?-->",""); // 去掉文本中的<!-- -->注释
 报错：java.lang.OutOfMemoryError: Failed to allocate a 62101672 byte allocation with 6275072 free bytes and 40MB until OOM, max allowed footprint 232202520, growth limit 268435456

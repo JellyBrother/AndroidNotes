@@ -1,0 +1,86 @@
+
+gradlew clean assembleRelease
+
+打包
+1、执行gradle clean 
+2、执行gradle assembleUatDebug  执行gradle assembleProductionDebug
+
+mac机器上面的命令：
+open --打开文件
+exit --退出命令
+adb shell --进入手机
+ls --查看文件列表
+
+vim ~/.brash_profile  --查看mac的系统配置文件
+source ~/.brash_profile  --保存mac的系统配置文件
+sudo spctl --master-disable  --增大mac系统的权限
+chmod 777 adv_make.sh   --开通adv_make.sh脚本执行权限
+ctrl + l --清理日志
+ctrl + c --中断运行
+
+cls清理屏幕
+cd ..返回上级目录
+
+编译命令：
+release版本：
+gradlew clean assembleRelease
+Debug版本：
+gradlew clean assembleDebug
+--stacktrace -info
+--stacktrace -debug
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
