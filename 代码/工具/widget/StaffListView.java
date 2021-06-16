@@ -49,7 +49,7 @@ public class StaffListView extends LinearLayout {
     private int itemSize = 12;//当前也能总共显示条数
     private List<Entity> allShopAssistantList = new ArrayList<>();
     private List<Entity> shopAssistantSubList = new ArrayList<>();
-    //因为这个页面图片太多，当页面切换到下一个页面的时候，会有空白出现，所以当切换的时候，显示一个华为logo
+    //因为这个页面图片太多，当页面切换到下一个页面的时候，会有空白出现，所以当切换的时候，显示一个
     private ImageView ivw_default;
     private List<ShopAssistantView> shopViewList = new ArrayList<>();
 
