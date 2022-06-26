@@ -56,6 +56,9 @@ with incoming references 被哪些对象持有
 WeakReference<Activity> ref = new WeakReference<Activity>(this);
 Activity activity = ref.get();
 
+### 内存泄漏工具的原理leack
+会第一次gc，看activity在不在内存中，在的话，过5秒再gc一次，如果还在，就会抛内存溢出，这种有可能误报，因为ActivityManager的生命周期管理是有延时的。
+
 
 
 

@@ -1,0 +1,166 @@
+
+### 为何Android使用Binder机制来实现进程间的通信？
+* 可靠性：使用Client-Server的通信方式保证。linux支持跨进程通信有很多：管道、消息队列、共享内存、信号量，socket套接字，Binder。而只有只有socket和Binder支持Client-Server的通信方式。如果安卓在底层架设一套socket协议来实现Client-Server通信，增加了系统的复杂性。
+* 传输性能：共享内存无需拷贝，但控制复杂。共享内存：0次。Binder：1次。Socket/管道/消息队列：2次（采用存储-转发方式，先缓存，再拷贝到接收方缓存区）。
+* 安全性：Android对每一个安装应用都分配了UID/PID用来鉴别进程身份。传统的进程通信方式对于通信双方的身份并没有做出严格的验证，比如Socket通信的IP地址是客户端手动填入，很容易进行伪造。
+
+### 为什么Binder只进行了一次数据拷贝？
+安卓将需要共享的数据copy_from_user()拷贝进内核空间，调用方通过mmap()映射方式进行调用。其他的方式是将共享数据拷贝进内核空间，再从内核将数据拷贝进调用方空间。
+
+### Binder运行解释
+[参考](http://gityuan.com/page2/)
+Bunder通信的四个角色：Client进程，Server进程，Binder驱动（统计Server个数，对数据进行拷贝和共享，是ServiceManager进程的数据库），ServiceManager进程（负责跟这三方进行通信，ServiceManager是Client进程和Server进程的服务端）。
+* 注册服务：启动前，Server进程先注册到ServiceManager。
+* 获取服务：Client进程使用某个Service前，须先向ServiceManager中获取相应的Service。
+* 使用服务：Client根据得到的Service信息建立与Server进程通信的通路，然后就可以直接与Service交互。该过程：Client是客户端，Server是服务端。
+- Client通过获得一个Server的代理接口，对Server进行调用。
+- 代理接口中定义的方法与Server中定义的方法是一一对应的。
+- Client调用某个代理接口中的方法时，代理接口的方法会将Client传递的参数打包成Parcel对象。
+- 代理接口将Parcel发送给内核中的Binder Driver。
+- Server会读取Binder Driver中的请求数据，如果是发送给自己的，解包Parcel对象，处理并将结果返回。
+- **整个的调用过程是一个同步过程，在Server处理的时候，Client会阻塞住。因此Client调用代理接口过程不应在主线程。**
+
+### AIDL的具体使用
+[参考](http://gityuan.com/page2/)
+* 先在服务端创建AIDL
+由于AIDL只支持数据类型:基本类型（int，long，char，boolean等），String，CharSequence，List，Map。**其他类型必须使用import导入，
+即使它们可能在同一个包里，并加上in/out标记，如果其他类型是自定义的Parcelable对象，必须创建一个和它同名的AIDL文件，并在其中声明它为parcelable类型。**
+ in 表示数据只能由客户端流向服务端。（表现为服务端修改此参数，不会影响客户端的对象）
+ out 表示数据只能由服务端流向客户端。（表现为服务端收到的参数是空对象，并且服务端修改对象后客户端会同步变动）
+ inout 则表示数据可在服务端与客户端之间双向流通。（表现为服务端能接收到客户端传来的完整对象，并且服务端修改对象后客户端会同步变动）
+ oneway 关键字用于修改远程调用的行为，被oneway修饰了的方法不可以有返回值，也不可以有带out或inout的参数。
+* Make Project ，SDK为自动为我们生成对应的Binder类。该接口中有个重要的内部类Stub ，继承了Binder 类，同时实现了IBookManager接口。 
+* 服务端首先要创建一个Service用来监听客户端的连接请求。然后在Service中返回Stub类的实例。
+* 客户端使用时，首先将服务端工程中的aidl文件夹下的内容整个拷贝到客户端工程的对应位置下
+* 客户端绑定服务端的Service
+Intent intentService = new Intent();
+intentService.setAction("com.lvr.aidldemo.MyService");
+intentService.setPackage(getPackageName());
+intentService.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+this.bindService(intentService, mServiceConnection, BIND_AUTO_CREATE);
+ServiceConnection mServiceConnection = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder binder) {
+        //通过服务端onBind方法返回的binder对象得到IBookManager的实例，得到实例就可以调用它的方法了
+        IBookManager mIBookManager = IBookManager.Stub.asInterface(binder);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        mIBookManager = null;
+    }
+};
+
+### Service的onBind方法
+[参考](http://gityuan.com/page2/)
+当另一个组件想通过调用 bindService(intent, conn, Service.BIND_AUTO_CREATE) 与服务绑定时，Service将调用onBind方法。在此方法的实现中，必须返回 一个IBinder 接口的实现类，供客户端用来与服务进行通信。无论是启动状态还是绑定状态，此方法必须重写，但在启动状态的情况下直接返回 null。
+
+### Service的unbindService(conn)方法
+当解绑的时候，不会再回掉conn的onServiceDisconnected方法了，所以需要手动解绑：
+if(mService!=null) {
+    mService = null;
+    unbindService(conn);
+}
+
+### Service的onCreate方法
+首次创建服务时，系统将调用此方法来执行一次性设置程序（在调用 onStartCommand() 或onBind() 之前）。如果服务已在运行，则不会调用此方法，该方法只调用一次。
+
+### Service的onStartCommand方法
+当另一个组件（如 Activity）通过调用 startService() 请求启动服务时，系统将调用此方法。一旦执行此方法，服务即会启动并可在后台无限期运行。 如果自己实现此方法，则需要在服务工作完成后，通过调用 stopSelf() 或 stopService() 来停止服务。（在绑定状态下，无需实现此方法。）
+Service.onStartCommand()的返回值：
+* START_STICKY：如果service进程被kill掉，保留service的状态为开始状态，但不保留递送的intent对象。随后系统会尝试重新创建service，由于服务状态为开始状态，所以创建服务后一定会调用onStartCommand(Intent,int,int)方法。如果在此期间没有任何启动命令被传递到service，那么参数Intent将为null。
+* START_NOT_STICKY：“非粘性的”。使用这个返回值时，如果在执行完onStartCommand后，服务被异常kill掉，系统将会把它置为started状态，系统不会自动重启该服务，直到startService(Intent intent)方法再次被调用;。
+* START_REDELIVER_INTENT：重传Intent。使用这个返回值时，如果在执行完onStartCommand后，服务被异常kill掉，系统会自动重启该服务，并将Intent的值传入。
+* START_STICKY_COMPATIBILITY：START_STICKY的兼容版本，但不保证服务被kill后一定能重启。
+
+### IntentService
+可以看做是Service和HandlerThread的结合体，在完成了使命之后会自动停止，适合需要在工作线程处理UI无关任务的场景。
+* IntentService 是继承自 Service 并处理异步请求的一个类，在 IntentService 内有一个工作线程来处理耗时操作。
+* 当任务执行完后，IntentService 会自动停止，不需要我们去手动结束。
+* 如果启动 IntentService 多次，那么每一个耗时操作会以工作队列的方式在 IntentService 的 onHandleIntent（子线程方法）中执行，依次去执行，使用串行的方式，执行完自动结束。
+* Intent intent = new Intent(IntentServiceActivity.this, MyIntentService.class); startService(intent);
+* 使用场景描述：页面刷新进度条
+- activity开启IntentService
+- IntentService在onHandleIntent回调方法中执行网络请求，然后实时发生广播，广播携带进度参数
+- activity中接收广播，更新进度条ui。
+
+### HandlerThread
+HandlerThread继承了Thread,它是一种可以使用Handler的Thread，它实现也很简单，就是在run中通过Looper.prepare()来创建消息队列，并且通过Looper.loop()来开启消息循环，这样再实际使用中就允许在HandlerThread中创建Handle了。
+
+### Android Parcelable的使用
+传值：mBundle.putParcelable(KEY, mPerson);
+取值：Person mPerson = (Person)getIntent().getParcelableExtra(ParcelableTest.KEY);
+
+### 开启一个进程
+android:process=":remote"设置为另一个进程
+<service
+    android:name=".MyService"
+    android:process=":remote">
+    <intent-filter>
+        <category android:name="android.intent.category.DEFAULT" />
+        <action android:name="com.lvr.aidldemo.MyService" />
+    </intent-filter>
+</service>
+
+### 安卓跨进程通讯
+* Activity、Broadcast、Service可以通过Intent传递
+* Service还可以通过AIDL
+bindService(new  Intent("net.blogjava.mobile.aidlservice.IMyService" ),  serviceConnection, Context.BIND_AUTO_CREATE);  
+在ServiceConnection的onServiceConnected方法里面，myService = IMyService.Stub.asInterface(service); 再通过myService通信。
+Service里面MyServiceImpl extends IMyService.Stub，然后在IBinder onBind(Intent intent)中return new MyServiceImpl();
+MyServiceImpl中实现需要传递的数据。
+* ContentProvider
+- 调用端：
+Uri uri = Uri.parse("content://com.example.test/query/single/keyword");  
+Cursor cursor = getContentResolver().query(uri, null, "english=?", new String[]{ actvWord.getText().toString() }, null);
+通过cursor来获取数据。
+- 服务端继承ContentProvider 
+- AndroidManifest.xml文件中<provider>标签中定义:
+    <provider name=".TransportationProvider"  authorities="com.example.transportationprovider"   
+          . . .  >  
+- static {  
+        //  添加访问ContentProvider的Uri   
+        uriMatcher = new  UriMatcher(UriMatcher.NO_MATCH);  
+        uriMatcher.addURI("com.example.test", "query/single/*", SINGLE_WORD);  
+    }  
+- 在onCreate创建SQLiteDatabase database = openDatabase(); 
+- Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {  
+    switch  (uriMatcher.match(uri))  {  
+        case  SINGLE_WORD:  
+            String word = uri.getPathSegments().get(1 );  
+            cursor = database.rawQuery("select english as _id, chinese from t_words where english like %", new  String[]{word + "%"});   
+
+### SharePreference
+* SharePreferences不支持多进程
+Google并不希望SharePreferences用于多进程，因为不安全，commit函数一般会在当前线程直接写文件，而apply则提交一个事务到已给线程池，之后直接返回。
+SharePreferences在新建的有个mode参数，可以指定它的加载模式，MODE_MULTI_PROCESS是Google提供的一个多进程模式
+* SharePreferences的commit与apply一个是同步一个是异步（大部分场景下）
+* 不要使用SharePreferences存储太大的数据
+读取xml配置，如果其他线程想要在读取之前就是用的话，就会被阻塞，一直wait等待，直到数据读取完成。--是同步的
+使用xml解析工具XmlUtils，直接在当前线程读取xml文件，如果xml文件稍大，尽量不要在主线程读取，读取完成之后，xml中的配置项都会被加载到内存，再次访问的时候，其实访问的是内存缓存。
+
+### SharePreference可以跨进程吗
+* 跨进程一般使用ContentProvider，没有用过SharePreference进行跨进程。
+* 网上说多进程不安全。
+可以通过SharePreference先取出来，然后给ContentProvider分享。另外一个获取到后，进行存储。
+* 非要用的流程：
+- 清单文件的apllication配置android:sharedUserId="com.xxx"，需要共享的双方配置一样的sharedUserId
+- 存值
+SharedPreferences preferences = context.getSharedPreferences(USER_LISTS, Context.MODE_PRIVATE);
+SharedPreferences.Editor edit = preferences.edit();
+edit.putString(key, value);
+edit.commit();
+- 取值
+Context pkgContext =null;
+try {
+    pkgContext =   createPackageContext("com.netease.nim.demo", CONTEXT_IGNORE_SECURITY);
+} catch (PackageManager.NameNotFoundException e) {
+}
+if(pkgContext !=null){
+    SharedPreferences preferences = pkgContext.getSharedPreferences("userlists", Context.MODE_MULTI_PROCESS);
+    String userbeans = preferences.getString("userbeans", null);
+}
+- 注意事项：打包apk时，如果出现  INSTALL_FAILED_SHARED_USER_COMPATIBLE 错误提示，请确认已安装的应用已卸载（未添加sharedUserId版本）。
+两个应用是否在使用同一个debug—keystone签名 
+
+

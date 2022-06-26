@@ -1,0 +1,62 @@
+
+### apk优化
+* 小图标用svg图片，大图片用webp
+https://developer.android.google.cn/studio/write/vector-asset-studio
+ defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+      }
+  dependencies {
+      compile 'com.android.support:appcompat-v7:23.2.0'
+    }
+  布局中使用：app:srcCompat="@drawable/ic_pic"
+* tint着色器
+同一张图片，点击的时候改变颜色，而不是两张图片。
+创建一个selector1，里面设置item的drawable
+创建一个selector2，里面设置item的color
+在使用的imageview中设置android:src="@drawable/selector1',设置android:tint="@color/selector2'。
+* 资源打包
+defaultConfig {
+  resConfigs("zh-rCN","ko")//逗号分隔，添加多个语言包
+  }
+* so库打包
+互联网项目：使用'armeabi', 'armeabi-v7a'  或者问提供商要这两个的合并库。
+传统项目（定制化项目）：
+有的兼容安卓3.0就用v4。
+mips和mips64库windows系统
+x86库是32位模拟器
+x86_64库主要是64位模拟器
+    sourceSets{//将so库打包到apk内
+        main{
+            jniLibs.srcDirs=['libs']
+        }
+    }
+defaultConfig {
+  ndk {//配置so库架构（一般 真机：arm  模拟器：x86）
+    abiFilters('armeabi', 'armeabi-v7a')
+  }
+}
+* 移除无效资源
+删除之前一定要备份代码，方便版本回归。
+lint工具检查 Analyze--Run Inspection by Name--unused resource
+* 代码混淆压缩
+buildTypes{
+  debug{
+    // 源代码的压缩
+    minifyEnabled true
+  }
+}
+* 启用shrinkResources资源缩减，就不要第五项手动删除资源了。
+buildTypes{
+  debug{
+    // 资源文件的压缩，没有用到的图片会变成占位图（几b的内存）
+    shrinkResources true
+  }
+}
+在res文件夹下面新建raw文件夹，再新建keep.xml文件，内容为：
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+  tools:discard="@color/color1"
+  tools:keep="@drawable/pic1"
+  tools:shrinkMode="stricts"/>
+* webp转换插件-----图片变小
+* 资源res文件混淆和7ZIP压缩

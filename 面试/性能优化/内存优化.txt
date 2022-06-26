@@ -1,0 +1,221 @@
+### 解释
+内存溢出 out of memory，是指程序在申请内存时，没有足够的内存空间供其使用，出现out of memory；比如申请了一个integer,但给它存了long才能存下的数，那就是内存溢出。
+内存泄露 memory leak，是指程序在申请内存后，无法释放已申请的内存空间，一次内存泄露危害可以忽略，但内存泄露堆积后果很严重，无论多少内存,迟早会被占光。
+
+### 内存抖动(Memory Shake)
+定义：内存频繁分配和回收导致内存不稳定
+表现：频繁GC、内存曲线呈锯齿状
+危害：卡顿、OOM, 频繁创建对象，导致内存不足及碎片（不连续），不连续的内存片无法被分配，导致OOM
+秘诀: 找循环或者频繁调用的地方
+   使用Memory Profile 初步排查，在通过Memory Profiler或者 CPU Profiler结合代码排查
+* 内存异常会生成.hprof的文件
+* 这个文件可以用Android studio打开去查看。
+
+### 界面图标介绍
+overview ：概览信息
+Histogram: 直方图；列出每个class的对象 有多少个实例，以及每个实例的内存占用情况， 
+           可以在直方图中，检索某个具体的类； 基于类的角度分析问题
+dominator_tree: 每个对象的支配树； 基于实例的角度来分析问题
+OQL: 对象查询语言， 检索数据库， 查询具体类的信息
+thread_overview: 详细的展示线程信息
+Top Consumers: 以图形的形式 列出来 占用内存比较多的对象， 适用于降低内存占用的情况
+Leak Suspects: 分析内存泄漏的可能的情况
+Class Name 当前类
+Object	该类在内存当中的对象个数
+Shallow Heap 对象自身所占用的内存大小，不包括它所引用的对象的内存大小
+Retained Heap 该对象被垃圾回收器回收之后，会释放的内存大小
+* 右键的List objects
+with outgoing references: 自身引用了哪些类
+with incoming references: 自身被哪些类引用
+
+### 内存泄漏工具的原理leack
+会第一次gc，看activity在不在内存中，在的话，过5秒再gc一次，如果还在，就会抛内存溢出，这种有可能误报，因为ActivityManager的生命周期管理是有延时的。
+
+### 可能导致内存泄漏的地方
+* 内部类耗时操作，长时间持有外部类对象。
+* 静态引用，导致生命周期很长，无法及时回收。
+- Callback、Handler、Listener、new对象
+* 网络，IO，队列。
+* 排查new 对象是否是内部类，内部类是否耗时操作。
+- 在销毁的时候及时remove，解绑，置空
+- 将对象设为静态内部类。
+* 排查上下文this、Activity、Context是否被静态引用，是否长期持有。
+- 需要用application的上下文
+* 正则表达式
+* recycleview嵌套
+* for循环次数多，并且内部创建对象和逻辑很重
+
+### java引用
+* 强引用（StrongReference）：类似 Object obj = new Object(); 的代码创建的引用，这种引用的特点是其指向的对象无论如何都不会被 JVM 的垃圾回收器（Garbage Collector）回收（即使是面临着发生 OutOfMemoryError 异常的风险）。
+* 软引用（SoftReference）：这种引用的功能即是前言部分提到的：如果某个 Java 对象只被软引用所指向，那么在 JVM 要新建一个对象的时候，如果当前虚拟机所剩下的堆内存不足以保存这个要新建的对象的时候（即虚拟机将要抛出 OutOfMemoryError 异常的时候），那么 JVM 会发起一次垃圾回收（gc）动作，将堆中所 只被非强引用 指向的对象回收，以提供更多的可用内存来新建这个对象，如果经过垃圾回收动作之后虚拟机的堆内存中仍然没有足够的可用空间来创建这个对象，那么虚拟机将抛出一个 OutOfMemoryError 异常。
+* 弱引用（WeakReference）：和软引用类似，但是弱引用的引用强度更弱一点，上文说到：只被软引用指向的对象会在 JVM 在新建对象并且其可用的堆内存不足以保存这个对象时会被垃圾回收器回收。即当 JVM 在新建一个对象并且第一次面临着抛出 OutOfMemoryError 异常时会被垃圾回收器回收。而对于只被弱引用指向的对象来说，其只能存活到下一次 JVM 执行垃圾回收动作之前。也就是说：JVM 的每一次垃圾回收动作都会回收那些只被弱引用指向的对象。
+* 虚引用（PhantomReference）：引用强度最弱的引用，这种引用有点特殊：被虚引用完全不会引用其所指向的对象的生命周期，也就是说一个 Java 对象是否被回收和指向它的虚引用完全没有任何关系。也不能通过虚引用来得到其指向的对象（其 get 方法直接返回 null）。那么虚引用有什么作用呢？虚引用一般会配合 引用队列（ReferenceQueue）来使用。当某个被虚引用指向的对象被回收时，我们可以在其引用队列中得到这个虚引用的对象作为其所指向的对象被回收的一个通知。我们将会在后面看到这种用法。
+
+### 为什么remove可以避免内存溢出，而有些没用remove的方法就需要静态内部类。
+* 类A有一个内部类B，B有一个管理者C，A操作C来回调B。A持有B和C，C持有B，B持有A。一旦C长期存在（除了被A持有，还可能被其他对象持有），导致A和B都释放不了。
+在A销毁的时候，对B置空，但是无法对C置空，造成B不能及时回收。因为置空只是把栈里面的对象应用去掉，而对象在堆里面，只要还有其他地方引用，就不会被销毁。
+需要全部置空才能回收B，所以C进行remove操作，就是在c里面去掉B的引用。B被回收了，A才能被回收。
+* 当没有remove方法的时候，使用静态内部类B，让B弱引用A，去掉了B强持有A，从而A也能及时被回收。
+
+### 为什么要用静态的内部类？不用可以吗？
+* 非static的内部类会持有外部类的引用，当这个内部类被长期持有的时候，就必须静态。由于static的内部类，使用的时候不需要外部类的实例，所以static的内部类和外部类是没有联系的。
+例如Handler，若此时你的handler的消息队列中有未处理的Message，在Activity finish之后，Message仍然存在，那么Handler也仍然存在。由于Handler中有Context的引用，那么Context也就存在。而该Context就是我们的Activity，也就是Activity依然存在，那么我们便是发生了内存泄露。
+例如上面的管理类C，C持有内部类B，C被多个类持有，或者C本身是静态的，就会发生内存泄漏。
+* 如果能避免上面的情况，就可以非静态。
+- 对内部类的调用方实行弱引用。
+- 创建内部类的地方用静态。
+WeakReference<Activity> ref = new WeakReference<Activity>(this);
+Activity activity = ref.get();
+
+### 解决内存溢出：Out Of Memory---OOM
+分配的内存不足以放下数据项序列,称为内存溢出。
+* 内存中加载的数据量过于庞大，如一次从数据库取出过多数据； 
+* 集合类中有对对象的引用，使用完后未清空，使得JVM不能回收； 
+* 死循环或递归调用
+解决：
+- 检查错误日志，查看“OutOfMemory”错误前是否有其 它异常或错误。
+- 使用内存查看工具动态查看内存使用情况　
+- 代码观察内存变动
+Runtime.getRuntime().freeMemory();//可用内存
+long use = total - free;//使用了的内存
+* 对代码进行走查和分析，找出可能发生内存溢出的位置。
+- 检查是否有一次获得全部数据的查询
+- 检查代码中是否有死循环或递归调用
+- 检查是否有大循环重复产生新对象实体
+- 检查List、MAP等集合对象是否有使用完后，未清除的问题
+
+### 解决内存泄露：Memory Leak
+内存没有释放或者释放不完全，导致内存持续增加。到最后内存溢出。
+* 单例导致对象不能回收
+* 静态变量赋值大
+* Handler(当非静态内部类对象的生命周期比外部类对象的生命周期长),消息在队列中未处理或者正在处理。
+* 未取消注册或回调导致内存泄露
+* 集合中的对象未清理造成内存泄露
+* WebView造成内存泄露
+* 计时或循环任务一直运行，没有取消
+* listview没有复用，一直创建新对象
+* 文件读写及时关闭
+* Handler静态或者在页面onDestory的时候mHandler.removeMessages();都可以解决Handler内存溢出问题。
+解决:
+* 对异常进行监控、日志打印、日志上传到服务器，进行持续跟踪改进。
+* 使用LeakCanary和Profiler工具进行分析。
+* 在基类的onDestory方法中遍历view，进行资源清理，移除handler消息。各个页面销毁掉时候，要销毁各个监听。
+* 再application中监控到内存低的时候，对资源进行清理。
+* 图片加载使用565而不是888格式，宽高根据控件宽高展示，而不是屏幕宽高。
+* 单例模式尽量使用application上下文。
+* Handler使用静态和弱引用，default的时候直接break掉。
+* 内部类持有外部类引用的时候，将内部类静态化。
+* 大数据传递的时候intent限制了大小，建议使用eventbus或者静态变量。
+* 代码观察内存变动
+Runtime.getRuntime().freeMemory();//可用内存
+long use = total - free;//使用了的内存
+
+### Bitmap内存模型
+API10之前 Bitmap自身在Dalvik Heap中，像素在Native中: bitmap对象java回收后，需要手动回收native层
+API10之后 像素也被放在Dalvik Heap中
+API26之后，像素在Native中， java对象回收后，自动回收native
+
+### 获取Bitmap占用内存
+getByteCount(); 宽* 高 * 1像素占用内存 * 压缩比例
+背景：
+图片对内存优化至关重要
+图片宽高大于控件宽高
+1. 继承ImageView， 覆写实现计算大小
+
+### 计算UI给的一张图片，在手机中实际占用内存大小
+以一张112px*131px的图片（png和jpg格式）在1080px（宽）*1920px（高）像素的6英寸（对角线）手机为例：
+屏幕大小：指屏幕对角线的长度，使用“寸”度量，如6英寸手机
+分辨 率：分辨率指手机屏幕的像素点个数，如1080px（宽）*1920px（高）
+每英寸像素：Pixels per Inch 又称为DPI（Dots Per Inch）,即屏幕密度，由对角线像素点数除以屏幕大小 得到，通常达到400PPI已经是非常高的屏幕密度
+每英寸的像素 = 1080px*1080px+1920px*1920px 开平方后除以6=1166400+3686400=4852800开平方=2203/6=367
+独立像素密度dp：density-independent pixel(密度无关像素)各种屏幕密度不同导致同样像素大小的长度，在不同密度的屏幕上的显示长度不同，
+相同长度的屏幕高密度屏幕包含更多像素点，android 系统使用mdpi即密度值为160的屏幕作为标准，在这个屏幕上1px=1dp，
+因此我们可以使用不同密度的比例计算出对应屏幕的px与dp比例关系。
+dp/dip：全称是Density-independent pixel ，中文名是 “密度无关像素”  dip = px / (dpi / 160) 屏幕密度为160时，1px=1dp
+各个文件夹对应的尺寸
+assets（density是160，densityDpi是1倍）
+drawable(density是160，densityDpi是1倍)，
+drawable-ldpi（分辨率240*320，density是0-120，densityDpi是0.75倍），
+drawable-mdpi（分辨率320*480，density是120-160，densityDpi是1倍），
+drawable-hdpi（分辨率480*800，density是160-240，densityDpi是1.5倍），
+drawable-xhdpi（分辨率720*1080，density是240-320，densityDpi是2倍），
+drawable-xxhdpi（分辨率1080*1920，density是320-480，densityDpi是3倍），
+drawable-xxxdpi（最高分辨率，density是480-640，densityDpi是4倍）
+市面上大多数是1080*1920的手机了，一般设计也是在这个像素上面切图，对应文件夹是drawable-xxhdpi
+112px*131px的png图片，图片格式是ARGB_8888，电脑上面显示20.57kb
+实际程序加载的bitmap大小是:112*131*4 = 58688B，因为带有半透明，背景色会随控件背景色变化
+Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"));// 不设置，默认是8888
+112px*131px的jpg图片，图片格式是RGB_565，电脑上面显示20.57kb
+实际程序加载的bitmap大小是:112*131*2 = 29344，变小的原因是没有了A通道（半透明），背景默认是白色的了
+Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"), null, Option().also{
+    it.inPreferredconfig = Bitmap.Config.RGB_565 
+});
+如果这张png图片是在drawable-xxhdpi（分辨率1080*1920，density是320-480，densityDpi是3倍）切的，
+那在1080px（宽）*1920px（高）像素的6英寸手机的实际占用内存大小是：58688/3*（367/160）= 44799
+367/160 = 2.29 是这台手机对应的实际倍数，对应的3倍是理论倍数。
+看需要适配多少机型：需要适配720手机就切720图片，放drawable-xhdpi文件夹下面，1080切的图片就放drawable-xxhdpi文件夹下，不要放混和少图片就行。
+
+### 页面性能优化：
+* 复杂布局：减少布局嵌套
+* 过度绘制：可以开启手机过度绘制调试，找到该页面，减少背景色。背景色尽量放子view中
+* 复杂操作：代码优化（减少对象创建，减少循环），放子线程执行复杂操作，主线程刷新ui。
+* 提高显示速度,使用ViewStub：当加载的时候才会占用。
+
+### 代码规范
+* 程序结构清晰，简单易懂，单个函数的程序行数不得超过100行。
+* 不要随意定义全局变量，尽量使用局部变量。
+* 可读性第一，效率第二（命名规范，要有注释）
+* 程序首先是正确，其次是优美
+* 所以变量在调用前必须被初始化
+* 对所有的用户输入，必须进行合法检查
+* 慎重使用强转（long转int类型）
+* 单元测试，自测
+* 重复使用的完成相对独立功能的算法或代码应抽象为公共控件或类
+* 公共控件或类应考虑面向对象思想，减少外界联系，考虑独立性或封装性
+* 尽量在类中使用final，private修饰符
+* 保证过期对象及时回收
+* 尽量用的时候初始化或者加载，避免提前加载而用不到，导致内存消耗
+* 重写equals和hashcode方法（特别是map集合）
+* 采用对象池技术，提高对象的利用效率
+* 尽量避免使用内在的Get,Set方法（应该直接调用）
+* 判空
+* 异常捕获
+
+### 内存不够时，我们应用会自己销毁，需要判断是否前台进程再销毁
+    private boolean isAppOnForeground() {
+        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+        if (activityManager == null) {
+            return false;
+        }
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        if (appProcesses == null || appProcesses.isEmpty()) {
+            return false;
+        }
+        int pid = android.os.Process.myPid();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess != null && appProcess.pid == pid
+                    && appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

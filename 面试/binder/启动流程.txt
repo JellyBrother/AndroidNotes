@@ -1,0 +1,236 @@
+
+### Launcher启动流程
+* 每个应用都是单独的虚拟机和单独的进程。
+* 概述：Loader > Kernel > Native > Framework > Application
+* 细分：BootRom > Bootloader > Kernel > Init > Zygote > SystemServer > Launcher
+- Loader层主要包括Boot Rom和Boot Loader
+- Kernel层主要是Android内核层
+- Native层主要是包括init进程以及其fork出来的用户空间的守护进程、HAL层、开机动画等
+- Framework层主要是AMS和PMS等Service的初始化
+- Application层主要指SystemUI、Launcher的启动
+* 手机开机启动引导程序（Bootloader 就是在操作系统内核运行之前运行的一段小程序）：crt0.S（CPU初始化）>kmain（初始化内核）>arch_init（打印信息）> target_init（判断运行环境是否符合）>apps_init（应用功能初始化）>aboot_init（lcd驱动初始化，显示第一张图片）。
+* Kernel初始化：zImage解压缩、kernel的汇编启动阶段、Kernel的C启动阶段。
+* Init初始化：init进程是Linux内核启动后创建的第一个用户空间的进程，init在初始化过程中会启动很多重要的守护进程。
+[具体参考](https://www.jianshu.com/p/657336b545bd)
+* init进程会fork很多进程，包括zygote进程。（zygote进程是为了实现资源共用存在的，以后app启动出来的zygote进程都是第一个zygote进程的子进程。）
+* zygote进程：创建安卓运行时环境，初始化图形系统，启动虚拟机，注册jni，之后执行java程序：创建ZogyteServer，创建本地socket服务，加载系统类和资源，fork出来system_server进程，启动应用进程main函数（Zygote的forkSystemServer方法返回进程）。
+[具体参考](https://www.jianshu.com/p/e219c11d1620)
+* SystemServer.java启动：
+- 调整时间，如果系统时间比1970还要早，调整到1970年
+- 设置语言
+- 调整虚拟机堆内存大小和内存利用率
+- 初始化Looper为mainLooper
+- 装载库libandroid_server.so
+- 初始化系统Context
+- 创建SystemServiceManager负责系统Service启动
+- 创建和启动Java服务
+- 调用Looper.loop()，进入处理消息的循环
+* 创建和启动Java服务：
+- startBootstrapServices();
+ActivityManagerService 核心服务，管理所有组件
+PowerManagetService 电源管理服务
+RecoverySystemService Recovery相关管理服务
+LightsService 管理和控制光线传感器服务
+DisplayManagerService 管理显示设备的服务
+PackageManagerService 应用包管理服务
+UserManagerService 管理用户的身份和信息的服务
+- startCoreServices(); 
+DropBoxManagerService 产生和管理系统日志文件的服务
+BatteryService 监控电池状态的服务
+- startOtherServices();
+VibratorService 管理和控制震动设备的服务
+AlarmManagerService 系统闹钟的服务 
+InputManagerService 管理键盘和触摸输入的服务
+BluetoothService 管理蓝牙设备的服务
+InputMethodManagerService 提供输入法管理的服务
+LockSettingsService 管理锁屏的服务
+ClipboardService 系统剪切板的服务
+NotificationManager 通知的服务
+WallpaperManagerService 桌面背景的服务
+UsbService 管理usb设备和连接的服务
+这三个方法里面创建了系统里面重要的服务，并把它们纳入SystemServerManager的管理。
+SystemServiceManager.startService创建service的实例，然后调用实例的onStart方法。
+**所有实例start完毕后，也就是startOtherServices()方法执行最后，开始systemReady流程（mActivityManagerService.systemReady(new Runnable() ）。**
+systemReady方法里面执行完WebViewFactory.prepareWebViewInSystemServer();之后执行startSystemUi(context);（启动SystemUIService），然后通过调用WindowManager的onSystemUiStarted方法调用KeyguardService启动锁屏服务。SystemUI启动成功后表示系统的通知栏和导航栏已经初始化成功。
+在systemReady(final Runnable goingCallback) 方法中，先调用deliverPreBootCompleted发送开机广播，然后调用startHomeActivityLocked启动Launcher和HomeActivity。
+[具体参考](https://www.jianshu.com/p/1adfd446e4fa)
+[具体参考](https://blog.csdn.net/cj5785/article/details/78876118)
+[具体参考](https://www.jianshu.com/p/4699d50deb99)
+
+### app启动流程
+* 点击桌面App图标发起startActivity请求：原Activity的onPause，新Activity的onCreate，新Activity的onStart，新Activity的onResume，原Activity的onStop，原Activity的onSaveInstanceState。
+* Activity.startActivity(Intent).startActivity(Intent, Bundle).startActivityForResult(Intent, int, Bundle)==>
+Instrumentation.execStartActivity(Context, IBinder, IBinder, Activity, Intent, int, Bundle)==>
+ActivityManagerNative.getDefault() 返回 ActivityManagerProxy 对象==>
+（原app的SystemServer客户端）
+ActivityManagerProxy.startActivity(...)==>
+mRemote.transact(...)==>
+ActivityManagerNative.onTransact(int, Parcel, Parcel, int)进行 IPC 调用==>
+（原app的SystemServer（客户端身份）==> 第一个zygote进程创建的SystemServer（服务端身份））
+ActivityManagerService.startActivity(...).startActivityAsUser(...)==>
+ActivityStackSupervisor.startActivityMayWait(...).startActivityLocked(...).startActivityUncheckedLocked(...)==>
+ActivityStack.resumeTopActivityLocked(...).resumeTopActivityInnerLocked(...)==>
+ActivityStackSupervisor.startSpecificActivityLocked(...).realStartActivityLocked(...)==>
+app.thread.scheduleLaunchActivity(...)==>
+ApplicationThreadNative。ApplicationThreadProxy#scheduleLaunchActivity(...)==>
+mReote.transact(...)==>
+ApplicationThreadNative.onTransact(...)进行 IPC 调用==>
+（第一个zygote进程创建的SystemServer（客户端身份）==>新app的SystemServer（服务端身份），新app没有启动就会先启动再请求）
+（新app的SystemServer服务端，以下认为新app已经启动）
+ActivityThread.ActivityThread.ApplicationThread#scheduleLaunchActivity(...)
+通过 Handler 发送消息 LAUNCH_ACTIVITY
+ActivityThread$H#handleMessage(...).handleLaunchActivity(...).performLaunchActivity(...)==>
+Activity.attach(...)==>
+Instrumentation.callActivityOnCreate()==>
+Activity.performCreate(...).onCreate(...)
+[具体参考](https://www.jianshu.com/p/d1b08c184d55)
+* 原app的SystemServer（客户端身份）通过binder IPC向第一个zygote进程创建的SystemServer（服务端身份）发送startActivity请求；
+* AMS(system_server进程)接收到请求后，判断新app有没有启动，没有启动则通过socket向zygote进程发送创建进程的请求；
+* Zygote进程fork出新的子进程，即App进程；
+* App进程，通过Binder IPC向sytem_server进程发起attachApplication请求；
+* system_server进程在收到请求后，进行一系列准备工作后，再通过binder IPC向App进程发送scheduleLaunchActivity请求；
+* App进程的binder线程（ApplicationThread）在收到请求后，通过handler向主线程发送LAUNCH_ACTIVITY消息；
+* 主线程在收到Message后，通过发射机制创建目标Activity，并回调Activity.onCreate()等方法。
+* 到此，App便正式启动，开始进入Activity生命周期，执行完onCreate/onStart/onResume方法，UI渲染结束后便可以看到App的主界面。
+
+### SensorManager安卓传感器
+//获取SensorManager实例
+sensorManager= (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//获取当前设备支持的传感器列表
+List<Sensor> allSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+* getName()//获取传感器名字
+* getVendor()//获取传感器供应商
+* getType()//获取传感器种类
+Sensor.TYPE_ACCELEROMETER//加速度传感器
+Sensor.TYPE_GYROSCOPE//陀螺仪传感器
+Sensor.TYPE_LIGHT//光线传感器
+Sensor.TYPE_MAGNETIC_FIELD//磁场传感器
+Sensor.TYPE_ORIENTATION//方向传感器
+Sensor.TYPE_PRESSURE//气压传感器
+Sensor.TYPE_PROXIMITY//距离传感器
+Sensor.TYPE_TEMPERATURE//温度传感器
+* getVersion()//获取传感器版本
+* getMaximumRange()//获取最大范围
+* getResolution()//获取精度
+* getPower()//传感器使用耗电量
+* getMinDelay()//最小延时
+* getFifoReservedEventCount()
+* getFifoMaxEventCount()
+* getStringType()
+
+### PowerManager安卓电量管理
+尽量避免使用这个类，并且使用完以后一定要及时释放。只要我们拿着这个锁， 那么系统就无法进入休眠状态。
+* 添加权限：<!-- 允许应用在手机屏幕关闭后后台进程仍然运行 -->
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.DEVICE_POWER"/>
+* 获取 WakeLock 对象：
+PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+PowerManager的几个实用方法:
+isScreenOn ()判断屏幕是否亮着（不管是暗的dimed还是正常亮度），在API20被弃用，推荐boolean PowerManager::isInteractive ()
+goToSleep(long time)time是时间戳，一般是System.currentTimeMillis()+timeDelay。强制系统立刻休眠，需要Manifest中添加权限"android.permission.DEVICE_POWER"。按下电源键锁屏时调用的就是这个方法。
+wakeUp(long time)唤醒屏幕。参数含义，所需权限与上同。按下电源键解锁屏幕时调用的就是这个方法。
+reboot(String reason)重启手机，reason是要传给linux内核的参数，比如“recovery”重启进recovery模式，“fastboot”重启进fastboot模式。需要权限"android.permission.REBOOT"。
+mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
+* WakeLock的等级：
+1.PARTIAL_WAKE_LOCK：保证CPU保持高性能运行，而屏幕和键盘背光（也可能是触摸按键的背光）关闭。一般情况下都会使用这个WakeLock。
+2.ACQUIRE_CAUSES_WAKEUP：这个WakeLock除了会使CPU高性能运行外还会导致屏幕亮起，即使屏幕原先处于关闭的状态下。
+3.ON_AFTER_RELEASE：如果释放WakeLock的时候屏幕处于亮着的状态，则在释放WakeLock之后让屏幕再保持亮一小会。如果释放WakeLock的时候屏幕本身就没亮，则不会有动作。
+mWakeLock.acquire();//获得WakeLock
+mWakeLock.release();//释放WakeLock
+isHeld()//是否已经获取WakeLock
+setReferenceCounted(boolean value)：//是否使用引用计数。类似于垃圾回收策略，只是把垃圾回收改成了WakeLock回收。
+
+
+### 电源管理
+在低电耗模式下，您的应用会受到以下限制：
+暂停访问网络。
+系统忽略唤醒锁定。
+标准 AlarmManager 闹钟（包括 setExact() 和 setWindow()）推迟到下一个维护期。
+如果您需要设置在设备处于低电耗模式时触发的闹钟，请使用 setAndAllowWhileIdle() 或 setExactAndAllowWhileIdle()。
+使用 setAlarmClock() 设置的闹钟将继续正常触发，系统会在这些闹钟触发之前不久退出低电耗模式。
+系统不执行 WLAN 扫描。
+系统不允许运行同步适配器。
+系统不允许运行 JobScheduler。
+
+在低电耗模式下测试您的应用
+您可以按以下步骤在低电耗模式下测试您的应用：
+使用 Android 6.0（API 级别 23）或更高版本的系统映像配置硬件设备或虚拟设备。
+将设备连接到开发计算机并安装您的应用。
+运行您的应用并使其保持活动状态。
+运行以下命令，强制系统进入闲置模式：
+    $ adb shell dumpsys deviceidle force-idle
+准备就绪后，运行以下命令，使系统退出闲置模式：
+    $ adb shell dumpsys deviceidle unforce
+    打印Light state: ACTIVE, deep state: ACTIVE
+执行以下命令，重新激活设备：
+    $ adb shell dumpsys battery reset
+在重新激活设备后观察应用的行为。确保应用在设备退出低电耗模式时正常恢复。
+
+在应用待机模式下测试您的应用
+如需在应用待机模式下测试您的应用，请执行以下操作：
+使用 Android 6.0（API 级别 23）或更高版本的系统映像配置硬件设备或虚拟设备。
+将设备连接到开发计算机并安装您的应用。
+运行您的应用并使其保持活动状态。
+运行以下命令，强制应用进入应用待机模式：
+$ adb shell dumpsys battery unplug
+    $ adb shell am set-inactive <packageName> true
+使用以下命令模拟唤醒您的应用：
+$ adb shell am set-inactive <packageName> false
+    $ adb shell am get-inactive <packageName>
+在唤醒应用后观察它的行为。确保应用从待机模式正常恢复。您应特别检查应用的通知和后台作业是否继续按预期运行。
+
+ public static void testPowerManager(Context context) {
+    final PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//        powerManager.isRebootingUserspaceSupported();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // 如果设备当前处于空闲模式，则返回true。
+        boolean isDeviceIdleMode = powerManager.isDeviceIdleMode();
+        // 返回给定的应用程序包名称是否在设备的电源白名单中。
+        boolean isIgnoringBatteryOptimizations = powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
+        boolean isInteractive = powerManager.isInteractive();
+        // 如果设备当前处于省电模式，则返回true。
+        boolean isPowerSaveMode = powerManager.isPowerSaveMode();
+        LogUtils.d(TAG, "testPowerManager: isDeviceIdleMode:" + isDeviceIdleMode+"*isIgnoringBatteryOptimizations*"+
+                isIgnoringBatteryOptimizations+"*isInteractive*"+isInteractive+"*isPowerSaveMode*"+isPowerSaveMode);
+    }
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        // 此功能检查设备是否已实现“持续性能模式”。
+        boolean isSustainedPerformanceModeSupported = powerManager.isSustainedPerformanceModeSupported();
+        LogUtils.d(TAG, "testPowerManager: isSustainedPerformanceModeSupported:" + isSustainedPerformanceModeSupported);
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // 此函数返回设备的当前热状态。
+        int currentThermalStatus = powerManager.getCurrentThermalStatus();
+        LogUtils.d(TAG, "testPowerManager: currentThermalStatus:" + currentThermalStatus);
+        // 用于更改热状态，监听回调将被排队在主线程上的任务
+        powerManager.addThermalStatusListener(new PowerManager.OnThermalStatusChangedListener(){
+
+            @Override
+            public void onThermalStatusChanged(int status) {
+                powerManager.removeThermalStatusListener(this);
+                LogUtils.d(TAG, "testPowerManager: addThermalStatusListener onThermalStatusChanged:" + status);
+            }
+        });
+    }
+}
+
+### 闹钟
+alarmManager.set设置的时间不准，测试看到设置为20秒，实际为5秒。 
+标准 AlarmManager 闹钟（包括 setExact() 和 setWindow()）推迟到下一个维护期。
+如果您需要设置在设备处于低电耗模式时触发的闹钟，请使用 setAndAllowWhileIdle() 或 setExactAndAllowWhileIdle()。
+使用 setAlarmClock() 设置的闹钟将继续正常触发，系统会在这些闹钟触发之前不久退出低电耗模式。
+
+AlarmManager.ELAPSED_REALTIME：使用相对时间，可以通过SystemClock.elapsedRealtime() 获取（从开机到现在的毫秒数，包括手机的睡眠时间），设备休眠时并不会唤醒设备。
+AlarmManager.ELAPSED_REALTIME_WAKEUP：与ELAPSED_REALTIME基本功能一样，只是会在设备休眠时唤醒设备。
+AlarmManager.RTC：使用绝对时间，可以通过 System.currentTimeMillis()获取，设备休眠时并不会唤醒设备。
+AlarmManager.RTC_WAKEUP: 与RTC基本功能一样，只是会在设备休眠时唤醒设备。
+
+long triggerAtMillis = SystemClock.elapsedRealtime() + syncInterval;
+long triggerAtMillis = System.currentTimeMillis() + syncInterval;
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, pendingIntent);
+} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    alarmManager.setExact(type, triggerAtMillis, pendingIntent);
+} else {
+    alarmManager.set(type, triggerAtMillis, pendingIntent);
+}

@@ -63,11 +63,38 @@ try {
 * 使用中断，需要中断线程的地方执行thread.interrupt();线程内部try该异常或者interrupted()方法判断是否中断，是的话，进行内存销毁释放操作。
 * 自己设置boolean标志来暂停。前面加volatile
 
+### 数据结构
+HashMap是数组加链表
 
+### Socket网络编程
 
+### volatile只能保证两个一致性
+* 保证可见性，在修改带有volatile修饰的成员变量时，会多出一个lock指令。lock指令是一种控制指令，在多线程环境下，lock汇编指令可以基于总线锁或者缓存锁的机制来达到可见性的效果。
+* volatile如何保证不会被执行重排序，volatile在前面和后面分别插入内存屏障，而volatile读操作是在后面插入两个内存屏障。
+* 多线程下是非线程安全的，所以volatile不保证原子性，要保证原子性，则加锁synchronized 或者使用原子变量 来解决。原子变量通过调用unsafe类的cas方法实现了原子操作。
 
+### LruCache的使用，以图片缓存为例
+int maxMemory = (int) (Runtime.getRuntime().totalMemory()/1024);
+int cacheSize = maxMemory/8;
+mMemoryCache = new LruCache<String,Bitmap>(cacheSize){
+    @Override
+    protected int sizeOf(String key, Bitmap value) {
+        return value.getRowBytes()*value.getHeight()/1024;
+    }
+};
+* 设置LruCache缓存的大小，一般为当前进程可用容量的1/8。 
+* 重写sizeOf方法，计算出要缓存的每张图片的大小。
+**注意：缓存的总容量和每个缓存对象的大小所用单位要一致。**
+* 成员变量有：size;//当前cache的大小，maxSize;//cache最大大小，putCount;//put的次数
+* createCount;//create的次数，evictionCount;//驱逐剔除的次数，hitCount;//命中的次数，missCount;//未命中次数
 
-
+### LruCache使用的是LinkedHashMap，LinkedHashMap的理解
+* HashMap的两个属性Entry<K,V>  before,after。Entry的构造函数还有一个next指针，用于维护before,after的连接顺序。
+* LinkedHashMap在HashMap功能上，增加Entry<K,V>  header(链表的头结点)，跟before,after组成一个双向链表，来实现按插入顺序或访问顺序排序。
+* LinkedHashMap多线程不安全
+* LinkedHashMap<>(0, 0.75f, true);构造函数的三个参数：初始容量,客座率，默认0.75f, true：基于访问顺序,默认是false，基于插入顺序
+* true：基于访问顺序。最近访问的对象会被放到队尾，然后最后输出。
+* LruCache正是用了LinkedHashMap的accessOrder=true构造参数实现LRU访问顺序。
 
 
 

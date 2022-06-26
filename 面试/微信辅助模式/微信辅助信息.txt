@@ -1,59 +1,6 @@
-### 检查辅助模式是否可用
-    public static boolean checkAccessibilityEnabled(Class service) {
-        AccessibilityManager mAccessibilityManager = (AccessibilityManager) BaseCommon.Base.application.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        List<AccessibilityServiceInfo> accessibilityServices = mAccessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC);
-        for (AccessibilityServiceInfo info : accessibilityServices) {
-            if (info.getId().equals(service.getName())) {
-                return true;
-            }
-        }
-        return isSettingOpen(service, BaseCommon.Base.application);
-    }
- public static boolean isSettingOpen(Class service, Context cxt) {
-        try {
-            int enable = Settings.Secure.getInt(cxt.getContentResolver(), Settings.Secure.ACCESSIBILITY_ENABLED, 0);
-            if (enable != 1)
-                return false;
-            String services = Settings.Secure.getString(cxt.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (!TextUtils.isEmpty(services)) {
-                TextUtils.SimpleStringSplitter split = new TextUtils.SimpleStringSplitter(':');
-                split.setString(services);
-                while (split.hasNext()) { // 遍历所有已开启的辅助服务名
-                    if (split.next().equalsIgnoreCase(cxt.getPackageName() + "/" + service.getName()))
-                        return true;
-                }
-            }
-        } catch (Throwable e) {//若出现异常，则说明该手机设置被厂商篡改了,需要适配
-            Log.e(TAG, "isSettingOpen: " + e.getMessage());
-        }
-        return false;
-    }
-
-### 设置界面开启辅助模式
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, REQUEST_ALERT_PERMISSIONS);
-
-### 继承自AccessibilityService去获取界面的点击
-            //当前窗口根节点
-            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        List<AccessibilityNodeInfo> nodeInfoList = root.findAccessibilityNodeInfosByViewId(id);
-点击跳转
-    public static void clickChattingUI(AccessibilityService service) {
-        LogUtil.getInstance().d(TAG, "clickChattingUI");
-        // 群聊界面 com.tencent.mm.ui.chatting.ChattingUI
-        // todo 这里需要多加判断，很多页面都有这两个节点
-        AccessibilityNodeInfo chattingBackNode = AccessibilityServiceUtil.findNode(service, "com.tencent.mm:id/lt",
-                "", "", "android.widget.TextView");
-        AccessibilityNodeInfo chattingMoreNode = AccessibilityServiceUtil.findNode(service, "com.tencent.mm:id/lo",
-                "聊天信息", null, "android.widget.ImageButton");
-        if (chattingBackNode != null && chattingMoreNode != null) {
-            AccessibilityServiceUtil.performViewClick(chattingMoreNode);
-            chattingBackNode.recycle();
-            chattingMoreNode.recycle();
-        }
-    }
-
 ### 微信主界面 com.tencent.mm.ui.LauncherUI
+
+
 
 ### 群聊界面 com.tencent.mm.ui.chatting.ChattingUI
 * 返回

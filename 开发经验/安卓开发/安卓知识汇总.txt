@@ -66,7 +66,12 @@ Bunder通信的四个角色：Client进程，Server进程，Binder驱动（统�
 ### AIDL的具体使用
 [参考](http://gityuan.com/page2/)
 * 先在服务端创建AIDL
-由于AIDL只支持数据类型:基本类型（int，long，char，boolean等），String，CharSequence，List，Map。**其他类型必须使用import导入，即使它们可能在同一个包里，并加上in/out标记，如果其他类型是自定义的Parcelable对象，必须创建一个和它同名的AIDL文件，并在其中声明它为parcelable类型。**
+由于AIDL只支持数据类型:基本类型（int，long，char，boolean等），String，CharSequence，List，Map。**其他类型必须使用import导入，
+即使它们可能在同一个包里，并加上in/out标记，如果其他类型是自定义的Parcelable对象，必须创建一个和它同名的AIDL文件，并在其中声明它为parcelable类型。**
+ in 表示数据只能由客户端流向服务端。（表现为服务端修改此参数，不会影响客户端的对象）
+ out 表示数据只能由服务端流向客户端。（表现为服务端收到的参数是空对象，并且服务端修改对象后客户端会同步变动）
+ inout 则表示数据可在服务端与客户端之间双向流通。（表现为服务端能接收到客户端传来的完整对象，并且服务端修改对象后客户端会同步变动）
+ oneway 关键字用于修改远程调用的行为，被oneway修饰了的方法不可以有返回值，也不可以有带out或inout的参数。
 * Make Project ，SDK为自动为我们生成对应的Binder类。该接口中有个重要的内部类Stub ，继承了Binder 类，同时实现了IBookManager接口。 
 * 服务端首先要创建一个Service用来监听客户端的连接请求。然后在Service中返回Stub类的实例。
 * 客户端使用时，首先将服务端工程中的aidl文件夹下的内容整个拷贝到客户端工程的对应位置下
@@ -524,6 +529,7 @@ private static class UIHandler extends Handler {
 * HandlerThread有自己的内部Looper对象，可以进行looper循环；
 * 通过获取HandlerThread的looper对象传递给Handler对象，可以在handleMessage方法中执行异步任务。
 * 创建HandlerThread后必须先调用HandlerThread.start()方法，Thread会先调用run方法，创建Looper对象。
+* 需要在页面消耗的时候remove掉消息，避免内存泄漏
 
 ### AndroidX的使用
 [参考](https://blog.csdn.net/qq_33721320/article/details/102981911)
@@ -967,6 +973,25 @@ PhoneWindow继承Window，由WindowManagerService管理
 DecorView继承FrameLayout，由PhoneWindow拿到ViewRootImpl进行管理，是所有应用窗口的根View 。
 每一个Activity都包含一个Window对象，Window对象通常由PhoneWindow实现。该类是一个抽象类，提供了绘制窗口的一组通用API。可以将之理解为一个载体，各种View在这个载体上显示。
 PhoneWindow内部包含了一个DecorView对象。DectorView对象是所有应用窗口(Activity界面)的根View。 PhoneWindow类是把一个FrameLayout类即DecorView对象进行一定的包装，将它作为应用窗口的根View，并提供一组通用的窗口操作接口。
+
+### RecycleView
+
+### 事件分发
+
+### Rxjava的使用
+
+### 组件化调用
+
+### 音视频开发
+
+### handler的post和send执行流程
+会一步步判空，最终执行
+
+### livedata底层还是handler,会出现post执行不到位的情况，第一次不生效，第二次才生效
+
+
+
+
 
 
 

@@ -1,0 +1,420 @@
+### ContentProvider方法介绍
+public class Provider extends ContentProvider {
+    private static final String DATABASE_NAME = "Provider.db";
+    private static final String AUTHORITY = "com.example.test";
+    private static final String NOTIFIER_URI = "content://com.example.test/query/single";
+    private static final Object LOCK = new Object();
+    private static UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static SparseArray<String> TABLE_NAMES = new SparseArray<String>(10);
+    private final ThreadLocal<Set<Uri>> mThreadLocal = new ThreadLocal<Set<Uri>>();
+    private static final String TABLE_NAME = "table";
+    private SQLiteDatabase mDatabase;
+
+    private SQLiteDatabase getDatabase() {
+        synchronized (LOCK) {
+            DatabaseHelper helper = DatabaseHelper.getInstance(context, DATABASE_NAME);
+            mDatabase = helper.getWritableDatabase();
+            update(mDatabase);
+            return mDatabase;
+        }
+    }
+
+    private void update(SQLiteDatabase db) {
+        if (!db.isOpen())
+            return;
+        db.beginTransaction();
+        try {
+            db.execSQL("update ");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    @Override
+    public boolean onCreate() {
+        init(context);
+        // 这里两个角标要一致
+        sURIMatcher.addURI(AUTHORITY, "query/single/*", SINGLE_WORD);  
+        TABLE_NAMES.put(0, TABLE_NAME);
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+        if (mDatabase != null) {
+            mDatabase.close();
+            mDatabase = null;
+        }
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        SQLiteDatabase db = getDatabase(getContext());
+        int match = sURIMatcher.match(uri);
+        String tableName = TABLE_NAMES.get(match);
+        Uri resultUri;
+        try {
+            switch (match) {
+                case SINGLE_WORD:
+                   if(match == CONTACT2){
+                        longId = db.insertWithOnConflict(tableName, "nullColumnHack", values, SQLiteDatabase.CONFLICT_IGNORE);
+                    } else {
+                        longId = db.insert(tableName, "nullColumnHack", values);
+                    }
+                    resultUri = ContentUris.withAppendedId(uri, longId);
+                    return resultUri;;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+        } catch (SQLiteException e) {
+        } finally {
+        }
+        getContext().getContentResolver().notifyChange(NOTIFIER_URI, null);
+        return result;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        SQLiteDatabase db = getDatabase(getContext());
+        int match = sURIMatcher.match(uri);
+        String tableName = TABLE_NAMES.get(match);
+        int result = -1;
+        try {
+            switch (match) {
+                case SINGLE_WORD:
+                    //db.execSQL(SQL + id);
+                    result = db.delete(tableName, selection, selectionArgs);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+        } catch (SQLiteException e) {
+        } finally {
+        }
+        if (result > 0) {
+            getContext().getContentResolver().notifyChange(NOTIFIER_URI, null);
+        }
+        return result;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        SQLiteDatabase db = getDatabase(getContext());
+        int match = sURIMatcher.match(uri);
+        String tableName = TABLE_NAMES.get(match);
+        int result = -1;
+        try {
+            switch (match) {
+                case SINGLE_WORD:
+                    result = db.update(tableName, values, whereWithAccountId(id), selectionArgs);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+        } catch (SQLiteException e) {
+        } finally {
+        }
+        if (result > 0) {
+            getContext().getContentResolver().notifyChange(NOTIFIER_URI, null);
+        }
+        return result;
+    }
+
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        SQLiteDatabase db = getDatabase(getContext());
+        int match = sURIMatcher.match(uri);
+        String tableName = TABLE_NAMES.get(match);
+        Cursor result = null;
+        try {
+            switch (match) {
+                case SINGLE_WORD:
+                    result = db.rawQuery(sql, selectionArgs);
+                    break;
+                case SINGLE_WORD_:
+                    return db.query(MessageMove.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder, limit);
+                case SINGLE_WORD_:
+                    MatrixCursor cursor = new MatrixCursor(projection);
+                    Object row = new Object[projection.length];
+                    for (int i = 0; i < projection.length; i++) {
+                        String column = projection[i];
+                        if (column.equals("key")) {
+                                row[i] = "value";
+                        }
+                    }
+                    cursor.addRow(row);
+                    return cursor;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
+        } catch (SQLiteException e) {
+        } finally {
+        }
+        if (result != null && !isTemporary()) {
+             result.setNotificationUri(getContext().getContentResolver(), NOTIFIER_URI);
+        }
+        return result;
+    }
+
+    @Override
+    public String getType(Uri uri) {
+        //参考https://blog.csdn.net/liyang_nash/article/details/79758816
+        int match = sURIMatcher.match(uri);
+        switch (match) {
+            case SINGLE_WORD:
+                return "vnd.android.cursor.item/test-provider";
+            case SINGLE_WORD_:
+                return "vnd.android.cursor.dir/test-provider";
+        }
+    }
+
+    @Override
+    public Bundle call(String method, String arg, Bundle extras) {
+        Bundle result;
+        if (messageUri != null) {
+            result = new Bundle(1);
+            result.putParcelable("", "");
+        } else {
+            result = null;
+        }
+    }
+
+    @Override
+    public ParcelFileDescriptor openFile(final Uri uri, final String mode) throws FileNotFoundException {
+        int match = sURIMatcher.match(uri);
+        switch (match) {
+            case SINGLE_WORD:
+                return ParcelFileDescriptor.open(new File(filePath), ParcelFileDescriptor.parseMode(mode);
+        }
+        throw new FileNotFoundException("unable to open file");
+    }
+
+    @Override
+    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+        SQLiteDatabase db = getDatabase(getContext());
+        mThreadLocal.set(Sets.<Uri>newHashSet());
+        db.beginTransaction();
+        try {
+            ContentProviderResult[] results = super.applyBatch(operations);
+            db.setTransactionSuccessful();
+            return results;
+        } finally {
+            db.endTransaction();
+            Set<Uri> notifications = mThreadLocal.get();
+            mThreadLocal.set(null);
+            for (Uri uri : notifications) {
+                context.getContentResolver().notifyChange(uri, null);
+            }
+        }
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+        writer.println("Installed services:");
+        writer.println("  " + info);
+        writer.println();
+    }
+
+    // 这个SharedPreference的接口
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if ("".equals(key)) {
+            getContext().getContentResolver().notifyChange(NOTIFIER_URI, null);
+        }
+    }
+}
+
+### 数据库操作SQLiteOpenHelper
+* 继承SQLiteOpenHelper，并设置为单例
+DatabaseHelper helper = DatabaseHelper.getInstance(context, DATABASE_NAME);
+mDatabase = helper.getWritableDatabase();
+public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final int DATABASE_VERSION = 1000; // 数据库版本，用于升级
+    private static final Object LOCK = new Object();
+    @SuppressLint("StaticFieldLeak")
+    private static DatabaseHelper helper = null;
+    private Context mContext;
+
+    public static DatabaseHelper getInstance(Context context, String name) {
+        synchronized (LOCK) {
+            if (helper == null) {
+                helper = new DatabaseHelper(context, name);
+                // 解决android.database.sqlite.SQLiteException: not a writable directory (code 1 SQLITE_ERROR): , while compiling: PRAGMA temp_store_directory = 'databases/tmp'
+                File cacheFile = context.getCacheDir();
+                String tmpDirPath = cacheFile.getPath() + "/databases/tmp";
+                File file = new File(tmpDirPath);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+                String sql = "PRAGMA temp_store_directory = '" + tmpDirPath + "'";
+                try {
+                    helper.getReadableDatabase().execSQL(sql);
+                } catch (Throwable e) {
+                    // ignore
+                }
+            }
+            return helper;
+        }
+    }
+
+    DatabaseHelper(Context context, String name) {
+        super(context, name, null, DATABASE_VERSION);
+        mContext = context;
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        createTables(mContext, db);
+    }
+
+    public static void createTables(Context context, SQLiteDatabase db) {
+        createTable(context, db);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        LogUtils.d(TAG, "Downgrade from "+oldVersion+" to "+newVersion);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 1001) {
+            V1001.INSTANCE.upgrade(mContext, db, oldVersion);
+        }
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        try {
+            db.execSQL("DELETE FROM " + * + " WHERE " + * + " ISNULL;");
+        } catch (SQLException e) {
+            LogUtils.e(TAG, e, "Exception cleaning SQLiteDatabase");
+        }
+    }
+}
+
+### ContentProvider交互
+* LoaderManager mLoaderManager = LoaderManager.getInstance(this);
+Bundle bundle = new Bundle(4);
+mLoaderManager.restartLoader(LOAD_ID, bundle, mLoader);
+class Loader implements LoaderManager.LoaderCallbacks<Cursor> {
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = null;
+        String orderStr = null;
+        Uri uri = Uri.parse(NOTIFIER_URI + "/keyword");  
+        if (args != null && args.get("selection") != null) {
+            selection = (String) args.get("selection");
+        }
+        return new CursorLoader(getContext(), uri, null, selection, null, orderStr);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        switch (loader.getId()) {
+            case LOAD_ID:
+                getMvpView().refreshList(data);
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
+}
+* private static Uri getImageContentUri(Context context, String filePath) {
+    Uri uri = null;
+    Cursor cursor = null;
+    try {
+        cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new String[]{MediaStore.Images.Media._ID}, MediaStore.Images.Media.DATA + "=? ",
+                new String[]{filePath}, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+                Uri baseUri = Uri.parse("content://media/external/images/media");
+                uri = Uri.withAppendedPath(baseUri, "" + id);
+            }
+        }
+        if (uri == null) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DATA, filePath);
+            uri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        }
+    } catch (Exception e) {
+        LogUtils.e(TAG, e, "error on getImageContentUri cursor");
+    } finally {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+    return uri;
+}
+* resolver.registerContentObserver(uri, true, mObserver);
+Uri uri = Uri.parse(NOTIFIER_URI + "/keyword"); 
+// 由getContext().getContentResolver().notifyChange(NOTIFIER_URI, null);触发
+ContentObserver mObserver = new ContentObserver(new Handler()) {
+    @Override
+    public void onChange(boolean selfChange) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+    }
+};
+* AsyncQueryHandler查询
+private final class QueryHandler extends AsyncQueryHandler {
+    public QueryHandler(ContentResolver cr) {
+        super(cr);
+    }
+    @Override
+    protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+        super.onQueryComplete(token, cookie, cursor);
+        // 在这里你可以获得一个cursor和你传入的附加的token和cookie。该方法在当前线程下（如果传入的是默认的Looper话），可以自由设定UI信息
+        // 更新mAdapter的Cursor
+        mAdapter.changeCursor(cursor);
+        if (cursor.getColumnIndex("test") > 0) {
+            String test = cursor.getString(cursor.getColumnIndex("test"));
+        }
+    }
+}
+// startInsert, startDelete, startUpdate, startQuery四种方法,并有响应的onXXXComplete()方法.于对应的4个onXXXComplete()方法都是空实现,因此我们完成相应调用后进行后续其他的操作. 
+queryHandler.startQuery(token, cookie, uri, projection, selection, selectionArgs, sortBy);
+token,一个令牌，主要用来标识查询,保证唯一即可.需要跟onXXXComplete方法传入的一致。（当然你也可以不一致，同样在数据库的操作结束后会调用对应的onXXXComplete方法 ）
+cookie,你想传给onXXXComplete方法使用的一个对象。(没有的话传递null即可)
+Uri uri（进行查询的通用资源标志符）:
+projection 查询的列 
+selection  限制条件 
+selectionArgs 查询参数
+orderBy 排序条件
+* ContentResolver.requestSync(account, AUTHORITY, bundle); // 这是一套系统同步框架
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

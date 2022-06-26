@@ -202,3 +202,4 @@ adb shell ping -c 4 www.baidu.com  //ping4次后停止ping
 
 
 
+

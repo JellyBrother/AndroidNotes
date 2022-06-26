@@ -1,0 +1,115 @@
+官方文档：https://developer.android.google.cn/topic/performance/vitals/launch-time
+
+### 启动分类
+* 热启动：最快，  后台->前台
+* 温启动：较快，重走Activity生命周期
+* 冷启动：耗时最多，衡量标准
+启动App, 加载空白Window, 创建进程, 
+随后任务：
+创建Application, 启动主线程，创建MainActivity, 加载布局, 布置屏幕， 首帧绘制
+优化方向：Application 和 Activity生命周期
+
+### 启动时间测量方式
+* adb命令
+adb shell am start -W packagename/首屏Activity
+thisTime:   最后一个Activity启动耗时
+TotalTime:  所有Activity启动耗时
+WaitTime:   AMS启动Activity的总耗时
+* 手动打点
+启动时埋点，启动结束埋点， 二者差值；精确，可带到线上，推荐使用
+注：onWindowFocusChanged只是首帧时间， 真实数据展示 Feed第一条展示
+启动工具选择
+TraceView、SystemTrace
+
+### 优雅获取方法耗时
+* 手动埋点
+  侵入性强、工作量大
+* AOP方式  （AspectJ)
+  Aspect Oriented Programming: 面向切面编程
+  针对同一类问题的统一处理；无侵入添加代码；修改方便
+  Join Points: 程序运行时的执行点，可以作为切面的地方: 函数调用、执行；获取、设置变量；类初始化
+  PointCut:带条件的JoinPoints
+  Advice: 一种Hook, 要插入代码的位置
+    1）Before: PointCut之前执行
+    2）After: PointCut之后执行
+    3）Around: PointCut之前、之后分别执行
+ 过滤显示耗时 Displayed */.ui.ConversationList
+ 启动时间统计： adb shell am start -S -R 5 -W */.ui.ConversationList 
+
+### 安卓自带debug工具，打印方法调用链路耗时
+参考：https://blog.csdn.net/DG_summer/article/details/77366096?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_ecpm_v1~rank_v31_ecpm-1-77366096-null-null.pc_agg_new_rank&utm_term=android+%E6%9F%A5%E7%9C%8B%E6%96%B9%E6%B3%95%E8%80%97%E6%97%B6&spm=1000.2123.3001.4430
+TraceView：
+* 生成.trace文件
+在我们需要追踪的代码中，前后输入：
+Debug.startMethodTracing(“test”);//设置参数为生成的trace文件名
+Debug.stopMethodTracing();
+然后运行项目,此时在设备的SD下会生成test.trace文件
+* 将文件拖到as中，即可查看
+* X轴表示时间消耗，单位毫秒，Y轴表示各个线程，每个线程中不同方法使用不同颜色表示，颜色面积宽，表示占用cpu时间越长
+* 列1：”Name”表示函数名。
+双击函数名，可以看到在上半界面是时间轴面图（Timeline Panel）看他的所消耗的时间段。
+双击函数名左边的”+”展开后可以看到，该函数的”parents”和”children”
+列2：”incl%”表示函数的Inclusive time在整个MethodTracing时间里占的百分比。
+列3：”Inclusive”表示Inclusive time。
+列4：”Excl%”表示函数的Exclusive time在整个MethodTracing时间里占的百分比。
+重点列：我们关注点
+“Calls+RecurCalls/Total”表示对函数的调用次数（包括递归调用）。如图2的toplevel那列为”30+0”表示30次非递归调用，0次递归调用.
+Cpu Time / Call 表示该方法耗时
+Real time/Call 实际实际
+Real time 包括了cpu的上下文切换、阻塞、GC等等，所以时间比较长，所以我们性能分析重点关注：Calls+RecurCalls/Total， Cpu Time / Call这两列
+total: 执行总时间
+self:  自身执行所耗时间 
+children:  内部调用的函数 执行耗时
+Thread Time:  代码消耗CPU的时间
+Wall Clock Time: 代码执行时间
+
+### 远程诊断上传耗时堆栈SysTrace
+1, 结合Android 内核的数据，生成html报告，API18以上使用，推荐TraceCompat
+2, 轻量级，开销小； 直观反映cpu利用率
+使用方式：
+添加
+~
+    TraceCompact.beginSection("");
+    ...
+    TraceCompact.endSection();
+~
+使用命令导出文件
+    python systrace.py -t 10 [other-options] [categories]
+示例：
+    python systrace.py -b 32768 -t 5 -a packageName -o outFileName.hitm sched gfx view wm am app
+注：-b 设置buffer;  -t 设置时间; -a 设置包名; -o 设置输出文件名;
+
+### 解决
+* 不设置预加载
+* 启动用默认图片
+* 耗时操作放子线程
+* 部分初始化放activity
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

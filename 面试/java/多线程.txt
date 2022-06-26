@@ -1,0 +1,153 @@
+### 多线程
+* 当多线程只读的时候是不需要加锁的，不会对数据造成影响。
+* 多线程写安全问题，才会加锁，进行线程同步。避免线程1写一点的时候，线程2再写一点，线程1再写的时候就会覆盖线程2写的内容。产生脏数据（数据异常）。
+* 多线程写也可以不加锁，可以分段写，例如一个文件，划分文件1，文件2...，线程1写文件1，线程2写文件2...，统计写入进度。都完成后，再整合成一个文件。
+* 尽量避免全局锁，因为锁太大，导致持有这个锁的所有方法都要等待锁的释放，耗时。所以在需要的地方进行加锁，确保性能。
+* 多线程并发性能问题，一个用户10个线程访问后台，十个用户同时访问后台的时候。导致服务器压力增大（从数据库取数据），这时候需要加缓存，减轻数据库的压力，数据库只需要进行同步更新。
+* 多线程读会有性能问题，多线程并发会激增性能问题。多线程写会造成性能和安全问题。
+* 多线程的核心：原子性，指令有序性和线程可见性。
+* 原子性和事务的原子性一样，对于一个操作或者多个操作，要么都执行，要么都不执行。
+* 指令有序性是指，在我们编写的代码中，上下两个互不关联的语句不会被指令重排序。
+* 线程可见性是指一个线程修改了某个变量，其他线程能马上知道。解释：每个线程都有单独的工作空间，所有线程处于同一个工作空间，线程和线程之间通过公共空间进行调度。
+
+### 锁
+* synchronized静态方法的锁对象是静态方法所在的类，非静态方法的锁对象是创建调用该方法的new对象。
+* 多线程写安全问题，才会加锁，进行线程同步。避免线程1写一点的时候，线程2再写一点，线程1再写的时候就会覆盖线程2写的内容。产生脏数据（数据异常）。
+* 尽量避免全局锁，因为锁太大，导致持有这个锁的所有方法都要等待锁的释放，耗时。所以在需要的地方进行加锁，确保性能。
+* 悲观锁，一个线程占用了一个锁，而导致其他所有需要这个锁的线程进入等待，一直到该锁被释放。
+* 乐观锁，抱着尝试的态度去执行某项操作，如果操作失败或者操作冲突，那么就进入重试。
+* 无锁算法，如CAS算法（比较再交换）：内存值a，旧的预期值b，要修改的新值c。当且仅当预期值b和内存值a相同时，将内存值a修改为c，否则什么都不做。
+
+### 线程停止
+线程的stop方法被废弃掉了，因为不安全，当多线程操作同一个内存的时候，调用stop会导致内存写入状态异常，其他线程操作这一块内存的时候，也会异常。
+* 让线程自然的执行完毕
+* 使用中断，需要中断线程的地方执行thread.interrupt();线程内部try该异常或者interrupted()方法判断是否中断，是的话，进行内存销毁释放操作。
+* 自己设置boolean标志来暂停。前面加volatile
+
+
+### 线程池
+* 创建
+ThreadPoolExecutor mThreadPool = new ThreadPoolExecutor(40, 40, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(120), new ThreadFactory() {
+    AtomicInteger mCount = new AtomicInteger(1);
+    public Thread newThread(Runnable r) {
+        String name = "ImapService #" + mCount.getAndIncrement();
+        return new Thread(r, name);
+    }
+}, new ThreadPoolExecutor.AbortPolicy());
+- 40：核心线程数
+- 40：最大线程数
+两个相等，即其线程全为核心线程，是一个固定大小的线程池，是其优势；
+线程数量的设置没有一个明确的指标，根据实际情况，只要不是设置的偏大和偏小都问题不大，结合下面这个公式即可
+    /**
+    * Nthreads=最大线程数
+    * Ncpu=CPU数量
+    * Ucpu=目标CPU的使用率，0<=Ucpu<=1
+    * W/C=任务等待时间与任务计算时间的比率
+    */
+Nthreads = Ncpu*Ucpu*(1+W/C)
+- 1：线程空闲后最大存活时间，超过这个时间后会dead
+- TimeUnit：时间单位
+TimeUnit.DAYS          //天
+TimeUnit.HOURS         //小时
+TimeUnit.MINUTES       //分钟
+TimeUnit.SECONDS       //秒
+TimeUnit.MILLISECONDS  //毫秒
+- BlockingQueue：线程等待队列，队列最大值为Integer.MAX_VALUE。如果任务提交速度持续大余任务处理速度，会造成队列大量阻塞。因为队列很大，很有可能在拒绝策略前，内存溢出。
+有直接提交队列、有界任务队列、无界任务队列、优先任务队列：
+* 使用SynchronousQueue队列，提交的任务不会被保存，总是会马上提交执行。如果用于执行任务的线程数量小于maximumPoolSize，则尝试创建新的进程，如果达到maximumPoolSize设置的最大值，则根据你设置的handler执行拒绝策略。因此这种方式你提交的任务不会被缓存起来，而是会被马上执行，在这种情况下，你需要对你程序的并发量有个准确的评估，才能设置合适的maximumPoolSize数量，否则很容易就会执行拒绝策略；
+* 使用ArrayBlockingQueue有界任务队列，若有新的任务需要执行时，线程池会创建新的线程，直到创建的线程数量达到corePoolSize时，则会将新的任务加入到等待队列中。若等待队列已满，即超过ArrayBlockingQueue初始化的容量，则继续创建线程，直到线程数量达到maximumPoolSize设置的最大线程数量，若大于maximumPoolSize，则执行拒绝策略。在这种情况下，线程数量的上限与有界任务队列的状态有直接关系，如果有界队列初始容量较大或者没有达到超负荷的状态，线程数将一直维持在corePoolSize以下，反之当任务队列已满时，则会以maximumPoolSize为最大线程数上限。
+* 使用LinkedBlockingQueue无界任务队列，线程池的任务队列可以无限制的添加新的任务，而线程池创建的最大线程数量就是你corePoolSize设置的数量，也就是说在这种情况下maximumPoolSize这个参数是无效的，哪怕你的任务队列中缓存了很多未执行的任务，当线程池的线程数达到corePoolSize后，就不会再增加了；若后续有新的任务加入，则直接进入队列等待，当使用这种任务队列模式时，一定要注意你任务提交与处理之间的协调与控制，不然会出现队列中的任务由于无法及时处理导致一直增长，直到最后资源耗尽，内存溢出的问题。
+* 使用PriorityBlockingQueue它其实是一个特殊的无界队列，它其中无论添加了多少个任务，线程池创建的线程数也不会超过corePoolSize的数量，只不过其他队列一般是按照先进先出的规则处理任务，而PriorityBlockingQueue队列可以自定义规则根据任务的优先级顺序先后执行。
+该自定义规则为：
+public class ThreadTask implements Runnable,Comparable<ThreadTask>{// 实现Comparable接口
+public int compareTo(ThreadTask o) {// 重写compareTo方法，按线程优先级比较
+    return  this.priority>o.priority?-1:1;
+}
+- ThreadFactory：线程创建工厂，默认的是DefaultThreadFactory。
+可以按需要对线程池中创建的线程进行一些特殊的设置，如命名、优先级等
+- RejectedExecutionHandler：拒绝策略，默认的是AbortPolicy策略。
+AbortPolicy策略：该策略会直接抛出异常，阻止系统正常工作；
+CallerRunsPolicy策略：如果线程池的线程数量达到上限，该策略会把任务队列中的任务放在调用者线程当中运行；
+DiscardOledestPolicy策略：该策略会丢弃任务队列中最老的一个任务，也就是当前任务队列中最先被添加进去的，马上要被执行的那个任务，并尝试再次提交；
+DiscardPolicy策略：该策略会默默丢弃无法处理的任务，不予任何处理。当然使用此策略，业务场景中需允许任务的丢失；
+以上内置的策略均实现了RejectedExecutionHandler接口，当然你也可以自己扩展RejectedExecutionHandler接口，定义自己的拒绝策略
+* 配置
+mThreadPool.allowCoreThreadTimeOut(true);//当设置true时，允许核心线程超时后可以关闭。线程池没有任务的情况下，能销毁所有线程。
+mThreadPool.execute(new Thread());
+* submit和execute的区别
+返回值不同execute返回void，submit返回Future，可以通过Future来查看线程状态。
+
+### 多线程操作，怎么处理最终结果
+* 多线程改单线程，依次执行。
+* Rxjava
+Observable<List<Topic>> observable1 = OkHttpUtils.getRetrofit().create(ApiService.class).loadTopicList(1);
+Observable<List<New>> observable2 = OkHttpUtils.getRetrofit().create(ApiService.class).loadNewsList(1);
+Observable<TopicsAndNews> observable = Observable.zip(observable1, observable2, new Func2<List<Topic>, List<New>, TopicsAndNews>() {
+    @Override
+    public TopicsAndNews call(List<Topic> topics, List<New> news) {
+        TopicsAndNews topicsAndNews = new TopicsAndNews();
+        topicsAndNews.setNews(news);
+        topicsAndNews.setTopics(topics);
+        return topicsAndNews;
+    }
+});
+Subscriber<TopicsAndNews> subscriber = new DialogSubscriber<TopicsAndNews>(dialog) {
+    @Override
+    protected void onSuccess(TopicsAndNews topicsAndNews) {
+        onLoadDatasListener.onSuccess(topicsAndNews);
+    }
+
+    @Override
+    protected void onFailure(String msg) {
+        onLoadDatasListener.onFailure(msg);
+    }
+};
+observable.subscribeOn(Schedulers.io())
+        .unsubscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(subscriber);
+* 添加多个局部变量，先置为false，在各个线程执行完毕后，判断这些变量统一为true时，再处理。
+* 使用锁，先wait，各个线程执行完毕后，各自调用notify，都notify了就会自动执行。
+创建线程的构造函数时传入锁和list，并在线程内置为全局变量，总入口创建线程1，线程2，锁，list，从而实现list的同步。
+需要注意的是lock.wait()地方要避免执行不全或者执行不到的问题（不要放到判断语句内，实在需要，可以多个地方wait或者死循环wait）。
+* Condition是个接口，基本的方法就是await()和signal()方法
+* 通过线程池submit方法拿到Future，future.get()来得到执行结果，get是堵塞的，会一直等待线程执行完毕，然后处理。
+Future<String> future = mThreadPool.submit(new Runnable() {
+    @Override
+    public void run() {
+    }
+}, "test");
+try {
+    String test = future.get();
+} catch (Throwable throwable) {
+} 
+* Kotlin协程处理并发
+suspend fun one(): Int {
+    delay(1500)
+    return 1
+}
+suspend fun two(): Int {
+    delay(1500)
+    return 2
+}
+fun main() {
+    GlobalScope.launch {
+        /*measureTimeMillis返回给定的block代码的执行时间*/
+        val time = measureTimeMillis {
+            val sum = withContext(Dispatchers.IO) {
+                val one = async { one() }
+                val two = async { two() }
+                one.await() + two.await()
+            }
+            println("两个方法返回值的和：${sum}")
+        }
+        println("执行耗时：${time}")
+    }
+    println("上面的协程代码并不会阻塞掉线程")
+}
+* 使用CountDownLatch
+* 使用volatile和while语句轮询
+给List添加volatile，一个线程执行List添加，另外一个线程B死循环判断集合大小，当判断成立后抛出异常中断循环，并进行捕获。
+
+
+
