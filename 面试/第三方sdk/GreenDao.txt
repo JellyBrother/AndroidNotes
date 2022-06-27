@@ -1,0 +1,404 @@
+https://www.jianshu.com/p/eed4f7122fba
+
+GreenDao是一个开源的 Android ORM嵌入式关系数据库，通过将 Java 对象映射到数据库表(称为 ORM，“对象/关系映射”) ，使用一个简单的面向对象的 API 来存储、更新、删除和查询 Java 对象。
+
+GreenDao特点
+
+最佳性能 (可能是 Android 中最快的 ORM) ，基准测试也是开源的；
+易于使用的功能强大的 api，涵盖关系和连接；
+最小的内存消耗；
+小型库大小(< 100KB) ，以保持较低的构建时间，并避免65k 方法限制；
+数据库加密：greenDAO 支持 SQLCipher 来保证用户数据的安全；
+强大而活跃的社区交流支持。
+Github地址 https://github.com/greenrobot/greenDAO
+
+项目配置
+
+项目目录下.gradle文件配置：
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        // GreenDao仓库
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.4'
+        // GreenDao插件
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
+    }
+}
+app目录下.gradle配置
+
+apply plugin: 'com.android.application'
+//GreenDao插件
+apply plugin: 'org.greenrobot.greendao'
+dependencies {
+        //GreenDao依赖添加
+    implementation 'org.greenrobot:greendao:3.2.2'
+}
+greendao {
+    // 数据库版本号
+    schemaVersion 1
+    // 生成数据库文件的目录
+    targetGenDir 'src/main/java'
+    // 生成的数据库相关文件的包名
+    daoPackage 'com.nianlun.greendao.gen'
+}
+使用说明
+
+1、 首先新建用户实体类，如下：
+
+@Entity
+public class User {
+
+    @Id(autoincrement = true)
+    private Long id;
+
+    @Unique
+    private String userId;
+
+    @Property
+    private String userName;
+
+    @Property
+    private int age;
+
+}
+实体类中详细注解说明：
+
+@Entity：表明这个实体类会在数据库中生成一个与之相对应的表，其中可配置项：
+
+nameInDb：可以自定义表名，表明该实体对应数据库中的那张表，默认为实体类名；
+
+indexes：定义索引，这里可跨越多个列；
+
+createInDb：如果是有多个实体都关联这个表，可以把多余的实体里面设置为false避免重复创建（默认是true）；
+
+schema：一个项目中有多个schema时，表明要让这个dao属于哪个schema；
+
+active：是否应该生成更新/删除/刷新方法。如果Entity定义了 @ToOne 或 @ToMany关系，那么独立于该值是有效的。意为是否支持实体类之间update，refresh，delete等操作。
+
+@Id：对应数据表中的主键，是一条数据的唯一标识。如果实体没有声明主键，默认创建Long类型主键"_id"自增。使用Long类型主键时可以通过@Id(autoincrement = true)设置为自增。
+
+@Property(nameInDb = "USER_NAME" )：可以自定义字段名，注意外键不能使用该属性。表明这个属性对应数据表中的 USER_NAME 字段。
+
+@NotNull：该属性值不能为空。
+
+@Transient：该属性不会被存入数据库中。
+
+@Unique：表明该属性在数据库中只能有唯一值。
+
+@Index：创建一个索引。通过name设置索引别名，也可以通过unique给索引添加约束。
+
+@Convert：指定一个PropertyConverter用于支持自定义类型(没用过)。
+
+@ToOne：定义自己与一个实体对象的关系。
+
+@ToMany：定义自己与多个实体对象的关系(可不与@ToOne联合使用)。@ToMany的属性referencedJoinProperty，类似于外键约束。
+
+@JoinProperty：对于更复杂的关系，可以使用这个注解标明目标属性的源属性，起关联作用。
+
+@JoinEntity:如果你在做多对多的关系，有其他的表或实体参与，可以给目标属性添加这个额外的注解。
+
+@OrderBy：指定{@ToMany}关系的相关集合的排序，(propertyA, propertyB)默认为按主键ASC排序。
+
+@Generated：这个是build后greendao自动生成的，这个注解理解为防止重复，每一块代码生成后会加个hash作为标记。
+
+2、 实体类建完毕后，通过点击AndroidStudio中的Make Project（小锤子的图标），便发现GreenDao为我们的User实体类生成了对应的Getter、Setter方法以及俩个构造函数，同时在我们配置的com.nianlun.greendao.gen包下生成了三个对应类文件DaoMaster、DaoSession和UserDao，之后所有相关的数据库操作都依靠这三个文件了：
+
+DaoMaster：使用greenDAO的切入点。DaoMaster保存数据库对象（SQLiteDatabase）并管理特定模式的DAO类（而不是对象）。 它具有静态方法来创建表或将它们删除。 其内部类OpenHelper和DevOpenHelper是在SQLite数据库中创建模式的SQLiteOpenHelper实现。一个DaoMaster就代表着一个数据库的连接；
+DaoSession：管理特定模式的所有可用DAO对象，您可以使用其中一个getter方法获取。 DaoSession还为实体提供了一些通用的持久性方法，如插入，加载，更新，刷新和删除。 DaoSession可以让我们使用一些Entity的基本操作和获取Dao操作类，DaoSession可以创建多个，每一个都是属于同一个数据库连接的；
+XxDAO：数据访问对象（DAO）持续存在并查询实体。 对于每个实体，GreenDAO生成一个DAO。 它比DaoSession有更多的持久化方法，例如：count，loadAll和insertInTx等。
+3、数据库操作
+
+(1) 编写DaoManager，用于创建数据库、创建数据库表、包含增删改查的操作。
+
+/**
+ * 创建数据库、创建数据库表、包含增删改查的操作 
+ */
+public class DaoManager {
+    private static final String TAG = DaoManager.class.getSimpleName();
+    private static final String DB_NAME = "RECORD_DB";
+
+    private Application mApplication;
+
+    //多线程中要被共享的使用volatile关键字修饰
+    private volatile static DaoManager manager = new DaoManager();
+    private DaoMaster mDaoMaster;
+    private DaoMaster.DevOpenHelper mHelper;
+    private DaoSession mDaoSession;
+
+    /**
+     * 单例模式获得操作数据库对象
+     */
+    public static DaoManager getInstance() {
+        return manager;
+    }
+
+    private DaoManager() {
+        setDebug();
+    }
+
+    public void init(Application application) {
+        this.mApplication = application;
+    }
+
+    /**
+     * 判断是否有存在数据库，如果没有则创建
+     */
+    public DaoMaster getDaoMaster() {
+        if (mDaoMaster == null) {
+            DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(mApplication, DB_NAME, null);
+            mDaoMaster = new DaoMaster(helper.getWritableDatabase());
+        }
+        return mDaoMaster;
+    }
+
+    /**
+     * 完成对数据库的添加、删除、修改、查询操作，仅仅是一个接口
+     */
+    public DaoSession getDaoSession() {
+        if (mDaoSession == null) {
+            if (mDaoMaster == null) {
+                mDaoMaster = getDaoMaster();
+            }
+            mDaoSession = mDaoMaster.newSession();
+        }
+        return mDaoSession;
+    }
+
+    /**
+     * 打开输出日志，默认关闭
+     */
+    public void setDebug() {
+        if (BuildConfig.DEBUG) {
+            QueryBuilder.LOG_SQL = true;
+            QueryBuilder.LOG_VALUES = true;
+        }
+    }
+
+    /**
+     * 关闭所有的操作，数据库开启后，使用完毕要关闭
+     */
+    public void closeConnection() {
+        closeHelper();
+        closeDaoSession();
+    }
+
+    public void closeHelper() {
+        if (mHelper != null) {
+            mHelper.close();
+            mHelper = null;
+        }
+    }
+
+    public void closeDaoSession() {
+        if (mDaoSession != null) {
+            mDaoSession.clear();
+            mDaoSession = null;
+        }
+    }
+}
+（2）编写CommonDaoUtils，用于完成对数据表的操作。
+
+public class CommonDaoUtils<T> {
+
+    private DaoSession mDaoSession;
+    private Class<T> entityClass;
+    private AbstractDao<T, Long> entityDao;
+
+    public CommonDaoUtils(Class<T> pEntityClass, AbstractDao<T, Long> pEntityDao) {
+        DaoManager mManager = DaoManager.getInstance();
+        mDaoSession = mManager.getDaoSession();
+        entityClass = pEntityClass;
+        entityDao = pEntityDao;
+    }
+
+    /**
+     * 插入记录，如果表未创建，先创建表
+     */
+    public boolean insert(T pEntity) {
+        return entityDao.insert(pEntity) != -1;
+    }
+
+    /**
+     * 插入多条数据，在子线程操作
+     */
+    public boolean insertMultiple(final List<T> pEntityList) {
+        try {
+            mDaoSession.runInTx(new Runnable() {
+                @Override
+                public void run() {
+                    for (T entity : pEntityList) {
+                        mDaoSession.insertOrReplace(entity);
+                    }
+                }
+            });
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 修改一条数据
+     */
+    public boolean update(T entity) {
+        try {
+            mDaoSession.update(entity);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 删除单条记录
+     */
+    public boolean delete(T entity) {
+        try {
+            //按照id删除
+            mDaoSession.delete(entity);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 删除所有记录
+     */
+    public boolean deleteAll() {
+        try {
+            //按照id删除
+            mDaoSession.deleteAll(entityClass);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 查询所有记录
+     */
+    public List<T> queryAll() {
+        return mDaoSession.loadAll(entityClass);
+    }
+
+    /**
+     * 根据主键id查询记录
+     */
+    public T queryById(long key) {
+        return mDaoSession.load(entityClass, key);
+    }
+
+    /**
+     * 使用native sql进行查询操作
+     */
+    public List<T> queryByNativeSql(String sql, String[] conditions) {
+        return mDaoSession.queryRaw(entityClass, sql, conditions);
+    }
+
+    /**
+     * 使用queryBuilder进行查询
+     */
+    public List<T> queryByQueryBuilder(WhereCondition cond, WhereCondition... condMore) {
+        QueryBuilder<T> queryBuilder = mDaoSession.queryBuilder(entityClass);
+        return queryBuilder.where(cond, condMore).list();
+    }
+}
+（3）编写DaoUtilsStore，用于存放及提取DaoUtils。
+
+/**
+ * 初始化、存放及获取DaoUtils
+ */
+public class DaoUtilsStore {
+    private volatile static DaoUtilsStore instance = new DaoUtilsStore();
+    private CommonDaoUtils<User> mUserDaoUtils;
+
+    public static DaoUtilsStore getInstance() {
+        return instance;
+    }
+
+    private DaoUtilsStore() {
+        DaoManager mManager = DaoManager.getInstance();
+        UserDao _UserDao = mManager.getDaoSession().getUserDao();
+        mUserDaoUtils = new CommonDaoUtils<>(User.class, _UserDao);
+    }
+
+    public CommonDaoUtils<User> getUserDaoUtils() {
+        return mUserDaoUtils;
+    }
+
+}
+（4）调用DaoUtilsStore，进行数据操作及查看：
+
+初始化生成数据，进行批量插入：
+
+private void initUser() {
+
+    //用户ID生成器
+    mIdWorker = new SnowflakeIdGenerator(0, 0);
+
+    DaoUtilsStore.getInstance().getUserDaoUtils().deleteAll();
+
+    mUserList = new ArrayList<>();
+    Random random = new Random();
+    for (int i = 0; i < 10; i++) {
+        User user = new User();
+        user.setId((long) i);
+        user.setUserId(String.valueOf(mIdWorker.nextId()));
+        // 随机生成汉语名称
+        user.setUserName(NameUtils.createRandomZHName(random.nextInt(4) + 1));
+        user.setAge(18 + random.nextInt(10));
+        mUserList.add(user);
+    }
+
+    mUserAdapter = new UserAdapter(mUserList);
+    rvUser.setAdapter(mUserAdapter);
+
+    DaoUtilsStore.getInstance().getUserDaoUtils().insertMultiple(mUserList);
+}
+查询数据
+
+private void queryAllUser() {
+    mUserList = DaoUtilsStore.getInstance().getUserDaoUtils().queryAll();
+    mUserAdapter.setNewData(mUserList);
+    rvUser.smoothScrollToPosition(mUserList.size() - 1);
+}
+插入数据
+
+User user = new User();
+user.setId((long) mUserList.size());
+user.setUserId(String.valueOf(mIdWorker.nextId()));
+user.setUserName(NameUtils.createRandomZHName(new Random().nextInt(4) + 1));
+user.setAge(18 + new Random().nextInt(10));
+
+// 插入新用户
+DaoUtilsStore.getInstance().getUserDaoUtils().insert(user);
+修改数据
+
+User user = mUserList.get(mUserList.size() - 1);
+
+//删除最末用户
+DaoUtilsStore.getInstance().getUserDaoUtils().delete(user);
+删除数据
+
+User user = mUserList.get(mUserList.size() - 1);
+user.setUserName(NameUtils.createRandomZHName(new Random().nextInt(4) + 1));
+
+//更新最末用户
+DaoUtilsStore.getInstance().getUserDaoUtils().update(user);
+数据库操作.jpg
+以上就是GreenDao的简单介绍接使用说明，更多进阶用法如升级、加密等将慢慢补充，并且进一步探索官方推荐的从GreenDao到ObjectBox数据库的集成过程。
+
+访问Github项目查看具体代码实现：
+
+https://github.com/MickJson/DevelopmentRecord
+

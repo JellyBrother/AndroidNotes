@@ -1,6 +1,15 @@
-git常见问题：
+### git常见问题：
 https://zhuanlan.zhihu.com/p/159766744
 https://www.pianshen.com/article/9895765273/
+https://cloud.tencent.com/developer/article/2015651
+
+### ssh配置
+$ git config --global user.name "用户名"
+$ git config --global user.email "用户邮箱"
+进文件夹：C:\Users\Administrator\.ssh
+生成密钥和公钥：ssh-keygen -t rsa -C "你的邮箱"
+* 不输入账号密码，直接回车就行
+* 进入指定路径C:\Users\Administrator\.ssh文件夹中，用记事本打开 id_rsa.pub，全选复制内容。放到网站的ssh里面即可
 
 git操作
 git clone 拉取代码

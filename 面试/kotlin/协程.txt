@@ -1,0 +1,721 @@
+https://mp.weixin.qq.com/s/nXfweTaOCpm6Bj34rW-wLA
+
+/   前言   /
+
+协程(Coroutines)，是 Kotlin 「最神奇」的特性，没有之一。
+
+本文会以图解 + 动画的形式解释 Kotlin 协程的原理。看完本文后，你会发现，原来协程也没有那么难。
+
+图片
+
+本文要求读者有一定的 Kotlin 基础，欢迎阅读《Kotlin Jetpack 实战》其他文章。
+
+本文的 Demo：
+https://github.com/chaxiu/KotlinJetpackInAction
+
+/   线程&协程   /
+
+很多主流编程语言都支持协程，比如：C#，Python，Lua，就连C++20都开始也支持协程了。理解了 Kotlin 的协程以后，你会惊喜的发现其他语言里的协程也很容易理解了。
+
+有的人会将协程比喻成：线程的封装框架，从宏观角度是可以这么理解，但 Kotlin 官方最喜欢说：协程有点像轻量级的线程。
+
+协程能轻量到什么程度？就算你在一个线程中创建1000个协程，也不会有什么影响。
+
+图片
+
+「从包含关系上看，协程跟线程的关系，有点像“线程与进程的关系”，毕竟，协程不可能脱离线程运行。」
+
+图片
+
+协程虽然不能脱离线程而运行，但可以在不同的线程之间切换。看到这，大家应该能理解本文最开始放的那张动图的含义了吧？
+
+图片
+
+说了这么多协程的好，但就凭它的”高效“，”轻量“我们就要用吗？汇编语言也很高效啊。C 语言也能写出轻量的程序啊。
+
+高效和轻量，都不是 Kotlin 协程的核心竞争力。
+
+「Kotlin 协程的核心竞争力在于：它能简化异步并发任务。」
+
+作为 Java 开发者，我们很清楚线程并发是多么的危险，写出来的异步代码是多么的难以维护。
+
+/   异步代码&回调地狱   /
+
+以一段简单的 Java 代码为例，我们发起了一个异步请求，从服务端查询用户的信息，通过 CallBack 返回 response：
+
+getUserInfo(new CallBack() {
+    @Override
+    public void onSuccess(String response) {
+        if (response != null) {
+            System.out.println(response);
+        }
+    }
+});
+
+到目前为止，我们的代码看起来并没有什么问题，但如果我们的需求变成了这样呢？
+
+查询用户信息 --> 查找该用户的好友列表 -->拿到好友列表后，查找该好友的动态
+
+getUserInfo(new CallBack() {
+    @Override
+    public void onSuccess(String user) {
+        if (user != null) {
+            System.out.println(user);
+            getFriendList(user, new CallBack() {
+                @Override
+                public void onSuccess(String friendList) {
+                    if (friendList != null) {
+                        System.out.println(friendList);
+                        getFeedList(friendList, new CallBack() {
+                            @Override
+                            public void onSuccess(String feed) {
+                                if (feed != null) {
+                                    System.out.println(feed);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+});
+
+有点恶心了，是不是？这还是仅包含 onSuccess 的情况，实际情况会更复杂，因为我们还要处理异常，处理重试，处理线程调度，甚至还可能涉及多线程同步。
+
+/   地狱到天堂：协程   /
+
+今天的主角是协程，上面的代码用协程应该写？很简单，核心就是三行代码：
+
+val user = getUserInfo()
+val friendList = getFriendList(user)
+val feedList = getFeedList(friendList)
+
+是不是简洁到了极致？这就是 Kotlin 协程的魅力：以同步的方式完成异步任务。
+
+使用协程的要点
+
+以上代码的关键，在于那三个请求函数的定义，它们都被 suspend 修饰，这代表它们都是：挂起函数。
+
+// delay(1000L)用于模拟网络请求
+
+//挂起函数
+// ↓
+suspend fun getUserInfo(): String {
+    withContext(Dispatchers.IO) {
+        delay(1000L)
+    }
+    return "BoyCoder"
+}
+//挂起函数
+// ↓
+suspend fun getFriendList(user: String): String {
+    withContext(Dispatchers.IO) {
+        delay(1000L)
+    }
+    return "Tom, Jack"
+}
+//挂起函数
+// ↓
+suspend fun getFeedList(list: String): String {
+    withContext(Dispatchers.IO) {
+        delay(1000L)
+    }
+    return "{FeedList..}"
+}
+
+那么，挂起函数到底是什么？
+
+挂起函数
+
+挂起函数(Suspending Function)，从字面上理解，就是可以被挂起的函数。suspend 有：挂起，暂停的意思。在这个语境下，也有点暂停的意思。暂停更容易被理解，但挂起更准确。
+
+挂起函数，能被「挂起」，当然也能「恢复」，他们一般是成对出现的。
+
+我们来看看挂起函数的执行流程，注意动画当中出现的闪烁，这代表正在请求网络。
+
+「一定要多看几遍，确保没有遗漏其中的细节。」
+
+，时长00:30
+
+从上面的动画，我们能知道：
+
+表面上看起来是同步的代码，实际上也涉及到了线程切换。
+一行代码，切换了两个线程。
+=左边：主线程
+=右边：IO线程
+每一次从主线程到IO线程，都是一次协程挂起(suspend)
+每一次从IO线程到主线程，都是一次协程恢复(resume)。
+挂起和恢复，这是挂起函数特有的能力，普通函数是不具备的。
+挂起，只是将程序执行流程转移到了其他线程，主线程并未被阻塞。
+如果以上代码运行在 Android 系统，我们的 App 是仍然可以响应用户的操作的，主线程并不繁忙，这也很容易理解。
+
+挂起函数的执行流程我们已经很清楚了，那么，Kotlin 协程到底是如何做到一行代码切换两个线程的？
+
+这一切的魔法都藏在了挂起函数的suspend关键字里。
+
+/   suspend的本质   /
+
+suspend 的本质，就是 CallBack。
+
+suspend fun getUserInfo(): String {
+    withContext(Dispatchers.IO) {
+        delay(1000L)
+    }
+    return "BoyCoder"
+}
+
+有的小伙伴要问了，哪来的 CallBack？明明没有啊。确实，我们写出来的代码没有 CallBack，但 Kotlin 的编译器检测到 suspend 关键字修饰的函数以后，会自动将挂起函数转换成带有 CallBack 的函数。
+
+如果我们将上面的挂起函数反编译成 Java，结果会是这样：
+
+//                              Continuation 等价于 CallBack
+//                                         ↓         
+public static final Object getUserInfo(Continuation $completion) {
+  ...
+  return "BoyCoder";
+}
+
+从反编译的结果来看，挂起函数确实变成了一个带有 CallBack 的函数，只是这个 CallBack 的真实名字叫 Continuation。毕竟，如果直接叫 CallBack 那就太 low，对吧？
+
+我们看看 Continuation 在 Kotlin 中的定义：
+
+public interface Continuation<in T> {
+    public val context: CoroutineContext
+//      相当于 onSuccess     结果   
+//                 ↓         ↓
+    public fun resumeWith(result: Result<T>)
+}
+
+对比着看看 CallBack 的定义：
+
+interface CallBack {
+    void onSuccess(String response);
+}
+
+从上面的定义我们能看到：Continuation 其实就是一个带有泛型参数的  CallBack，除此之外，还多了一个 CoroutineContext，它就是协程的上下文。对于熟悉 Android 开发的小伙伴来说，不就是 context 嘛！也没什么难以理解的，对吧？
+
+以上这个从挂起函数转换成CallBack 函数的过程，被称为：CPS 转换(Continuation-Passing-Style Transformation)。
+
+看，Kotlin 官方用 Continuation 而不用 CallBack 的原因出来了：Continuation 道出了它的实现原理。当然，为了理解挂起函数，我们用 CallBack 会更加的简明易懂。
+
+下面用动画演示挂起函数在 CPS 转换过程中，函数签名的变化：
+
+图片
+
+这个转换看着简单，其中也藏着一些细节。
+
+函数类型的变化
+
+上面 CPS 转换过程中，函数的类型发生了变化：suspend ()->String 变成了 (Continuation)-> Any?
+
+这意味着，如果你在 Java 访问一个 Kotlin 挂起函数getUserInfo()，在 Java 看到 getUserInfo() 的类型会是：(Continuation)-> Object。(接收 Continuation 为参数，返回值是 Object)
+
+在这个 CPS 转换中，suspend () 变成 (Continuation) 我们前面已经解释了，不难。那么函数的返回值为什么会从：String变成Any?
+
+挂起函数的返回值
+
+挂起函数经过 CPS 转换后，它的返回值有一个重要作用：标志该挂起函数有没有被挂起。
+
+这听起来有点绕：挂起函数，就是可以被挂起的函数，它还能不被挂起吗？是的，挂起函数也能不被挂起。
+
+让我们来理清几个概念：
+
+只要有 suspend 修饰的函数，它就是挂起函数，比如我们前面的例子：
+
+suspend fun getUserInfo(): String {
+    withContext(Dispatchers.IO) {
+        delay(1000L)
+    }
+    return "BoyCoder"
+}
+
+当 getUserInfo() 执行到 withContext的时候，就会返回 CoroutineSingletons.COROUTINE_SUSPENDED 表示函数被挂起了。
+
+现在问题来了，请问下面这个函数是挂起函数吗：
+
+// suspend 修饰
+// ↓
+suspend fun noSuspendFriendList(user: String): String{
+    // 函数体跟普通函数一样
+    return "Tom, Jack"
+}
+
+答案：它是挂起函数。但它跟一般的挂起函数有个区别：它在执行的时候，并不会被挂起，因为它就是普通函数。当你写出这样的代码后，IDE 也会提示你，suspend 是多余的：
+
+图片
+
+当 noSuspendFriendList() 被调用的时候，不会挂起，它会直接返回 String 类型："no suspend"。这样的挂起函数，你可以把它看作「伪挂起函数」
+
+返回类型是 Any？的原因
+
+由于 suspend 修饰的函数，既可能返回 CoroutineSingletons.COROUTINE_SUSPENDED，也可能返回实际结果"no suspend"，甚至可能返回 null，为了适配所有的可能性，CPS 转换后的函数返回值类型就只能是 Any?了。
+
+小结
+
+suspend 修饰的函数就是挂起函数
+挂起函数，在执行的时候并不一定都会挂起
+挂起函数只能在其他挂起函数中被调用(or 协程作用域)
+挂起函数里包含其他挂起函数的时候，它才会真正被挂起
+
+以上就是 CPS 转换过程中，函数签名的细节。
+
+然而，这并不是 CPS 转换的全部，因为我们还不知道 Continuation 到底是什么。
+
+/   CPS转换   /
+
+Continuation 这个单词，如果你查词典和维基百科，可能会一头雾水，太抽象了。
+
+通过我们文章的例子来理解 Continuation，会更容易一些。
+
+首先，我们只需要把握住 Continuation 的词源 Continue 即可。Continue 是继续的意思，Continuation 则是继续下去要做的事情，接下来要做的事情。
+
+放到程序中，Continuation 则代表了，程序继续运行下去需要执行的代码，接下来要执行的代码 或者 剩下的代码。
+
+以上面的代码为例，当程序运行 getUserInfo() 的时候，它的 Continuation则是下图红框的代码：
+
+图片
+
+Continuation 就是接下来要运行的代码，剩余未执行的代码。
+
+理解了 Continuation，以后，CPS就容易理解了，它其实就是：将程序接下来要执行的代码进行传递的一种模式。
+
+而CPS 转换，就是将原本的同步挂起函数转换成CallBack 异步代码的过程。这个转换是编译器在背后做的，我们程序员对此无感知。
+
+图片
+
+也许会有小伙伴嗤之以鼻：这么简单粗暴？三个挂起函数最终变成三个 Callback 吗？
+
+当然不是。思想仍然是 CPS 的思想，但要比 Callback 高明很多。
+
+接下来，我们一起看看挂起函数反编译后的代码是什么样吧。前面铺垫了这么多，全都是为了下一个部分准备的。
+
+/   字节码反编译   /
+
+字节码反编译成 Java 这种事，我们干过很多次了。跟往常不同的是，这次我不会直接贴反编译后的代码，因为如果我直接贴出反编译后的 Java 代码，估计会吓退一大波人。协程反编译后的代码，逻辑实在是太绕了，可读性实在太差了。这样的代码，CPU 可能喜欢，但真不是人看的。
+
+所以，为了方便大家理解，接下来我贴出的代码是我用 Kotlin 翻译后大致等价的代码，改善了可读性，抹掉了不必要的细节。「如果你能把这篇文章里所有内容都弄懂，你对协程的理解也已经超过大部分人了。」
+
+进入正题，这是我们即将研究的对象，testCoroutine 反编译前的代码：
+
+suspend fun testCoroutine() {
+    log("start")
+    val user = getUserInfo()
+    log(user)
+    val friendList = getFriendList(user)
+    log(friendList)
+    val feedList = getFeedList(friendList)
+    log(feedList)
+}
+
+反编译后，testCoroutine函数的签名变成了这样：
+
+// 没了 suspend，多了 completion
+fun testCoroutine(completion: Continuation<Any?>): Any? {}
+
+由于其他几个函数也是挂起函数，所以它们的函数签名也会改变：
+
+fun getUserInfo(completion: Continuation<Any?>): Any?{}
+fun getFriendList(user: String, completion: Continuation<Any?>): Any?{}
+fun getFeedList(friendList: String, completion: Continuation<Any?>): Any?{}
+
+接下来我们分析 testCoroutine() 的函数体，因为它相当复杂，涉及到三个挂起函数的调用。
+
+首先，在 testCoroutine 函数里，会多出一个 ContinuationImpl 的子类，它的是整个协程挂起函数的核心。代码里的注释非常详细，请仔细看。
+
+fun testCoroutine(completion: Continuation<Any?>): Any? {
+
+    class TestContinuation(completion: Continuation<Any?>?) : ContinuationImpl(completion) {
+        // 表示协程状态机当前的状态
+        var label: Int = 0
+        // 协程返回结果
+        var result: Any? = null
+
+        // 用于保存之前协程的计算结果
+        var mUser: Any? = null
+        var mFriendList: Any? = null
+
+        // invokeSuspend 是协程的关键
+        // 它最终会调用 testCoroutine(this) 开启协程状态机
+        // 状态机相关代码就是后面的 when 语句
+        // 协程的本质，可以说就是 CPS + 状态机
+        override fun invokeSuspend(_result: Result<Any?>): Any? {
+            result = _result
+            label = label or Int.Companion.MIN_VALUE
+            return testCoroutine(this)
+        }
+    }
+}
+
+接下来则是要判断 testCoroutine 是不是初次运行，如果是初次运行，就要创建一个 TestContinuation 的实例对象。
+
+//                    ↓
+fun testCoroutine(completion: Continuation<Any?>): Any? {
+    ...
+    val continuation = if (completion is TestContinuation) {
+        completion
+    } else {
+        //                作为参数
+        //                   ↓
+        TestContinuation(completion)
+    }
+}
+
+invokeSuspend 最终会调用 testCoroutine，然后走到这个判断语句
+如果是初次运行，会创建一个 TestContinuation 对象，completion 作为了参数
+这相当于用一个「新的」 Continuation 包装了「旧的」 Continuation
+如果不是初次运行，直接将 completion 赋值给 continuation
+这说明 continuation 在整个运行期间，只会产生一个实例，这能极大的节省内存开销(对比 CallBack)
+
+接下来是几个变量的定义，代码里会有详细的注释：
+
+// 三个变量，对应原函数的三个变量
+lateinit var user: String
+lateinit var friendList: String
+lateinit var feedList: String
+
+// result 接收协程的运行结果
+var result = continuation.result
+
+// suspendReturn 接收挂起函数的返回值
+var suspendReturn: Any? = null
+
+// CoroutineSingletons 是个枚举类
+// COROUTINE_SUSPENDED 代表当前函数被挂起了
+val sFlag = CoroutineSingletons.COROUTINE_SUSPENDED
+
+然后就到了我们的状态机的核心逻辑了，具体看注释吧：
+
+when (continuation.label) {
+    0 -> {
+        // 检测异常
+        throwOnFailure(result)
+
+        log("start")
+        // 将 label 置为 1，准备进入下一次状态
+        continuation.label = 1
+
+        // 执行 getUserInfo
+        suspendReturn = getUserInfo(continuation)
+
+        // 判断是否挂起
+        if (suspendReturn == sFlag) {
+            return suspendReturn
+        } else {
+            result = suspendReturn
+            //go to next state
+        }
+    }
+
+    1 -> {
+        throwOnFailure(result)
+
+        // 获取 user 值
+        user = result as String
+        log(user)
+        // 将协程结果存到 continuation 里
+        continuation.mUser = user
+        // 准备进入下一个状态
+        continuation.label = 2
+
+        // 执行 getFriendList
+        suspendReturn = getFriendList(user, continuation)
+
+        // 判断是否挂起
+        if (suspendReturn == sFlag) {
+            return suspendReturn
+        } else {
+            result = suspendReturn
+            //go to next state
+        }
+    }
+
+    2 -> {
+        throwOnFailure(result)
+
+        user = continuation.mUser as String
+
+        // 获取 friendList 的值
+        friendList = result as String
+        log(friendList)
+
+        // 将协程结果存到 continuation 里
+        continuation.mUser = user
+        continuation.mFriendList = friendList
+
+        // 准备进入下一个状态
+        continuation.label = 3
+
+        // 执行 getFeedList
+        suspendReturn = getFeedList(friendList, continuation)
+
+        // 判断是否挂起
+        if (suspendReturn == sFlag) {
+            return suspendReturn
+        } else {
+            result = suspendReturn
+            //go to next state
+        }
+    }
+
+    3 -> {
+        throwOnFailure(result)
+
+        user = continuation.mUser as String
+        friendList = continuation.mFriendList as String
+        feedList = continuation.result as String
+        log(feedList)
+        loop = false
+    }
+}
+
+when 表达式实现了协程状态机
+continuation.label 是状态流转的关键
+continuation.label 改变一次，就代表协程切换了一次
+每次协程切换后，都会检查是否发生异常
+testCoroutine 里的原本的代码，被拆分到状态机里各个状态中，分开执行
+getUserInfo(continuation)，getFriendList(user, continuation)，getFeedList(friendList, continuation) 三个函数调用传的同一个 continuation 实例。
+一个函数如果被挂起了，它的返回值会是：CoroutineSingletons.COROUTINE_SUSPENDED
+切换协程之前，状态机会把之前的结果以成员变量的方式保存在 continuation 中。
+
+「警告：以上的代码是我用 Kotlin 写出的改良版反编译代码，协程反编译后真实的代码后面我也会放出来，请继续看。」
+
+/   协程状态机动画演示   /
+
+上面一大串文字和代码看着是不是有点晕？请看看这个动画演示，看完动画演示了，回过头再看上面的文字，你会有更多收获。
+
+，时长01:32
+
+是不是完了呢？并不，因为上面的动画仅演示了每个协程正常挂起的情况。如果协程并没有真正挂起呢？协程状态机会怎么运行？
+
+协程未挂起的情况
+
+要验证也很简单，我们将其中一个挂起函数改成伪挂起函数即可。
+
+// “伪”挂起函数
+// 虽然它有 suspend 修饰，但执行的时候并不会真正挂起，因为它函数体里没有其他挂起函数
+//  ↓
+suspend fun noSuspendFriendList(user: String): String{
+    return "Tom, Jack"
+}
+
+suspend fun testNoSuspend() {
+    log("start")
+    val user = getUserInfo()
+    log(user)                  
+    //                  变化在这里
+    //                      ↓
+    val friendList = noSuspendFriendList(user)
+    log(friendList)
+    val feedList = getFeedList(friendList)
+    log(feedList)
+}
+
+testNoSuspend()这样的一个函数体，它的反编译后的代码逻辑怎么样的？
+
+答案其实很简单，「它的结构跟前面的testCoroutine()是一致的，只是函数名字变了而已，Kotlin 编译器 CPS 转换的逻辑只认 suspend 关键字」。就算是“伪”挂起函数，Kotlin 编译器也照样会进行 CPS 转换。
+
+when (continuation.label) {
+    0 -> {
+        ...
+    }
+
+    1 -> {
+        ...
+        //               变化在这里
+        //                   ↓
+        suspendReturn = noSuspendFriendList(user, continuation)
+
+        // 判断是否挂起
+        if (suspendReturn == sFlag) {
+            return suspendReturn
+        } else {
+            result = suspendReturn
+            //go to next state
+        }
+    }
+
+    2 -> {
+        ...
+    }
+
+    3 -> {
+        ...
+    }
+}
+
+testNoSuspend()的协程状态机是怎么运行的？
+
+其实很容易能想到，continuation.label = 0，2，3 的情况都是不变的，唯独在 label = 1 的时候，suspendReturn == sFlag这里会有区别。
+
+具体区别我们通过动画来看吧：
+
+，时长00:26
+
+通过动画我们很清楚的看到了，对于“伪”挂起函数，suspendReturn == sFlag是会走 else 分支的，在 else 分支里，协程状态机会直接进入下一个状态。
+
+现在只剩最后一个问题了：
+
+if (suspendReturn == sFlag) {
+} else {
+    // 具体代码是如何实现的？
+    //       ↓
+    //go to next state
+}
+
+答案其实也很简单：如果你去看协程状态机的字节码反编译后的 Java，会看到很多 label。协程状态机底层字节码是通过 label 来实现这个go to next state的。由于 Kotlin 没有类似 goto 的语法，下面我用伪代码来表示go to next state的逻辑。
+
+// 伪代码
+// Kotlin 没有这样的语法
+// ↓      ↓
+label: whenStart
+when (continuation.label) {
+    0 -> {
+        ...
+    }
+
+    1 -> {
+        ...
+        suspendReturn = noSuspendFriendList(user, continuation)
+        if (suspendReturn == sFlag) {
+            return suspendReturn
+        } else {
+            result = suspendReturn
+            // 让程序跳转到 label 标记的地方
+            // 从而再执行一次 when 表达式
+            goto: whenStart
+        }
+    }
+
+    2 -> {
+        ...
+    }
+
+    3 -> {
+        ...
+    }
+}
+
+注意：以上是伪代码，它只是跟协程状态机字节码逻辑上等价，为了不毁掉你钻研协程的乐趣，我不打算在这里解释协程原始的字节码。我相信如果你理解了我的文章以后，再去看协程反编译的真实代码，一定会游刃有余。
+
+下面的建议会有助于你看协程真实的字节码：协程状态机真实的原理是：通过 label 代码段嵌套，配合 switch 巧妙构造出一个状态机结构，这种逻辑比较复杂，相对难懂一些。(毕竟 Java 的 label 在实际开发中用的很少。)
+
+真实的协程反编译代码大概长这样：
+
+@Nullable
+public static final Object testCoroutine(@NotNull Continuation $completion) {
+    Object $continuation;
+    label37: {
+        if ($completion instanceof <TestSuspendKt$testCoroutine$1>) {
+            $continuation = (<TestSuspendKt$testCoroutine$1>)$completion;
+            if ((((<TestSuspendKt$testCoroutine$1>)$continuation).label & Integer.MIN_VALUE) != 0) {
+                ((<TestSuspendKt$testCoroutine$1>)$continuation).label -= Integer.MIN_VALUE;
+                break label37;
+            }
+        }
+
+        $continuation = new ContinuationImpl($completion) {
+            // $FF: synthetic field
+            Object result;
+            int label;
+            Object L$0;
+            Object L$1;
+
+            @Nullable
+            public final Object invokeSuspend(@NotNull Object $result) {
+                this.result = $result;
+                this.label |= Integer.MIN_VALUE;
+                return TestSuspendKt.testCoroutine(this);
+            }
+        };
+    }
+
+    Object var10000;
+    label31: {
+        String user;
+        String friendList;
+        Object var6;
+        label30: {
+            Object $result = ((<TestSuspendKt$testCoroutine$1>)$continuation).result;
+            var6 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
+            switch(((<TestSuspendKt$testCoroutine$1>)$continuation).label) {
+                case 0:
+                    ResultKt.throwOnFailure($result);
+                    log("start");
+                    ((<TestSuspendKt$testCoroutine$1>)$continuation).label = 1;
+                    var10000 = getUserInfo((Continuation)$continuation);
+                    if (var10000 == var6) {
+                        return var6;
+                    }
+                    break;
+                case 1:
+                    ResultKt.throwOnFailure($result);
+                    var10000 = $result;
+                    break;
+                case 2:
+                    user = (String)((<TestSuspendKt$testCoroutine$1>)$continuation).L$0;
+                    ResultKt.throwOnFailure($result);
+                    var10000 = $result;
+                    break label30;
+                case 3:
+                    friendList = (String)((<TestSuspendKt$testCoroutine$1>)$continuation).L$1;
+                    user = (String)((<TestSuspendKt$testCoroutine$1>)$continuation).L$0;
+                    ResultKt.throwOnFailure($result);
+                    var10000 = $result;
+                    break label31;
+                default:
+                    throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+            }
+
+            user = (String)var10000;
+            log(user);
+            ((<TestSuspendKt$testCoroutine$1>)$continuation).L$0 = user;
+            ((<TestSuspendKt$testCoroutine$1>)$continuation).label = 2;
+            var10000 = getFriendList(user, (Continuation)$continuation);
+            if (var10000 == var6) {
+                return var6;
+            }
+        }
+
+        friendList = (String)var10000;
+        log(friendList);
+        ((<TestSuspendKt$testCoroutine$1>)$continuation).L$0 = user;
+        ((<TestSuspendKt$testCoroutine$1>)$continuation).L$1 = friendList;
+        ((<TestSuspendKt$testCoroutine$1>)$continuation).label = 3;
+        var10000 = getFeedList(friendList, (Continuation)$continuation);
+        if (var10000 == var6) {
+            return var6;
+        }
+    }
+
+    String feedList = (String)var10000;
+    log(feedList);
+    return Unit.INSTANCE;
+}
+
+/   结尾   /
+
+回过头再看协程和线程的关系。
+
+线程
+
+线程是操作系统级别的概念
+我们开发者通过编程语言(Thread.java)创建的线程，本质还是操作系统内核线程的映射
+JVM 中的线程与内核线程的存在映射关系，有“一对一”，“一对多”，“M对N”。JVM 在不同操作系统中的具体实现会有差别，“一对一”是主流
+一般情况下，我们说的线程，都是内核线程，线程之间的切换，调度，都由操作系统负责
+线程也会消耗操作系统资源，但比进程轻量得多
+线程，是抢占式的，它们之间能共享内存资源，进程不行
+线程共享资源导致了多线程同步问题
+有的编程语言会自己实现一套线程库，从而能在一个内核线程中实现多线程效果，早期 JVM 的“绿色线程” 就是这么做的，这种线程被称为“用户线程”
+
+有的人会将线程比喻成：轻量级的进程。
+
+协程
+
+Kotlin 协程，不是操作系统级别的概念，无需操作系统支持
+Kotlin 协程，有点像上面提到的“绿色线程”，一个线程上可以运行成千上万个协程
+Kotlin 协程，是用户态的(userlevel)，内核对协程「无感知」
+Kotlin 协程，是协作式的，由开发者管理，不需要操作系统进行调度和切换，也没有抢占式的消耗，因此它更加「高效」
+Kotlin 协程，它底层基于状态机实现，多协程之间共用一个实例，资源开销极小，因此它更加「轻量」
+Kotlin 协程，本质还是运行于线程之上，它通过协程调度器，可以运行到不同的线程上
+

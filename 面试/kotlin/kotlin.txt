@@ -1,0 +1,482 @@
+目录
+
+一.请简述下什么是kotlin？它有什么特性？
+
+二.Kotlin 中注解 @JvmOverloads 的作用？
+
+三.Kotlin中的MutableList与List有什么区别？
+
+四.kotlin实现单例的几种方式？
+
+五. kotlin中关键字data的理解？相对于普通的类有哪些特点？
+
+六.什么是委托属性？简单说一下应用场景？
+
+七.kotlin中with、run、apply、let函数的区别？一般用于什么场景？
+
+八.kotlin中Unit的应用以及和Java中void的区别？
+
+九.Kotlin 中 infix 关键字的原理和使用场景？
+
+十. Kotlin中的可见性修饰符有哪些？相比于 Java 有什么区别？
+
+十一.你觉得Kotlin与Java混合开发时需要注意哪些问题？
+
+十二.在Kotlin中，何为解构？该如何使用？
+
+十三.在Kotlin中，什么是内联函数？有什么作用？
+
+十四.谈谈kotlin中的构造方法？有哪些注意事项？
+
+十五.谈谈Kotlin中的Sequence，为什么它处理集合操作更加高效？
+
+十六.请谈谈Kotlin中的Coroutines，它与线程有什么区别？有哪些优点？
+
+十七.Kotlin中该如何安全地处理可空类型？
+
+十八.Kotlin中的?.然后后面调用方法如果为空的情况下是什么？
+
+十九.说说 Kotlin中 的 Any 与Java中的 Object 有何异同？
+
+二十.Kotlin中的数据类型有隐式转换吗？为什么？
+
+二十一.Kotlin 中集合遍历有哪几种方式？
+
+二十二.为什么协程比线程要轻量？
+
+二十三.协程Flow是什么，有哪些应用场景？
+
+https://blog.csdn.net/gongjdde/category_10998720.html?spm=1001.2014.3001.5482
+
+一.请简述下什么是kotlin？它有什么特性？
+
+kotlin是一门编程语言，和java一样都是编译成class文件，然后被虚拟机加载。kotlin是先在android官方优先采用的语言，相比Java，它有以下优势：
+
+    富有表现力且简洁：您可以使用更少的代码实现更多的功能。表达自己的想法，少编写样板代码。在使用 Kotlin 的专业开发者中，有 67% 的人反映其工作效率有所提高。比如：MVVM中model层data数据类相对java实现数据类自动重写了get，set，equals，hashCode，toString、componentN、copy等方法，单例类可以直接使用object实现java饿汉单例模式，还有其他扩展函数、高阶函数、类型转换等等
+    更安全的代码：Kotlin 有许多语言功能，可帮助您避免 null 指针异常等常见编程错误。包含 Kotlin 代码的 Android 应用发生崩溃的可能性降低了 20%。例如：可以通过?进行判空，不为空的才能继续往下走；还有密封类防止出现其他分支的错误；还有对于类默认不可继承，方法默认不可重写(相当于java中final)，如果需要继承或者重写都需要加open关键字，字段建议使用val，不可变。
+    可互操作：您可以在 Kotlin 代码中调用 Java 代码，或者在 Java 代码中调用 Kotlin 代码。Kotlin 可完全与 Java 编程语言互操作，因此您可以根据需要在项目中添加任意数量的 Kotlin 代码。
+    结构化并发：Kotlin 协程让异步代码像阻塞代码一样易于使用。协程可大幅简化后台任务管理，例如网络调用、本地数据访问等任务的管理。
+
+二.Kotlin 中注解 @JvmOverloads 的作用？
+
+在Kotlin中@JvmOverloads注解的作用就是：在有默认参数值的方法中使用@JvmOverloads注解，则Kotlin就会暴露多个重载方法。如果没有加注解@JvmOverloads则只有一个方法，kotlin调用的话如果没有传入的参数用的是默认值。
+
+    @JvmOverloads fun f(a: String, b: Int=0, c:String="abc"){
+    }
+    // 相当于Java三个方法 不加这个注解就只能当作第三个方法这唯一一种方法
+    void f(String a)
+    void f(String a, int b)
+    // 加不加注解，都会生成这个方法
+    void f(String a, int b, String c)
+
+三.Kotlin中的MutableList与List有什么区别？
+
+List：有序接口，只能读取，不能更改元素；
+MutableList：有序接口，可以读写与更改、删除、增加元素。
+
+源码分析MutableList就相当于Java中的ArrayList，List是kotlin自己重写的EmptyList，EmptyList中没有提供add方法remove方法等修改元素操作的方法。
+
+    internal object EmptyList : List, Serializable, RandomAccess {
+        private const val serialVersionUID: Long = -7390468764508069838L
+        
+        override fun equals(other: Any?): Boolean = other is List<*> && other.isEmpty()
+        override fun hashCode(): Int = 1
+        override fun toString(): String = "[]"
+        
+        override val size: Int get() = 0
+        override fun isEmpty(): Boolean = true
+        override fun contains(element: Nothing): Boolean = false
+        override fun containsAll(elements: Collection<Nothing>): Boolean = elements.isEmpty()
+     
+        override fun get(index: Int): Nothing = throw IndexOutOfBoundsException("Empty list             doesn't contain element at index $index.")
+        override fun indexOf(element: Nothing): Int = -1
+        override fun lastIndexOf(element: Nothing): Int = -1
+     
+        override fun iterator(): Iterator<Nothing> = EmptyIterator
+        override fun listIterator(): ListIterator<Nothing> = EmptyIterator
+        override fun listIterator(index: Int): ListIterator<Nothing> {
+            if (index != 0) throw IndexOutOfBoundsException("Index: $index")
+            return EmptyIterator
+        }
+     
+        override fun subList(fromIndex: Int, toIndex: Int): List<Nothing> {
+            if (fromIndex == 0 && toIndex == 0) return this
+            throw IndexOutOfBoundsException("fromIndex: $fromIndex, toIndex: $toIndex")
+        }
+     
+        private fun readResolve(): Any = EmptyList
+    }
+
+四.kotlin实现单例的几种方式？
+
+饿汉式
+
+object Singleton
+
+线程安全的懒汉式
+
+    class Singleton private constructor() {
+     
+        companion object {
+            private var instance: Singleton? = null
+                get() {
+                    if (field == null) field = Singleton()
+                    return field
+                }
+     
+            @Synchronized
+            fun instance(): Singleton {
+                return instance!!
+            }
+        }
+    }
+
+双重校验锁式
+
+    /**
+     * 双重校验锁式
+     * Lazy是接受一个 lambda 并返回一个 Lazy 实例的函数，返回的实例可以作为实现延迟属性的委托
+     * 第一次调用 get() 会执行已传递给 lazy() 的 lambda 表达式并记录结果,后续调用 get() 只是返回记录的结果
+     * Lazy默认的线程模式就是 LazyThreadSafetyMode.SYNCHRONIZED 内部默认双重校验锁
+     * # Lazy内部实现
+     * ```
+     * public fun <T> lazy(mode: LazyThreadSafetyMode, initializer: () -> T): Lazy<T> =
+     *      when (mode) {
+     *        LazyThreadSafetyMode.SYNCHRONIZED -> SynchronizedLazyImpl(initializer)
+     *        LazyThreadSafetyMode.PUBLICATION -> SafePublicationLazyImpl(initializer)
+     *        LazyThreadSafetyMode.NONE -> UnsafeLazyImpl(initializer)
+     *      }
+     * ```
+     * ### Lazy接口
+     * ```
+     * public interface Lazy<out T> {
+     *     //当前实例化对象，一旦实例化后，该对象不会再改变
+     *     public val value: T
+     *     //返回true表示，已经延迟实例化过了，false 表示，没有被实例化，
+     *     //一旦方法返回true，该方法会一直返回true,且不会再继续实例化
+     *     public fun isInitialized(): Boolean
+     * }
+     * ```
+     * ### SynchronizedLazyImpl
+     * ```
+     * private class SynchronizedLazyImpl<out T>(initializer: () -> T, lock: Any? = null) : Lazy<T>, Serializable {
+     *     private var initializer: (() -> T)? = initializer
+     *     @Volatile private var _value: Any? = UNINITIALIZED_VALUE
+     *     // final field is required to enable safe publication of constructed instance
+     *     private val lock = lock ?: this
+     *
+     *     override val value: T
+     *         get() {
+     *             val _v1 = _value
+     *             //判断是否已经初始化过，如果初始化过直接返回，不在调用高级函数内部逻辑
+     *             if (_v1 !== UNINITIALIZED_VALUE) {
+     *                 @Suppress("UNCHECKED_CAST")
+     *                 return _v1 as T
+     *             }
+     *
+     *             return synchronized(lock) {
+     *                 val _v2 = _value
+     *                 if (_v2 !== UNINITIALIZED_VALUE) {
+     *                     @Suppress("UNCHECKED_CAST") (_v2 as T)
+     *                 }
+     *                 else {
+     *                     //调用高级函数获取其返回值
+     *                     val typedValue = initializer!!()
+     *                     //将返回值赋值给_value,用于下次判断时，直接返回高级函数的返回值
+     *                     _value = typedValue
+     *                     initializer = null
+     *                     typedValue
+     *                 }
+     *             }
+     *         }
+     *         //省略部分代码
+     * }
+     * ```
+     */
+    class Singleton private constructor() {
+        companion object {
+            val instance by lazy { Singleton() }
+        }
+    }
+
+静态内部类式
+
+    class Singleton private constructor() {
+        companion object {
+            val instance = SingletonHolder.holder
+        }
+     
+        private object SingletonHolder {
+            val holder = Singleton()
+        }
+    }
+
+枚举式
+
+    enum class Singleton {
+        INSTANCE;
+    }
+
+参考：Kotlin下的5种单例模式 - 简书
+
+五. kotlin中关键字data的理解？相对于普通的类有哪些特点？
+
+数据类，相当于MVVM模式下的model类，相对java自动重写了equals()/hashCode()方法、get()方法、set()方法(如果是可写入的)、toString()方法、componentN()方法、copy()方法，注意get/set方法是kotlin中的类都会为属性自动生成的方法，和数据类没关系。
+
+equals/hashCode：equals方法重写使对象的内容一致则返回true，hashCode方法重写使对象的内容一致则hashCode值也一致。
+
+注意：在kotlin中有 == 和 ===，==比较的对象内容，===比较的是对象的引用地址
+
+toString：重写此方法为类和属性值的内容，如："User(name=John, age=42)"
+
+componentN：编译器为数据类(data class)自动声明componentN()函数,可直接用解构声明，如下：
+
+    	var girl1: Girl = Girl("嫚嫚", 29, 160, "廊坊")
+    	var (a,b,c,d) = girl1
+    	println("$a,$b,$c,$d")
+
+    在kotlin中所谓的解构就是将一个类对象中的参数拆开来，成为一个一个单独的变量，从而来使用这些单独的变量进行操作。
+
+copy： 复制对象使用，当要复制一个对象，只改变一些属性，但其余不变，copy()就是为此而生
+
+六.什么是委托属性？简单说一下应用场景？
+
+ 属性委托的核心思想是将一个属性（字段）的具体实现委托给另一个类去完成。
+
+应用场景：懒加载技术，通过 by lazy进行懒加载
+
+参考：kotlin 泛型和委托_龚礼鹏的博客-CSDN博客
+
+七.kotlin中with、run、apply、let函数的区别？一般用于什么场景？
+
+基本介绍：
+
+    with：不是T的扩展函数，需要传入对象进去，不能判空，最后一行是返回值。
+    run：是T的扩展函数，内部使用this，最后一行是返回值。
+    apply：是T的扩展函数，内部使用this，最后一行返回的是自身。
+    let：是T的扩展函数，内部使用it，当然可以自定义名称(通过修改lambda表达式参数)，最后一行是返回值。
+    also：是T的扩展函数，和let一样内部使用it，最后一行是返回自身。
+
+使用场景：
+
+    用于初始化对象或更改对象属性，可使用apply
+    如果将数据指派给接收对象的属性之前验证对象，可使用also
+    如果将对象进行空检查并访问或修改其属性，可使用let
+    如果想要计算某个值，或者限制多个本地变量的范围，则使用run
+
+八.kotlin中Unit的应用以及和Java中void的区别？
+
+    在java中，必须指定返回类型，即void不能省略，但是在kotlin中，如果返回为unit，可以省略。
+    java中void为一个关键字，但是在kotlin中unit是一个类
+
+九.Kotlin 中 infix 关键字的原理和使用场景？
+
+infix可以自定义操作符，比如1 to 2 这种的, 1 add 2,让程序更加语义化
+
+十. Kotlin中的可见性修饰符有哪些？相比于 Java 有什么区别？
+
+kotlin存在四种可见性修饰符，默认是public。 private、protected、internal、public
+1.private、public是和java中的一样的，protected java中同一个包可见，kotlin中不可见。
+2.不同的是java中默认是default修饰符（包可见），而kotlin存在internal修饰符（模块内部可见）。
+
+3.kotlin可以直接在文件顶级声明方法、变量等。其中protected不能用来修饰在文件顶级声明的类、方法、变量等。
+构造方法默认是public修饰，可以使用可见性修饰符修饰constructor关键字来改变构造方法的可见性。
+修饰符	java	kotlin
+public	所有类可见	所有类可见(默认)
+private	当前类可见	当前类可见
+protected	当前类，子类，同一包路径下的类可见	当前类，子类可见
+default	同一包路径下的类可见(默认)	无
+internal	无	同一模块下的类可见
+
+十一.你觉得Kotlin与Java混合开发时需要注意哪些问题？
+
+kotlin调用java的时候，如果java返回值可能为null 那就必须加上@nullable@nullable否则kotlin无法识别，也就不会强制你做非空处理，一旦java返回了null 那么必定会出现null指针异常，加上@nullable注解@nullable之后kotlin就能识别到java方法可能会返回null，编译器就能会知道，并且强制你做非null处理，这也就是kotlin的空安全
+
+十二.在Kotlin中，何为解构？该如何使用？
+
+在kotlin中所谓的解构就是将一个类对象中的参数拆开来，成为一个一个单独的变量，从而来使用这些单独的变量进行操作。
+
+使用方式：
+
+1.常规使用方式：
+
+    val (name, age) = person
+    println(name)
+    println(age)
+
+2.还可以在for需要中获取Map的key、value值
+
+    for ((key, value) in map) {
+       // 使用该 key、value 做些事情
+    }
+
+3.如果在解构声明中你不需要某个变量，那么可以用下划线取代其名称：
+
+val (_, status) = getResult()
+
+ 4.在 lambda 表达式中解构
+
+    map.mapValues { entry -> "${entry.value}!" }
+    map.mapValues { (key, value) -> "$value!" }
+
+十三.在Kotlin中，什么是内联函数？有什么作用？
+
+关键字 inline 标记函数，该函数就是一个内联函数
+
+作用是可以在编译kotlin文件时直接将内联函数内联掉，这样就是把内联函数执行过程放在调用此内联函数的位置，避免了java中多调用方法的操作，减少性能消耗。
+
+参考：2019-10-21：在Kotlin中，什么是内联函数？有什么作用？ · Issue #169 · Moosphan/Android-Daily-Interview · GitHub
+
+kotlin 高阶函数、内联函数_龚礼鹏的博客-CSDN博客
+
+十四.谈谈kotlin中的构造方法？有哪些注意事项？
+
+1.概要简述
+
+    kotlin中构造函数分为主构造和次级构造两类
+    使用关键词constructor标记次级构造函数，部分情况可省略
+    init关键词用于初始化代码块，注意与构造函数的执行顺序，类成员的初始化顺序
+    继承，扩展时候的构造函数调用逻辑
+    特殊的类如data class、object/componain object、sealed class等构造函数情况与继承问题
+    构造函数中的形参声明情况
+
+2.详细说明
+
+    主/次 构造函数
+
+            kotlin中任何class（包括object/data class/sealed class）都有一个默认的无参构造函数
+            如果显式的声明了构造函数，默认的无参构造函数就失效了。
+            主构造函数写在class声明处，可以有访问权限修饰符private,public等，且可以省略constructor关键字。
+            若显式的在class内声明了次级构造函数，就需要委托调用主构造函数。
+            若在class内显式的声明处所有构造函数（也就是没有了所谓的默认主构造），这时候可以不用依次调用主构造函数。例如继承View实现自定义控件时，三四个构造函数同时显示声明。
+
+    init初始化代码块
+
+        kotlin中若存在主构造函数，其不能有代码块执行，init起到类似作用，在类初始化时侯执行相关的代码块。
+            init代码块优先于次级构造函数中的代码块执行。
+            即使在类的继承体系中，各自的init也是优先于构造函数执行。
+            在主构造函数中，形参加有var/val，那么就变成了成员属性的声明。这些属性声明是早于init代码块的。
+
+    特殊类
+
+            object/companion object是对象示例，作为单例类或者伴生对象，没有构造函数。
+
+            data class要求必须有一个含有至少一个成员属性的主构造函数，其余方面和普通类相同。
+
+            sealed class只是声明类似抽象类一般，可以有主构造函数，含参无参以及次级构造等。
+
+十五.谈谈Kotlin中的Sequence，为什么它处理集合操作更加高效？
+
+集合操作低效在哪？
+
+处理集合时性能损耗的最大原因是循环。集合元素迭代的次数越少性能越好。
+
+我们写个例子：
+
+    list
+      .map { it ++ }
+      .filter { it % 2 == 0 }
+      .count { it < 3 } 
+
+反编译一下，你会发现：Kotlin编译器会创建三个while循环。
+
+Sequences 减少了循环次数
+
+Sequences提高性能的秘密在于这三个操作可以共享同一个迭代器(iterator)，只需要一次循环即可完成。Sequences允许 map 转换一个元素后，立马将这个元素传递给 filter操作 ，而不是像集合(lists) 那样，等待所有的元素都循环完成了map操作后，用一个新的集合存储起来，然后又遍历循环从新的集合取出元素完成filter操作。
+
+Sequences 是懒惰的
+
+上面的代码示例，map、filter、count 都是属于中间操作，只有等待到一个终端操作，如打印、sum()、average()、first()时才会开始工作，不信？你跑下下面的代码？
+
+    val list = listOf(1, 2, 3, 4, 5, 6)
+    val result = list.asSequence()
+            .map{ println("--map"); it * 2 }
+            .filter { println("--filter");it % 3  == 0 }
+    println("go~")
+    println(result.average())
+
+扩展：Java8 的 Stream(流) 怎么样呢?
+
+    list.asSequence()
+        .filter { it < 0}
+        .map { it++ }
+        .average()
+     
+    list.stream()
+        .filter { it < 0}
+        .map { it++ }
+        .average()
+
+stream的处理效率几乎和Sequences 一样高。它们也都是基于惰性求值的原理并且在最后(终端)处理集合。
+
+十六.请谈谈Kotlin中的Coroutines，它与线程有什么区别？有哪些优点？
+
+协程：协程就像非常轻量级的线程。线程是由系统调度的，线程切换或线程阻塞的开销都比较大。而协程依赖于线程，但是协程挂起时不需要阻塞线程，几乎是无代价的，协程是由开发者控制的。所以协程也像用户态的线程，非常轻量级，一个线程中可以创建任意个协程。
+
+协程与线程有什么区别：
+
+    Kotlin 协程，不是操作系统级别的概念，无需操作系统支持，线程是操作系统级别的概念，我们开发者通过编程语言(Thread.java)创建的线程，本质还是操作系统内核线程的映射。
+
+    Kotlin 协程，是用户态的(userlevel)，内核对协程「无感知」；一般情况下，我们说的线程，都是内核线程，线程之间的切换，调度，都由操作系统负责。
+
+    Kotlin 协程，是协作式的，由开发者管理，不需要操作系统进行调度和切换，也没有抢占式的消耗，因此它更加「高效」；线程，是抢占式的，它们之间能共享内存资源。
+
+    Kotlin 协程，它底层基于状态机实现，多协程之间共用一个实例，资源开销极小，因此它更加「轻量」；线程会消耗操作系统资源。
+
+    Kotlin 协程，本质还是运行于线程之上，它通过协程调度器，可以运行到不同的线程上
+
+优点：
+
+    轻量和高效：协程可以在一个线程中开启1000个协程，也不会有什么影响。
+    简单好用：其实轻量和高效并不是协程的核心竞争力，最主要的还是简化异步并发任务，代码中可以已同步的方式替换异步，去除java中回调地狱问题。
+
+参考：一看就会！协程原来是这样啊~
+
+GDG上海实录回顾，带你快速上手Kotlin协程
+
+十七.Kotlin中该如何安全地处理可空类型？
+
+a?.let{
+
+//此处的内容就是非空的
+
+}
+
+十八.Kotlin中的?.然后后面调用方法如果为空的情况下是什么？
+
+如果为空不会抛出空指针，而是调用的方法会返回null；
+
+十九.说说 Kotlin中 的 Any 与Java中的 Object 有何异同？
+
+同：
+
+    都是顶级父类
+    异：
+    成员方法不同
+    Any只声明了toString()、hashCode()和equals()作为成员方法。
+
+我们思考下，为什么 Kotlin 设计了一个 Any ？
+
+当我们需要和 Java 互操作的时候，Kotlin 把 Java 方法参数和返回类型中用到的 Object 类型看作 Any，这个 Any 的设计是 Kotlin 兼容 Java 时的一种权衡设计。
+
+所有 Java 引用类型在 Kotlin 中都表现为平台类型。当在 Kotlin 中处理平台类型的值的时候，它既可以被当做可空类型来处理，也可以被当做非空类型来操作。
+
+试想下，如果所有来自 Java 的值都被看成非空，那么就容易写出比较危险的代码。反之，如果 Java 值都强制当做可空，则会导致大量的 null 检查。综合考量，平台类型是一种折中的设计方案。
+
+二十.Kotlin中的数据类型有隐式转换吗？为什么？
+
+kotlin有隐式转换，在计算过程中一般都转换成其中的较大类型，因为防止精度丢失。
+
+参考：Kotlin 数据类型转换，隐式转换与显式转换
+
+二十一.Kotlin 中集合遍历有哪几种方式？
+
+for,foreach,while,do while,递归,还有集合的高阶方法
+
+二十二.为什么协程比线程要轻量？
+
+一个线程中开启1000个协程也没什么问题，但是如果开启1000个线程则性能消耗无法估量。
+
+二十三.协程Flow是什么，有哪些应用场景？
+
+协程flow：Kotlin 协程中使用挂起函数可以实现非阻塞地执行任务并将结果返回回来，但是只能返回单个计算结果。但是如果希望有多个计算结果返回回来，则可以使用 Flow。
