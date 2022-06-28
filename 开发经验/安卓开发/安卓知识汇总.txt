@@ -989,7 +989,17 @@ PhoneWindow内部包含了一个DecorView对象。DectorView对象是所有应�
 
 ### livedata底层还是handler,会出现post执行不到位的情况，第一次不生效，第二次才生效
 
-
+### 直接从栈内恢复页面
+          ActivityManager mAm = (ActivityManager) CommonAppContext.sInstance.getSystemService(Context.ACTIVITY_SERVICE);
+            //获得当前运行的task
+            List<ActivityManager.RunningTaskInfo> taskList = mAm.getRunningTasks(100);
+            for (ActivityManager.RunningTaskInfo rti : taskList) {
+                //找到当前应用的task，并启动task的栈顶activity，达到程序切换到前台
+                if (rti.topActivity.getPackageName().equals(CommonAppContext.sInstance.getPackageName())) {
+                    mAm.moveTaskToFront(rti.id, 0);
+                    break;
+                }
+            }
 
 
 

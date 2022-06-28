@@ -1,0 +1,266 @@
+视频播放：
+安卓原生的视频播放控件：VideoView继承自SurfaceView
+android.view.SurfaceHolder.Callback有三个方法
+        Canvas canvas = holder.lockCanvas();//是可以拿画布的
+        holder.unlockCanvasAndPost(canvas);//结束锁定画图，并提交改变。 就可以展示了
+
+void surfaceCreated(SurfaceHolder holder) //初始化播放器
+void surfaceChanged(SurfaceHolder holder, int format, int width, int height)//设置尺寸
+void surfaceDestroyed(SurfaceHolder holder);//是否资源
+android.media.MediaPlayer#_setVideoSurface
+private native void _setVideoSurface(Surface surface);
+
+VideoView videoView = (VideoView)findViewById(R.id.videoView1);
+/***
+    * 将播放器关联上一个音频或者视频文件
+    * videoView.setVideoURI(Uri uri)
+    * videoView.setVideoPath(String path)
+    * 以上两个方法都可以。
+    */
+videoView.setVideoPath("data/yueding.mp3");
+/**
+    * w为其提供一个控制器，控制其暂停、播放……等功能
+    */
+videoView.setMediaController(new MediaController(this));
+/**
+    * 视频或者音频到结尾时触发的方法
+    */
+videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        Log.i("通知", "完成");
+    }
+});
+videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+    
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        Log.i("通知", "播放中出现错误");
+        return false;
+    }
+});
+
+腾讯云视频：
+com.tencent.liteav.renderer.TXCGLSurfaceView继承com.tencent.liteav.renderer.TXCGLSurfaceViewBase继承SurfaceView
+实现了接口android.opengl.GLSurfaceView
+视频播放是com.tencent.liteav.txcvodplayer.TextureRenderView继承TextureView
+播放器组合到com.tencent.liteav.txcvodplayer.TXCVodVideoView，
+TXVodPlayer 控制TXCVodVideoView的加载行为 mPlayer.startPlay(url);-LiveRecordPlayViewHolder
+com.tencent.rtmp.TXVodPlayConfig给视频播放配置参数
+
+直播:shake live, 妙音app
+com.yunbao.live.socket.SocketClient  用于 LiveAnchorActivity和LiveAudienceActivity
+        L.e(TAG, "直播sdk----->" + (mLiveSDK == Constants.LIVE_SDK_KSY ? "金山云" : "腾讯云"));
+直播推送基类com.yunbao.live.views.AbsLivePushViewHolder
+美颜效果cn.tillusory.sdk.TiSDKManager//各种萌颜效果控制器，美颜
+
+com.yunbao.live.views.LivePushTxViewHolder 腾讯云直播推流
+com.tencent.rtmp.ui.TXCloudVideoView 腾讯自己的控件
+com.tencent.rtmp.TXLivePusher 帧率、抑噪音
+com.tencent.rtmp.TXLivePusher#startCameraPreview(TXCloudVideoView var1)//开启相机后推流
+腾讯sdk连麦时候主播混流：混流类型 1主播与主播连麦  0 用户与主播连麦
+
+com.yunbao.live.views.LivePushKsyViewHolder 金山云直播推流
+android.opengl.GLSurfaceView
+    private KSYStreamer mStreamer;//金山推流器 帧率、抑噪音
+    private ImgBeautyProFilter mImgBeautyProFilter;//金山自带美颜
+com.ksyun.media.streamer.kit.KSYStreamer#setDisplayPreview(GLSurfaceView var1)
+mStreamer.startCameraPreview();
+关联照相机
+       CameraCapture capture = mStreamer.getCameraCapture();
+            Camera.Parameters parameters = capture.getCameraParameters();
+            if (parameters == null) {
+                if (!mFlashOpen) {
+                    ToastUtil.show(R.string.live_open_flash_error);
+                }
+            } else {
+                if (Camera.Parameters.FLASH_MODE_TORCH.equals(parameters.getFlashMode())) {//如果闪光灯已开启
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);//设置成关闭的
+                    mFlashOpen = false;
+                } else {
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);//设置成开启的
+                    mFlashOpen = true;
+                }
+                capture.setCameraParameters(parameters);
+            }
+
+LiveRoomViewHolder 和 LiveAnchorViewHolder 用户交互，打赏、点赞等等
+本地计时
+ private static final int WHAT_PK_WAIT_RECEIVE = 0;//收到pk申请等待 what
+    private static final int WHAT_PK_WAIT_SEND = 1;//发送pk申请等待 what
+    private static final int WHAT_PK_TIME = 2;//pk时间变化 what
+    private static final int LINK_MIC_COUNT_MAX = 10;
+    private static final int PK_TIME_MAX = 60 * 5;//pk时间 5分钟
+    private static final int PK_TIME_MAX_2 = 60;//惩罚时间 1分钟
+    private boolean mIsAnchor;//自己是否是主播
+    private SocketClient mSocketClient;
+    private ViewGroup mPkContainer;
+    private boolean mIsApplyDialogShow;//是否显示了申请PK的弹窗
+    private boolean mAcceptPk;//是否接受连麦
+    private boolean mIsPk;//是否已经Pk了
+    private String mApplyUid;//正在申请Pk的主播的uid
+    private String mApplyStream;//正在申请Pk的主播的stream
+    private String mLiveUid;//自己主播的uid
+    private String mPkUid;//正在Pk的对方主播的uid
+    private ProgressTextView mLinkMicWaitProgress;
+    private int mPkWaitCount;//Pk弹窗等待倒计时Live
+    private int mPkTimeCount;//pk时间
+    private PopupWindow mPkPopWindow;
+    private Handler mHandler;
+    private LiveLinkMicPkViewHolder mLiveLinkMicPkViewHolder;
+    private String mPkTimeString1;
+    private String mPkTimeString2;
+    private boolean mIsPkEnd;//pk是否结束，进入惩罚时间
+    private boolean mPkSend;//pk请求是否已经发送
+    private int mPkSendWaitCount;//发送pk请求后的等待时间
+
+pk连麦SocketLinkMicPkUtil-com.yunbao.live.socket.SocketClient#send-io.socket.client.Socket#emit(java.lang.String, java.lang.Object...)
+
+    io.socket.engineio.client.Socket的createTransport方法 中建立连接，都是okhttp
+        Transport transport;
+        if (WebSocket.NAME.equals(name)) {
+            transport = new WebSocket(opts);//Socket
+        } else if (Polling.NAME.equals(name)) {
+            transport = new PollingXHR(opts);//普通http请求
+        } else {
+io.socket.engineio.client.Socket的setTransport方法建立通信
+on(Transport.EVENT_PACKET, new Listener() {
+            @Override
+            public void call(Object... args) {
+                self.onPacket(args.length > 0 ? (Packet) args[0] : null);//发送消息
+io.socket.engineio.client.Socket的onPacket(Packet packet) {
+setTransport-onPacket-onHandshake-onOpen-flush
+            this.transport.send(this.writeBuffer.toArray(new Packet[this.writeBuffer.size()]));
+transport.send - transport.sendwrite-sendwrite.sendwrite           
+   if (packet instanceof String) {
+        self.ws.send((String) packet);//这里的就是okhttp3.WebSocket，创建的时候关联的
+    } else if (packet instanceof byte[]) {
+        self.ws.send(ByteString.of((byte[]) packet));
+    }
+
+okhttp的代码解析：
+    private okhttp3.WebSocket.Factory webSocketFactory;
+okhttp3.OkHttpClient 中创建RealWebSocket
+ @Override public WebSocket newWebSocket(Request request, WebSocketListener listener) {
+    RealWebSocket webSocket = new RealWebSocket(request, listener, new Random(), pingInterval);
+    webSocket.connect(this);
+    return webSocket;
+  }
+okhttp3.internal.ws.RealWebSocket
+网络通信
+io.socket.engineio.client.transports.WebSocket
+    protected void doOpen() {//只接受服务器的数据，而不会往服务器发送数据，发送数据是其他http接口post的。
+    这里方法参数webSocket其实可以发送请求okhttp3.WebSocket#send(java.lang.String)
+        Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        this.emit(EVENT_REQUEST_HEADERS, headers);
+
+        final WebSocket self = this;
+        okhttp3.WebSocket.Factory factory = webSocketFactory != null ? webSocketFactory : new OkHttpClient();
+        Request.Builder builder = new Request.Builder().url(uri());
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (String v : entry.getValue()) {
+                builder.addHeader(entry.getKey(), v);
+            }
+        }
+        final Request request = builder.build();
+        ws = factory.newWebSocket(request, new WebSocketListener() {
+            @Override
+            public void onOpen(okhttp3.WebSocket webSocket, Response response) {
+                final Map<String, List<String>> headers = response.headers().toMultimap();
+                EventThread.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                        self.emit(EVENT_RESPONSE_HEADERS, headers);
+                        self.onOpen();
+                    }
+                });
+            }
+
+            @Override
+            public void onMessage(okhttp3.WebSocket webSocket, final String text) {
+                if (text == null) {
+                    return;
+                }
+                EventThread.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                    self.onData(text);
+                    }
+                });
+            }
+
+            @Override
+            public void onMessage(okhttp3.WebSocket webSocket, final ByteString bytes) {
+                if (bytes == null) {
+                    return;
+                }
+                EventThread.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                        self.onData(bytes.toByteArray());
+                    }
+                });
+            }
+
+            @Override
+            public void onClosed(okhttp3.WebSocket webSocket, int code, String reason) {
+                EventThread.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                        self.onClose();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(okhttp3.WebSocket webSocket, final Throwable t, Response response) {
+                if (!(t instanceof Exception)) {
+                    return;
+                }
+                EventThread.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                        self.onError("websocket error", (Exception) t);
+                    }
+                });
+            }
+        });
+    }
+
+其他的http网络请求是 javax.net.ssl.SSLSocketFactory 继承自 javax.net.SocketFactory
+    public abstract Socket createSocket(Socket s, String host,
+            int port, boolean autoClose) throws IOException;
+创建完成Socket后通信
+    try {
+      Platform.get().connectSocket(rawSocket, route.socketAddress(), connectTimeout);
+    } catch (ConnectException e) {
+      ConnectException ce = new ConnectException("Failed to connect to " + route.socketAddress());
+      ce.initCause(e);
+      throw ce;
+    }
+
+    // The following try/catch block is a pseudo hacky way to get around a crash on Android 7.0
+    // More details:
+    // https://github.com/square/okhttp/issues/3245
+    // https://android-review.googlesource.com/#/c/271775/
+    try {
+      source = Okio.buffer(Okio.source(rawSocket));//getInputStream
+      sink = Okio.buffer(Okio.sink(rawSocket));//getOutputStream
+    } catch (NullPointerException npe) {
+      if (NPE_THROW_WITH_NULL.equals(npe.getMessage())) {
+        throw new IOException(npe);
+      }
+    }
+
+ok的拦截器
+    List<Interceptor> interceptors = new ArrayList<>();
+    interceptors.addAll(client.interceptors());
+    interceptors.add(retryAndFollowUpInterceptor);
+    interceptors.add(new BridgeInterceptor(client.cookieJar()));
+    interceptors.add(new CacheInterceptor(client.internalCache()));
+    interceptors.add(new ConnectInterceptor(client));
+    if (!forWebSocket) {
+      interceptors.addAll(client.networkInterceptors());
+    }
+    interceptors.add(new CallServerInterceptor(forWebSocket));
+
