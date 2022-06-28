@@ -28,12 +28,6 @@ if (mWindow == null) {
     mVisible ? VISIBLE : GONE, mContentInsets);   
 } 
 1.
-2.
-3.
-4.
-5.
-6.
-7.
 很明显，每个SurfaceView创建的时候都会创建一个MyWindow，new MyWindow(this)中的this正是SurfaceView自身，因此将SurfaceView和window绑定在一起，而前面提到过每个window对应一个Surface。
 
 所以SurfaceView也就内嵌了一个自己的Surface，可以认为SurfaceView是来控制Surface的位置和尺寸。传统View及其派生类的更新只能在UI线程，然而UI线程还同时处理其他交互逻辑，这就无法保证view更新的速度和帧率了，而SurfaceView可以用独立的线程来进行绘制。
@@ -100,30 +94,6 @@ class SurfaceViewActivity : CommonActivity<ActivitySurfaceViewBinding>(), Surfac
     } 
 } 
 1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
-11.
-12.
-13.
-14.
-15.
-16.
-17.
-18.
-19.
-20.
-21.
-22.
-23.
-24.
-25.
 SurfaceView 也提供了生命周期的回调接口。当我们只需要从 SurfaceView 上面得到一个 SurfaceHolder 实例然后向其中添加回调即可;
 
 二、TextureView详解
@@ -171,34 +141,6 @@ class TextureViewActivity : CommonActivity<ActivityTextureViewBinding>(), Textur
     } 
 } 
 1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
-11.
-12.
-13.
-14.
-15.
-16.
-17.
-18.
-19.
-20.
-21.
-22.
-23.
-24.
-25.
-26.
-27.
-28.
-29.
 TextureView 的 SurfaceTexture 可以通过 getSurfaceTexture() 方法或者通过 SurfaceTextureListener 获取到。还有一点很重要的是，SurfaceTexture 只在 TextureView 关联到窗口并且 onAttachedToWindow() 被触发的之后可用。因此，强烈建议使用监听的方式来获取 SurfaceTexture 可用的通知。
 
 还有一个重要的就是，在同一时刻只能由一个生产者可以使用 TextureView，就是说，当你使用 TextureView 作为相机预览的时候是无法使用 lockCanvas() 同时在 TextureView 上面进行绘制的。

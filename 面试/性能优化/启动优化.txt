@@ -64,6 +64,7 @@ Thread Time:  代码消耗CPU的时间
 Wall Clock Time: 代码执行时间
 
 ### 远程诊断上传耗时堆栈SysTrace
+https://blog.csdn.net/vicwudi/article/details/100191529?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1-100191529-blog-115377618.pc_relevant_antiscanv4&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1-100191529-blog-115377618.pc_relevant_antiscanv4&utm_relevant_index=2
 1, 结合Android 内核的数据，生成html报告，API18以上使用，推荐TraceCompat
 2, 轻量级，开销小； 直观反映cpu利用率
 使用方式：

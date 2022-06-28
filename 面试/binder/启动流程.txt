@@ -8,12 +8,14 @@
 - Native层主要是包括init进程以及其fork出来的用户空间的守护进程、HAL层、开机动画等
 - Framework层主要是AMS和PMS等Service的初始化
 - Application层主要指SystemUI、Launcher的启动
-* 手机开机启动引导程序（Bootloader 就是在操作系统内核运行之前运行的一段小程序）：crt0.S（CPU初始化）>kmain（初始化内核）>arch_init（打印信息）> target_init（判断运行环境是否符合）>apps_init（应用功能初始化）>aboot_init（lcd驱动初始化，显示第一张图片）。
+* 手机开机启动引导程序（Bootloader 就是在操作系统内核运行之前运行的一段小程序）：crt0.S（CPU初始化）>kmain（初始化内核）>
+arch_init（打印信息）> target_init（判断运行环境是否符合）>apps_init（应用功能初始化）>aboot_init（lcd驱动初始化，显示第一张图片）。
 * Kernel初始化：zImage解压缩、kernel的汇编启动阶段、Kernel的C启动阶段。
 * Init初始化：init进程是Linux内核启动后创建的第一个用户空间的进程，init在初始化过程中会启动很多重要的守护进程。
 [具体参考](https://www.jianshu.com/p/657336b545bd)
 * init进程会fork很多进程，包括zygote进程。（zygote进程是为了实现资源共用存在的，以后app启动出来的zygote进程都是第一个zygote进程的子进程。）
-* zygote进程：创建安卓运行时环境，初始化图形系统，启动虚拟机，注册jni，之后执行java程序：创建ZogyteServer，创建本地socket服务，加载系统类和资源，fork出来system_server进程，启动应用进程main函数（Zygote的forkSystemServer方法返回进程）。
+* zygote进程：创建安卓运行时环境，初始化图形系统，启动虚拟机，注册jni，之后执行java程序：创建ZogyteServer，创建本地socket服务，
+加载系统类和资源，fork出来system_server进程，启动应用进程main函数（Zygote的forkSystemServer方法返回进程）。
 [具体参考](https://www.jianshu.com/p/e219c11d1620)
 * SystemServer.java启动：
 - 调整时间，如果系统时间比1970还要早，调整到1970年
@@ -51,14 +53,16 @@ UsbService 管理usb设备和连接的服务
 这三个方法里面创建了系统里面重要的服务，并把它们纳入SystemServerManager的管理。
 SystemServiceManager.startService创建service的实例，然后调用实例的onStart方法。
 **所有实例start完毕后，也就是startOtherServices()方法执行最后，开始systemReady流程（mActivityManagerService.systemReady(new Runnable() ）。**
-systemReady方法里面执行完WebViewFactory.prepareWebViewInSystemServer();之后执行startSystemUi(context);（启动SystemUIService），然后通过调用WindowManager的onSystemUiStarted方法调用KeyguardService启动锁屏服务。SystemUI启动成功后表示系统的通知栏和导航栏已经初始化成功。
+systemReady方法里面执行完WebViewFactory.prepareWebViewInSystemServer();之后执行startSystemUi(context);（启动SystemUIService），
+然后通过调用WindowManager的onSystemUiStarted方法调用KeyguardService启动锁屏服务。SystemUI启动成功后表示系统的通知栏和导航栏已经初始化成功。
 在systemReady(final Runnable goingCallback) 方法中，先调用deliverPreBootCompleted发送开机广播，然后调用startHomeActivityLocked启动Launcher和HomeActivity。
 [具体参考](https://www.jianshu.com/p/1adfd446e4fa)
 [具体参考](https://blog.csdn.net/cj5785/article/details/78876118)
 [具体参考](https://www.jianshu.com/p/4699d50deb99)
 
 ### app启动流程
-* 点击桌面App图标发起startActivity请求：原Activity的onPause，新Activity的onCreate，新Activity的onStart，新Activity的onResume，原Activity的onStop，原Activity的onSaveInstanceState。
+* 点击桌面App图标发起startActivity请求：原Activity的onPause，新Activity的onCreate，新Activity的onStart，新Activity的onResume，
+原Activity的onStop，原Activity的onSaveInstanceState。
 * Activity.startActivity(Intent).startActivity(Intent, Bundle).startActivityForResult(Intent, int, Bundle)==>
 Instrumentation.execStartActivity(Context, IBinder, IBinder, Activity, Intent, int, Bundle)==>
 ActivityManagerNative.getDefault() 返回 ActivityManagerProxy 对象==>

@@ -29,6 +29,7 @@ with outgoing references: 自身引用了哪些类
 with incoming references: 自身被哪些类引用
 
 ### 内存泄漏工具的原理leack
+主动触发。调用System.gc()
 会第一次gc，看activity在不在内存中，在的话，过5秒再gc一次，如果还在，就会抛内存溢出，这种有可能误报，因为ActivityManager的生命周期管理是有延时的。
 
 ### 可能导致内存泄漏的地方
@@ -143,7 +144,7 @@ drawable-xxhdpi（分辨率1080*1920，density是320-480，densityDpi是3倍）�
 drawable-xxxdpi（最高分辨率，density是480-640，densityDpi是4倍）
 市面上大多数是1080*1920的手机了，一般设计也是在这个像素上面切图，对应文件夹是drawable-xxhdpi
 112px*131px的png图片，图片格式是ARGB_8888，电脑上面显示20.57kb
-实际程序加载的bitmap大小是:112*131*4 = 58688B，因为带有半透明，背景色会随控件背景色变化
+实际程序加载的bitmap大小是:112*131*4 = 58688B，因为带有半透明，背景色会随控件背景色变化,4是ARGB
 Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"));// 不设置，默认是8888
 112px*131px的jpg图片，图片格式是RGB_565，电脑上面显示20.57kb
 实际程序加载的bitmap大小是:112*131*2 = 29344，变小的原因是没有了A通道（半透明），背景默认是白色的了

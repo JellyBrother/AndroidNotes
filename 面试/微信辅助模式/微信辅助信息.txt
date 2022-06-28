@@ -1,5 +1,13 @@
 ### 微信主界面 com.tencent.mm.ui.LauncherUI
+AccessibilityService
+            //当前窗口根节点
+            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
 
+        // todo 这里需要多加判断，很多页面都有这两个节点
+        AccessibilityNodeInfo chattingBackNode = AccessibilityServiceUtil.findNode(service, "com.tencent.mm:id/lt",
+                "", "", "android.widget.TextView");
+        AccessibilityNodeInfo chattingMoreNode = AccessibilityServiceUtil.findNode(service, "com.tencent.mm:id/lo",
+                "聊天信息", null, "android.widget.ImageButton");
 
 
 ### 群聊界面 com.tencent.mm.ui.chatting.ChattingUI

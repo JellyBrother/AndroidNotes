@@ -185,8 +185,10 @@ route add default gw 192.168.0.1 dev eth0 //设置网关
 setprop net.eth0.dns1 8.8.8.8  //添加dns
 adb shell ping -c 4 www.baidu.com  //ping4次后停止ping
 
-
-
+### 抓trace并保存到文件
+* atrace -a com.jeoe.ebox gfx wm am sched view app res ss -o /sdcard/a.trace
+* systrace_path=“/xxx/Android/sdk/platform-tools/systrace/systrace.py" 
+python $systrace_path -a “com.test.myapplication” -o trace.html gfx input view wm am dalvik
 
 
 
