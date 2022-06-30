@@ -189,6 +189,10 @@ adb shell ping -c 4 www.baidu.com  //ping4次后停止ping
 * atrace -a com.jeoe.ebox gfx wm am sched view app res ss -o /sdcard/a.trace
 * systrace_path=“/xxx/Android/sdk/platform-tools/systrace/systrace.py" 
 python $systrace_path -a “com.test.myapplication” -o trace.html gfx input view wm am dalvik
+Debug.startMethodTracing(“test”);//设置参数为生成的trace文件名
+Debug.stopMethodTracing();
+TraceCompact.beginSection("");
+TraceCompact.endSection();
 
 
 

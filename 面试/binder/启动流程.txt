@@ -238,3 +238,5 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 } else {
     alarmManager.set(type, triggerAtMillis, pendingIntent);
 }
+
+### Activity的启动模式，启动模式和其他页面相互调用的时候的返回场景，生命周期，窗口模式下的生命周期，异常时候的生命周期--------------------------

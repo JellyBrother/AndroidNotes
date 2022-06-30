@@ -4,8 +4,10 @@ https://www.pianshen.com/article/9895765273/
 https://cloud.tencent.com/developer/article/2015651
 
 ### ssh配置
+查看git的配置列表 git config --list
 $ git config --global user.name "用户名"
 $ git config --global user.email "用户邮箱"
+C:\Users\username\.gitconfig 可以看到配置
 进文件夹：C:\Users\Administrator\.ssh
 生成密钥和公钥：ssh-keygen -t rsa -C "你的邮箱"
 * 不输入账号密码，直接回车就行
