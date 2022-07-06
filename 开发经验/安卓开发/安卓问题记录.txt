@@ -1037,6 +1037,42 @@ if(pkgContext !=null){
 - 注意事项：打包apk时，如果出现  INSTALL_FAILED_SHARED_USER_COMPATIBLE 错误提示，请确认已安装的应用已卸载（未添加sharedUserId版本）。
 两个应用是否在使用同一个debug—keystone签名 
 
+### 环境搭建
+gradle.properties 中加入 android.enableAapt2=false，不建议
+plugins {
+  id 'com.android.library'
+}
+plugins {
+  id 'com.android.application'
+}
+报错：Installed Build Tools revision 33.0.0 is corrupted. Remove and install again using the SDK Manager.
+本地sdk有问题，改为32和31都不行，改为30.0.3后又报错
+    //noinspection GradleCompatible,GradleCompatible
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+Manifest merger failed : Apps targeting Android 12 and higher are required to specify
+sdk的目标版本不一致，将compileSdkVersion和targetSdkVersion改为一致30
+
+### 能运行的配置
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+        minSdkVersion 24
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+app 无布局
+implementation project(':mylibrary')
+implementation project(':mylibrary2')
+
+mylibrary 无布局
+api 'androidx.appcompat:appcompat:1.2.0'
+api 'com.google.android.material:material:1.2.1'
+api 'androidx.constraintlayout:constraintlayout:2.0.1'
+
+mylibrary2 有布局
+compileOnly project(':mylibrary')
 
 
 

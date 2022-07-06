@@ -2,6 +2,7 @@
 https://zhuanlan.zhihu.com/p/159766744
 https://www.pianshen.com/article/9895765273/
 https://cloud.tencent.com/developer/article/2015651
+http://t.zoukankan.com/haolb123-p-14516542.html
 
 ### ssh配置
 查看git的配置列表 git config --list
