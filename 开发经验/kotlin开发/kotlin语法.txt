@@ -253,7 +253,23 @@ class SmallHeadFather : IWashBow by BigHeadSon {
 枚举更注重具体的数据
 印章类更注重数据的类型
 
+### kotlin协程
+lifecycleScope.launch() {
+    // 子线程
+    ...
+    withContext(Dispatchers.Main) {
+        // 切换到主线程
+        ...
+    }
+}
+GlobalScope.launch { 
+}
 
+### suspend 挂起函数
+suspend fun get(url: String) = withContext(Dispatchers.IO) { /* ... */ }
+协程中运行，使用了cps转换，在编译的时候会加上Continuation回调
+
+### livedata的底层实际也是handle消息发送
 
 
 

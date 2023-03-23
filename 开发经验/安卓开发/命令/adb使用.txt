@@ -194,8 +194,53 @@ Debug.stopMethodTracing();
 TraceCompact.beginSection("");
 TraceCompact.endSection();
 
+adb install -r 需要安装的包
+adb push 打包好的包  /sdcard/bundles  --将文件推送到手机目录下
+adb pull /sdcard/ /Users/*/Desktop/ 将手机内容推送到电脑
+gradlew clean assembleRelease
 
+输出当前的堆栈信息adb shell dumpsys activity activities > 1
+adb shell "dumpsys activity | grep mResume" 查看当前页面
+adb shell
+adb pull /sdcard/Bluetooth/ D:\Download
+adb push D:\Download /sdcard/Bluetooth/
+adb devices查看连接状态
+adb shell dumpsys meminfo [-d] 查看 app（进程）的内存占用情况。
+adb root 查看是否root
+where adb
+where fastboot
+adb root
+adb reboot remount
+adb remount
+adb root
+$ adb disable-verity
+$ adb reboot
+$ adb root
+$ adb remount
+adb reboot bootloader
+adb devices 
+fastboot devices 
 
+cls清理屏幕
+cd ..返回上级目录
+
+签名
+查看Android apk的签名信息方式有三种：
+1、直接查看apk的签名信息：
+keytool -list -printcert -jarfile D:\test.apk
+2、查看keystore的签名信息：
+keytool -list -v -keystore debug.keystore
+3、先将apk后缀改为.zip，然后解压，然后进入META-INF目录，找到XXX.RSA文件
+keytool -printcert -file XXX.RSA
+Android 7.0 引入一项新的应用签名方案 APK Signature Scheme v2，它能提供更快的应用安装时间和更多针对未授权 APK 文件更改的保护。v1签名才能在META-INF文件夹看到rsa签名证书，v2签名后，META-INF文件夹下看不签名证书了。
+可以通过命令查看apk是否签名
+.\apksigner verify -v D:\code\github\ShareSDK-for-Android-master\SampleFresh\app\build\outputs\apk\debug\app-debug.apk
+验证秘钥：
+keytool -list -v -keystore D:\code\project\2022101203\\Android.jks
+验证是否签名：
+jarsigner -verify -verbose -certs E:\apk包\_pro_1.0.0_202211171033_release.apk
+v1v2v3一起签名：
+apksigner sign --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true --ks D:\code\project\2022101203\\Android.jks E:\apk包\_pro_1.0.0_202211171033_release.apk
 
 
 

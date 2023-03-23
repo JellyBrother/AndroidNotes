@@ -115,8 +115,36 @@ git rebase 将当前的修改线放到顶部 git push origin HEAD:refs/changes/*
 * git push origin HEAD:refs/for/**
 * 输出当前的堆栈信息adb shell dumpsys activity activities > 1
 
-
-
+分支操作
+git config --list 查看git的配置列表
+$ git config --global user.name "用户名"
+$ git config --global user.email "用户邮箱"
+git clone
+git branch -r
+git status
+git add .
+git commit -m ""
+git push
+rm -rf wwb.txt
+git checkout -b release_v1.0.4 origin/marster 没有就新建分支，有就切换分支
+git push origin HEAD 提交代码到当前分支
+git push origin HEAD:master 提交代码到主干
+git merge marster 合并主干代码到当前分支
+● git删除远程分支
+git push origin --delete release_v1.0.5
+git push origin HEAD
+● 合并分支dev的2e18d93203b366a924d62c4268db0348fbfcbbd4代码到test分支
+先切换分支到test
+git cherry-pick 2e18d93203b366a924d62c4268db0348fbfcbbd4
+git push origin HEAD
+● 强制合并分支develop到master
+git push origin develop:master -f
+# 先切换到 master 分支
+git checkout master 
+# 将本地的旧分支 master 重置成 develop
+git reset --hard develop  
+# 再推送到远程仓库
+git push origin master --force 
 
 
 

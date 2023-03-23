@@ -29,7 +29,7 @@ gradlew clean assembleDebug
 --stacktrace -info
 --stacktrace -debug
 
-
+gradlew processDebugManifest --stacktrace 查看依赖树
 
 
 
