@@ -1,0 +1,46 @@
+// {type:sequence}
+// {generate:true}
+
+//android-13.0.0_r1/frameworks/base/core/java/android/app/Activity
+[Activity]startActivity>[Activity]
+[Activity]startActivityForResult(Intent intent, int requestCode, Bundle options)>[Instrumentation]
+//android-13.0.0_r1/frameworks/base/core/java/android/app/Instrumentation
+[Instrumentation]execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,Intent intent, int requestCode, Bundle options)>[ActivityTaskManager]
+//android-13.0.0_r1/frameworks/base/core/java/android/app/ActivityTaskManager
+[ActivityTaskManager]getService().startActivity>[ActivityTaskManagerService]
+//android-13.0.0_r1/frameworks/base/services/core/java/com/android/server/wm/ActivityTaskManagerService.java
+[ActivityTaskManagerService]startActivity(IApplicationThread caller, String callingPackage, String callingFeatureId, Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode, int startFlags, ProfilerInfo profilerInfo, Bundle bOptions)>[ActivityTaskManagerService]
+[ActivityTaskManagerService]startActivityAsUser(IApplicationThread caller, String callingPackage, String callingFeatureId, Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode, int startFlags, ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser)>[ActivityTaskManagerService]
+[ActivityTaskManagerService]getActivityStartController>[ActivityStartController]
+//android-13.0.0_r1/frameworks/base/services/core/java/com/android/server/wm/ActivityStartController.java
+[ActivityStartController]obtainStarter>[ActivityStarter]
+//android-13.0.0_r1/frameworks/base/services/core/java/com/android/server/wm/ActivityStarter.java
+[ActivityStarter]execute>[ActivityStarter]
+[ActivityStarter]executeRequest>[ActivityStarter]
+[ActivityStarter]startActivityUnchecked>[ActivityStarter]
+//android-13.0.0_r1/frameworks/base/services/core/java/com/android/server/wm/RootWindowContainer.java
+[ActivityStarter]startActivityInner>[RootWindowContainer]
+[RootWindowContainer]resumeFocusedTasksTopActivities(Task targetRootTask, ActivityRecord target, ActivityOptions targetOptions, boolean deferPause)>[Task]
+//android-13.0.0_r1/frameworks/base/services/core/java/com/android/server/wm/Task.java
+[Task]resumeTopActivityUncheckedLocked>[Task]
+[Task]resumeTopActivityInnerLocked>[Task]
+[Task]resumeNextFocusableActivityWhenRootTaskIsEmpty>[RootWindowContainer]
+[RootWindowContainer]resumeFocusedTasksTopActivities>[RootWindowContainer]
+[RootWindowContainer]resumeHomeActivity>[RootWindowContainer]
+[RootWindowContainer]startHomeOnTaskDisplayArea>[ActivityTaskManagerService]
+//mService.getActivityStartController().startHomeActivity(homeIntent, aInfo, myReason, taskDisplayArea);
+[ActivityTaskManagerService]getActivityStartController>[ActivityStartController]
+[ActivityStartController]startHomeActivity>[ActivityTaskSupervisor]
+[ActivityTaskSupervisor]scheduleResumeTopActivities>[ActivityTaskSupervisor]
+//android-12.1.0_r1/frameworks/base/services/core/java/com/android/server/wm/ActivityTaskSupervisor.java
+[ActivityTaskSupervisor]scheduleResumeTopActivities>[mHandler]
+[mHandler]sendEmptyMessage(RESUME_TOP_ACTIVITY_MSG)>[mHandler]
+
+
+
+
+
+
+
+
+

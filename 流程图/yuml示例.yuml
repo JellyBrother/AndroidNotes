@@ -1,0 +1,105 @@
+// type:state
+
+// (start)[start]->(/home/data/aosp/android-13.0.0_r1/frameworks/base/core/java/android/app/Activity.java)
+// (/home/data/aosp/android-13.0.0_r1/frameworks/base/core/java/android/app/Activity.java)[onClick]->(ComposeMessageActivity.java)
+// (ComposeMessageActivity.java)[onClick]->(end)
+
+// // {type:class}
+// // {direction:topDown}
+// // {generate:true}
+
+// [note: You can stick notes on diagrams too!{bg:cornsilk}]
+// [Customer]<>1-orders 0..*>[Order]
+// [Order]++*-*>[LineItem]
+// [Order]-1>[DeliveryMethod]
+// [Order]*-*>[Product|EAN_Code;Description;ListPrice|promo_price()]
+// [Category]<->[Product]
+// [DeliveryMethod]^[National]
+// [DeliveryMethod]^[International]
+
+
+
+// // {type:usecase}
+// // {direction:leftToRight}
+// // {generate:true}
+
+// (note: figure 1.2{bg:beige})
+// [User]-(Login)
+// [Site Maintainer]-(Add User)
+// (Add User)<(Add Company)
+// [Site Maintainer]-(Upload Docs)
+// (Upload Docs)<(Manage Folders)
+// [User]-(Upload Docs)
+// [User]-(Full Text Search Docs)
+// (Full Text Search Docs)>(Preview Doc)
+// (Full Text Search Docs)>(Download Docs)
+// [User]-(Browse Docs)
+// (Browse Docs)>(Preview Doc)
+// (Download Docs)
+// [Site Maintainer]-(Post New Event to the Web Site)
+// [User]-(View Events)
+
+
+
+// // {type:activity}
+// // {generate:true}
+
+// (start)-><a>[kettle empty]->(Fill Kettle)->|b|
+// <a>[kettle full]->|b|->(Boil Kettle)->|c|
+// |b|->(Add Tea Bag)->(Add Milk)->|c|->(Pour Water)
+// (Pour Water)->(end)
+
+
+
+// // {type:state}
+// // {generate:true}
+
+// (start)[Start]->(Simulator running)
+// (Simulator running)[Pause]->(Simulator paused)
+// (Simulator running)[Stop]->(end)
+// (Log retrieval)[Continue]->(Simulator running)
+// (Simulator paused)[Unpause]->(Simulator running)
+// (Simulator paused)[Data requested]->(Log retrieval)
+// (Log retrieval)->(end)
+
+
+
+// // {type:deployment}
+// // {generate:true}
+
+// [Presentation Server]-[Policy Server]
+// [Policy Server]-[Document Server]
+// [Product Server]-[Document Server]
+// [Document Server]ASP.Net-[Workstation]
+// [Policy Server]-[Database Server]
+// [Product Server]-[Database Server]
+// [Policy Server]-[note: To be clustered to meet throughput needs{bg:cornsilk}]
+// [Policy Server]-[Directory Server]
+// [Policy Server]-[Underwriting & Rating Server]
+
+
+
+// {type:sequence}
+// {generate:true}
+
+[:Computer]sendUnsentEmail>[:Server]
+[:Computer]newEmail>[:Server]
+[:Server]reponse.>[:Computer]
+[:Computer]downloadEmail>[:Server]
+[:Computer]deleteOldEmail>[:Server]
+
+
+// // {type:package}
+// // {generate:true}
+
+// [Elegibility & Benefits]->[Elegibility Search]
+// [Remittances] -> [Remittance Search]
+// [Notifications] -> [Notification Search]
+// [Check Claim Status] -> [Claim Search]
+// [Submit a Claim Online] -> [Patient Search]
+// [Physician/Provider Directory]
+// [Remittance Search] -> [Search]
+// [Notification Search] -> [Search]
+// [Claim Search] -> [Search]
+// [Patient Search] -> [Search]
+// [Eligibility Search] -> [Search]
