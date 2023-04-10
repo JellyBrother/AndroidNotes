@@ -147,8 +147,18 @@ fun main() {
     println("上面的协程代码并不会阻塞掉线程")
 }
 * 使用CountDownLatch
+主线程
+CountDownLatch countDownLatch = new CountDownLatch(1);
+多个子线程
+countDownLatch.countDown();
+主线程
+countDownLatch.await();
 * 使用volatile和while语句轮询
 给List添加volatile，一个线程执行List添加，另外一个线程B死循环判断集合大小，当判断成立后抛出异常中断循环，并进行捕获。
+* AtomicInteger
+AtomicInteger ai = new AtomicInteger(5);
+ai.incrementAndGet(); // 6 或者 ai.decrementAndGet(); // 4
+ai.get();
 
 
 
