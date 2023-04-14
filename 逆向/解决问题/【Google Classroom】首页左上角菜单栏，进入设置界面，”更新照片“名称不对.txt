@@ -1,0 +1,1127 @@
+【Google Classroom】首页左上角菜单栏，进入设置界面，”更新照片“名称不对
+【Google Classroom】首页左上角菜单栏，进入设置界面，”更新照片“名称不对
+
+app/src/main/assets/preset_apps/MGGxx-214816097-2304101206.apk 的 IPhenotypeService和PhenotypeServiceImpl缺少对应的服务
+导致虚拟包初始化的时候，拿到的Parcel是空的，从而SharedPreferences没法写入数据，设置页面展示的时候取默认值false，所以页面展示了五个条目。
+
+
+
+
+设置界面读取sharedPreferences的notificationSettingsUpdate没有值
+当设置界面启动的时候，sharedPreferences添加notificationSettingsUpdate为true。
+
+
+正常包
+	行   3: 2023-04-07 16:00:32.905 8981-9033/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+	行   4: 2023-04-07 16:00:32.907 8981-9033/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+ActivityTaskManager
+  行 129: 2023-04-07 16:00:33.766 1467-2387/? I/ActivityTaskManager: START u0 {cmp=com.google.android.apps.classroom/.appsettings.AppSettingsActivity} from uid 10335
+	行 134: 2023-04-07 16:00:33.855 1467-1496/? I/ActivityTaskManager: Displayed com.google.android.apps.classroom/.appsettings.AppSettingsActivity: +88ms
+	行 137: 2023-04-07 16:00:33.868 6102-6102/? I/GoogleInputMethodService: GoogleInputMethodService.onStartInput():1899 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.google.android.apps.classroom fieldId=2131363187 fieldName=null extras=null}, false)
+
+
+问题包	
+	行 134: 2023-04-07 15:59:58.080 8981-8981/com.google.android.apps.classroom D/falco_30: onInterceptStartActivity com.gbox.android com.gbox.android:vlapp09 Intent { cmp=com.google.android.apps.classroom/.appsettings.AppSettingsActivity } null
+	行 139: 2023-04-07 15:59:58.097 4100-5288/com.gbox.android D/falco_30: put started intent -> ComponentInfo{com.google.android.apps.classroom/com.google.android.apps.classroom.appsettings.AppSettingsActivity}
+ActivityTaskManager	
+	行 140: 2023-04-07 15:59:58.099 1467-8376/? I/ActivityTaskManager: START u0 {typ=com.google.android.apps.classroom/com.google.android.apps.classroom.appsettings.AppSettingsActivity cmp=com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity09 (has extras)} from uid 10296
+	行 146: 2023-04-07 15:59:58.122 4100-5288/com.gbox.android D/falco_30: onActivityCreated ActivityInfo{2e9f7db com.google.android.apps.classroom.appsettings.AppSettingsActivity} taskId: 602
+	行 148: 2023-04-07 15:59:58.136 8981-8981/com.google.android.apps.classroom D/falco_30: put task activity cache -> activity = com.google.android.apps.classroom.appsettings.AppSettingsActivity@548b90a (602) isTaskRoot = false, task count = 5, task activity count = 2
+	行 149: 2023-04-07 15:59:58.138 8981-8981/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+	行 150: 2023-04-07 15:59:58.151 4777-8949/com.google.android.gms D/GmsAuthProvider: Call get_accounts from com.google.android.apps.classroom with arg com.google
+	行 153: 2023-04-07 15:59:58.169 4777-8949/com.google.android.gms D/GmsAuthProvider: Call get_accounts from com.google.android.apps.classroom with arg com.google
+	行 156: 2023-04-07 15:59:58.181 8981-8981/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+	行 160: 2023-04-07 15:59:58.214 4777-8949/com.google.android.gms D/GmsAuthManagerSvc: getToken: account:jelly_brother@163.com scope:oauth2:https://www.googleapis.com/auth/homeroom https://www.googleapis.com/auth/drive extras:Bundle[{androidPackageName=com.google.android.apps.classroom, clientPackageName=com.google.android.apps.classroom, service_connection_start_time_millis=6674813, handle_notification=true}], notify: true
+	行 162: 2023-04-07 15:59:58.217 4100-4140/com.gbox.android V/AccountManagerService: getUserData( account: Account {name=jelly_brother@163.com, type=com.google}, key: perm.com.google.android.apps.classroom:46f6c8987311e131f4f558d8e0ae145bebab6da3:oauth2:https://www.googleapis.com/auth/homeroom https://www.googleapis.com/auth/drive, callerUid: 10003, pid: 4777
+	行 163: 2023-04-07 15:59:58.218 4100-4140/com.gbox.android V/AccountManagerService: getUserData( account: Account {name=jelly_brother@163.com, type=com.google}, key: EXP.com.google.android.apps.classroom:46f6c8987311e131f4f558d8e0ae145bebab6da3:oauth2:https://www.googleapis.com/auth/homeroom https://www.googleapis.com/auth/drive, callerUid: 10003, pid: 4777
+	行 164: 2023-04-07 15:59:58.219 4777-8949/com.google.android.gms D/GmsAuthManager: peekAuthToken: com.google.android.apps.classroom:46f6c8987311e131f4f558d8e0ae145bebab6da3:oauth2:https://www.googleapis.com/auth/homeroom https://www.googleapis.com/auth/drive
+	行 165: 2023-04-07 15:59:58.220 4100-4140/com.gbox.android V/AccountManagerService: peekAuthToken: Account {name=jelly_brother@163.com, type=com.google}, authTokenType com.google.android.apps.classroom:46f6c8987311e131f4f558d8e0ae145bebab6da3:oauth2:https://www.googleapis.com/auth/homeroom https://www.googleapis.com/auth/drive, caller's uid 10003, pid 4777
+	行 176: 2023-04-07 15:59:58.712 8981-8981/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+	行 181: 2023-04-07 15:59:58.724 8981-9055/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+	行 182: 2023-04-07 15:59:58.725 8981-9055/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+	行 183: 2023-04-07 15:59:58.728 4777-4820/com.google.android.gms D/GmsDummySvc: bound by: GetServiceRequest{serviceId=UNKNOWN(315), gmsVersion=224212000, packageName='com.google.android.apps.classroom', extras=Bundle[{}]}
+这里报错，看3月28有笔提交导致的，但是只报错不闪退  通知渠道ID加上包名为前缀，以区分不同应用的通知渠道  	，先回滚代码试试。----回滚代码运行不了，暂时先忽略
+添加代码，下面的的日志没有了，但是问题还在
+if (TextUtils.equals(VirtualClient.getInst().getVirtualClientPkgName(), "com.google.android.apps.classroom")
+                               && ((String) args[1]).startsWith("KeepAlive")) {
+                            return null;
+                       }
+
+  行 192: 2023-04-07 15:59:59.734 8981-8981/com.google.android.apps.classroom W/System.err: java.lang.reflect.InvocationTargetException
+	行 193: 2023-04-07 15:59:59.734 8981-8981/com.google.android.apps.classroom W/System.err:     at java.lang.reflect.Method.invoke(Native Method)
+	行 194: 2023-04-07 15:59:59.734 8981-8981/com.google.android.apps.classroom W/System.err:     at com.vlite.sdk.servicehook.IServiceMethodHandler.doInvoke(SourceFile:29)
+	行 195: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at com.vlite.sdk.client.hook.service.notification.NotificationManagerStub$6.doInvoke(NotificationManagerStub.java:242)
+	行 196: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at com.vlite.sdk.servicehook.IServiceMethodHandler.doInvokeWrap(SourceFile:40)
+	行 197: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at com.vlite.sdk.client.hook.HookStubInApp.invokeProxyMethod(HookStubInApp.java:79)
+	行 198: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at com.vlite.sdk.client.hook.HookStubInApp.invoke(HookStubInApp.java:57)
+	行 199: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at java.lang.reflect.Proxy.invoke(Proxy.java:1006)
+	行 200: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at $Proxy9.deleteNotificationChannel(Unknown Source)
+	行 201: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at android.app.NotificationManager.deleteNotificationChannel(NotificationManager.java:906)
+	行 202: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at dum.a(PG:38)
+	行 203: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at dsl.b(PG:26)
+	行 204: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at cwb.b(PG:2)
+	行 205: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at cwc.f(PG:2)
+	行 206: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at bwx.run(PG:8)
+	行 207: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Handler.handleCallback(Handler.java:938)
+	行 208: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Handler.dispatchMessage(Handler.java:99)
+	行 209: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Looper.loop(Looper.java:223)
+	行 210: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at android.app.ActivityThread.main(ActivityThread.java:7664)
+	行 211: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at java.lang.reflect.Method.invoke(Native Method)
+	行 212: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+	行 213: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err:     at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+	行 214: 2023-04-07 15:59:59.735 8981-8981/com.google.android.apps.classroom W/System.err: Caused by: java.lang.SecurityException: Not allowed to delete channel KeepAlive with a foreground service
+	行 215: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Parcel.createExceptionOrNull(Parcel.java:2373)
+	行 216: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Parcel.createException(Parcel.java:2357)
+	行 217: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Parcel.readException(Parcel.java:2340)
+	行 218: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Parcel.readException(Parcel.java:2282)
+	行 219: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.app.INotificationManager$Stub$Proxy.deleteNotificationChannel(INotificationManager.java:4004)
+	行 220: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err: 	... 21 more
+	行 221: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err: Caused by: android.os.RemoteException: Remote stack trace:
+	行 222: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at com.android.server.notification.NotificationManagerService$10.enforceDeletingChannelHasNoFgService(NotificationManagerService.java:3428)
+	行 223: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at com.android.server.notification.NotificationManagerService$10.deleteNotificationChannel(NotificationManagerService.java:3441)
+	行 224: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.app.INotificationManager$Stub.onTransact(INotificationManager.java:1720)
+	行 225: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Binder.execTransactInternal(Binder.java:1154)
+	行 226: 2023-04-07 15:59:59.736 8981-8981/com.google.android.apps.classroom W/System.err:     at android.os.Binder.execTransact(Binder.java:1123)
+	行 261: 2023-04-07 16:00:03.143 8981-9021/com.google.android.apps.classroom W/GoogleApiManager: fun could not execute call because it requires feature (CLIENT_TELEMETRY, 1).
+
+
+正常的堆栈
+    mResumedActivity: ActivityRecord{f275561 u0 com.google.android.apps.classroom/.appsettings.AppSettingsActivity t606}
+      * Hist #1: ActivityRecord{f275561 u0 com.google.android.apps.classroom/.appsettings.AppSettingsActivity t606}
+      * Hist #0: ActivityRecord{e7b49b6 u0 com.google.android.apps.classroom/.courses.CoursesActivity t606}
+	 
+有问题的堆栈
+    mResumedActivity: ActivityRecord{cd6331c u0 com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity09 t610}
+      * Hist #1: ActivityRecord{cd6331c u0 com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity09 t610}
+          Intent { typ=com.google.android.apps.classroom/com.google.android.apps.classroom.appsettings.AppSettingsActivity cmp=com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity09 (has extras) }
+      * Hist #0: ActivityRecord{8f9c073 u0 com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity09 t610}
+          Intent { typ=com.google.android.apps.classroom/com.google.android.apps.classroom.courses.CoursesActivity flg=0x80000 cmp=com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity09 (has extras) }
+
+已知界面是	AppSettingsActivity ，布局是
+        setContentView(R.layout.activity_application_settings);
+public static final int activity_application_settings = 0x7f0d0027;
+真实布局是：Jq.xml
+界面是  <FrameLayout
+        android:id="@ref/0x7f0a00fe"
+        android:layout_width="-1"
+        android:layout_height="-1"
+        android:paddingStart="@ref/0x7f070542"
+        android:paddingEnd="@ref/0x7f070542"
+        app:layout_behavior="@ref/0x7f1300c4">
+Activity的onCreate方法
+    private cwo u;//这个就是fragment了
+
+    public final void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        setContentView(R.layout.activity_application_settings);
+        dj((CoordinatorLayout) findViewById(R.id.app_settings_root_view));
+        dk(true);
+        k((Toolbar) findViewById(R.id.app_settings_toolbar));
+        cZ().g(true);
+        this.t = (ProgressBar) findViewById(R.id.app_settings_progress_bar);
+        df(zc.b(getBaseContext(), R.color.google_white));
+        cwo cwoVar = (cwo) bI().e("AppSettingsFragment");
+        this.u = cwoVar;//这个就是fragment了
+        if (cwoVar == null) {
+            cwo cwoVar2 = new cwo();
+            this.u = cwoVar2;
+            cwoVar2.ai(getIntent().getExtras());
+            da j = bI().j();
+            j.q(R.id.app_settings_fragment, this.u, "AppSettingsFragment");
+            j.s();
+            j.h();
+        }
+        if (bxk.e()) {
+            this.O = findViewById(R.id.offline_info_bar);
+            dk(false);
+            this.M = this;
+            Q();
+        }
+    }
+cwo继承bnl继承bx，bx就是Androidx的fragment
+
+正常界面
+第一个条目是
+    <string name="account_settings_label">Account settings</string>
+第二个条目是
+    <string name="change_name_setting_label">Change name</string>
+第三个条目是
+    <string name="notification_settings_summary">Choose which ones you get on this device and by email</string>
+第四个条目是
+	Sync over 
+
+错误页面的
+第一个条目是
+    <string name="update_photo">Update photo</string>
+第二个条目是
+    <string name="change_name_setting_label">Change name</string>
+第三个条目是
+	Sync over 
+第四个条目是
+    <string name="email_notification_settings_label">Send email notifications</string>
+第五个条目是
+    <string name="device_notification_settings_label">Device notifications</string>
+
+cwo中用到 account_settings_label
+cwo中用到 update_photo
+ public final void aJ(Context context) {
+        String string;
+        PreferenceScreen e = this.a.e(context);
+        q(e);
+        Preference preference = new Preference(cm());
+        preference.E("profile_picker_setting");
+        preference.n = this;
+        preference.I(true != dom.aA.a() ? R.string.update_photo : R.string.account_settings_label);
+        if (dom.aA.a()) {
+            preference.G(R.string.account_settings_summary);
+        }
+        preference.T();
+        e.Y(preference);
+        e.Y(aU(context));
+        Preference preference2 = new Preference(cm());
+        preference2.E("name_change_setting");
+        preference2.n = this;
+        preference2.J(P(R.string.change_name_setting_label));
+        if (this.d.d().t != 4) {
+            preference2.n(P(R.string.change_name_setting_summary));
+        }
+        preference2.T();
+        e.Y(preference2);
+        e.Y(aU(context));
+        if (dom.aA.a()) {
+            Preference preference3 = new Preference(cm());
+            this.at = preference3;
+            preference3.E("NofiticationSettingsFragment");
+            Preference preference4 = this.at;
+            preference4.n = this;
+            preference4.I(R.string.notification_settings_label);
+            this.at.G(R.string.notification_settings_summary);
+            this.at.K(true);
+            this.at.T();
+            e.Y(this.at);
+            e.Y(aU(context));
+        }
+        User d = this.d.d();
+        this.ar = aR(context.getString(R.string.sync_over_cellular_label), "sync_over_cellular_setting");
+        boolean x = this.d.x();
+        if (aN() && x) {
+            SpannableString spannableString = new SpannableString(context.getString(R.string.sync_over_cellular_error));
+            spannableString.setSpan(new ForegroundColorSpan(zc.b(context, R.color.quantum_googred)), 0, spannableString.length(), 0);
+            this.ar.n(spannableString);
+        }
+        e.Y(this.ar);
+        this.ar.k(x);
+        this.ar.T();
+        e.Y(aU(context));
+        if (!dom.aA.a()) {
+            boolean booleanValue = ((Boolean) this.d.g().d(Boolean.valueOf(d.l))).booleanValue();
+            if (dom.aA.a()) {
+                string = context.getString(R.string.email_notification_settings_label_v2);
+            } else {
+                string = context.getString(R.string.email_notification_settings_label);
+            }
+            SwitchPreference aR = aR(string, "email_notification_setting");
+            e.Y(aR);
+            aR.k(booleanValue);
+            aR.T();
+            e.Y(aU(context));
+            Preference preference5 = new Preference(cm());
+            this.as = preference5;
+            preference5.E("course_notification_settings");
+            Preference preference6 = this.as;
+            preference6.n = this;
+            preference6.I(R.string.class_notification_settings_label);
+            this.as.G(R.string.class_notification_settings_summary);
+            this.as.K(this.al);
+            this.as.T();
+            e.Y(this.as);
+            e.Y(aU(context));
+            if (Build.VERSION.SDK_INT >= 26) {
+                Preference preference7 = new Preference(cm());
+                preference7.E("android_o_device_notification_setting");
+                preference7.n = this;
+                preference7.I(R.string.device_notification_settings_label);
+                preference7.T();
+                e.Y(preference7);
+                e.Y(aU(context));
+            } else {
+                boolean A = this.d.A();
+                SwitchPreference aR2 = aR(context.getString(R.string.device_notification_settings_label), "device_notification_setting");
+                e.Y(aR2);
+                aR2.k(A);
+                aR2.T();
+                aK(context);
+            }
+            if (!bxk.e()) {
+                return;
+            }
+            aM();
+        }
+    }
+
+cwo中用到 aJ( 方法
+    @Override // defpackage.bx
+    public final void T(Bundle bundle) {
+        super.T(bundle);
+        if (this.ak) {
+            this.ai.s().setVisibility(0);
+        } else {
+            aJ(cm());
+        }
+    }
+
+第一个条目的控制是 
+        preference.I(true != dom.aA.a() ? R.string.update_photo : R.string.account_settings_label);
+第三个条目的控制是        
+        if (dom.aA.a()) {
+            this.at.G(R.string.notification_settings_summary);
+第四个条目是
+  if (dom.aA.a()) {
+                string = context.getString(R.string.email_notification_settings_label_v2);
+            } else {
+                string = context.getString(R.string.email_notification_settings_label);
+            }
+基本看出是 dom.aA.a()导致，
+通过js脚本调试，
+原包是true
+gbox包这里是false
+
+dom的aA变量赋值
+        ikx ikxVar = new ikx("phenotype_flags", null, "", "", false, false);
+        aA = new don(ikxVar.f("notificationSettingsUpdate", false), 5);
+
+public final class don {
+    public static kjs a = kii.a;
+    private final ikz b;
+    private final int c;
+
+    public don(ikz ikzVar, int i) {
+        this.b = ikzVar;
+        this.c = i;
+    }
+
+    public final boolean a() {
+        return a.f() && ((Integer) a.c()).intValue() <= this.c && ((Boolean) this.b.e()).booleanValue();
+    }
+}
+
+看日志 a.f() 是false
+&& ((Integer) a.c()).intValue() <= this.c 没有调用
+((Boolean) this.b.e()).booleanValue(); 在原生包是true，在gbox是false，主要是这里导致的，这里的e方法是一个对象，可以是int，也可以是布尔
+
+ikz类
+    public final java.lang.Object e() { 需要用jeb工具查看
+        /*
+            Method dump skipped, instructions count: 415
+            To view this dump change 'Code comments level' option to 'DEBUG'
+        */
+        throw new UnsupportedOperationException("Method not decompiled: defpackage.ikz.e():java.lang.Object");
+    }
+
+主要受 ikxVar.f("notificationSettingsUpdate", false) 影响
+        ikx ikxVar = new ikx("phenotype_flags", null, "", "", false, false);
+        aA = new don(ikxVar.f("notificationSettingsUpdate", false), 5);
+ikx类
+   public final ikz f(String str, boolean z) {
+        return ikz.b(this, str, Boolean.valueOf(z), false);
+    }
+ikz类
+public abstract class ikz {
+    public static final /* synthetic */ int e = 0;
+    private static final AtomicInteger h= new AtomicInteger();
+    private static final kft l = new kft(ima.b);
+    final ikx b;
+    final String c = "notificationSettingsUpdate";
+    public final Object d = false;
+    private volatile int i = -1;
+    private volatile Object j = null;
+    private final boolean k = false;
+    private static final Object a = new Object();
+    private static volatile iky f = null;
+    private static volatile boolean g = false;
+
+    public ikz(ikx ikxVar, String str, Object obj, boolean z) {
+        String str2 = ikxVar.a;
+        if (str2 != null || ikxVar.b != null) {
+            if (str2 != null && ikxVar.b != null) {
+                throw new IllegalArgumentException("Must pass one of SharedPreferences file name or ContentProvider URI");
+            }
+            this.b = ikxVar;
+            this.c = str;
+            this.d = obj;
+            this.k = z;
+            return;
+        }
+        throw new IllegalArgumentException("Must pass a valid SharedPreferences file name or ContentProvider URI");
+    }
+
+    public static ikz b(ikx ikxVar, String str, Boolean bool, boolean z) {
+        return new iks(ikxVar, str, bool, z);
+        return new iks(ikx, "notificationSettingsUpdate", false, false);
+    }
+    
+    public final Object e() {
+        Class class0;
+        Context context1;
+        ikh ikh1;
+        Object object3;
+        ikb ikb0;
+        Object object1;
+        boolean z;
+        Context context0;
+        Object object0;
+        ikx ikx0;
+        iky iky0;
+        int v = 1;
+        if(!this.k) {
+            this.c.getClass();
+            jcb.M(true, "Attempt to access PhenotypeFlag not via codegen. All new PhenotypeFlags must be accessed through codegen APIs. If you believe you are seeing this error by mistake, you can add your flag to the exemption list located at //java/com/google/android/libraries/phenotype/client/lockdown/flags.textproto. Send the addition CL to ph-reviews@. See go/phenotype-android-codegen for information about generated code. See go/ph-lockdown for more information about this error.");
+        }
+
+        int v1 = ikz.h.get();
+        if(this.i < v1) {
+            // i是-1，v1是0，app启动第一次进走，后面直接返回上次的值，所以调试的时候，要每次启动app观察。
+            synchronized(this) {
+                if(this.i < v1) {
+                    iky0 = ikz.f;
+                    jcb.M(((boolean)(iky0 == null ? 0 : 1)), "Must call PhenotypeFlag.init() first");
+                    ikx0 = this.b;
+                    Uri uri0 = ikx0.b;
+                    object0 = null;
+                    if(uri0 == null) {//ikx ikxVar = new ikx("phenotype_flags", null, "", "", false, false); 这里ikx0.b是null
+                        goto label_144;//进这里
+                    }
+                    else {
+                        context0 = iky0.a;
+                        String s = uri0.getAuthority();
+                        if("com.google.android.gms.phenotype".equals(s)) {
+                            if(ikj.a.f()) {
+                                z = ((Boolean)ikj.a.c()).booleanValue();
+                            }
+                            else {
+                                object1 = ikj.b;
+                                __monitor_enter(object1);
+                                goto label_60;
+                            }
+
+                            goto label_131;
+                        }
+                        else {
+                            Log.e("PhenotypeClientHelper", String.valueOf(s).concat(" is an unsupported authority. Only com.google.android.gms.phenotype authority is supported."));
+                            ikb0 = null;
+                        }
+                    }
+                }
+                else {
+                    return this.j;
+                    try {
+                    label_60:
+                        if(ikj.a.f()) {
+                            z = ((Boolean)ikj.a.c()).booleanValue();
+                            __monitor_exit(object1);
+                        }
+                        else {
+                            if("com.google.android.gms".equals(context0.getPackageName())) {
+                            label_99:
+                                PackageManager packageManager0 = context0.getPackageManager();
+                                try {
+                                    ApplicationInfo applicationInfo0 = packageManager0.getApplicationInfo("com.google.android.gms", 0);
+                                }
+                                catch(PackageManager.NameNotFoundException packageManager$NameNotFoundException0) {
+                                    v = 0;
+                                    ikj.a = kjs.h(Boolean.valueOf(((boolean)v)));
+                                    __monitor_exit(object1);
+                                    goto label_125;
+                                }
+
+                                if((applicationInfo0.flags & 0x81) == 0) {
+                                    v = 0;
+                                }
+                            }
+                            else {
+                                int v2 = Build.VERSION.SDK_INT >= 29 ? 0x10000000 : 0;
+                                ProviderInfo providerInfo0 = context0.getPackageManager().resolveContentProvider("com.google.android.gms.phenotype", v2);
+                                if(providerInfo0 != null && ("com.google.android.gms".equals(providerInfo0.packageName))) {
+                                    goto label_99;
+                                }
+
+                                v = 0;
+                            }
+
+                            ikj.a = kjs.h(Boolean.valueOf(((boolean)v)));
+                            __monitor_exit(object1);
+                            goto label_125;
+                        label_123:
+                            __monitor_exit(object1);
+                            throw throwable1;
+                        }
+
+                        goto label_131;
+                    }
+                    catch(Throwable throwable1) {
+                        goto label_123;
+                    }
+
+                    throw throwable1;
+                label_125:
+                    z = ((Boolean)ikj.a.c()).booleanValue();
+                label_131:
+                    if(z) {
+                        ikb0 = ikb.e(iky0.a.getContentResolver(), this.b.b);
+                    }
+                    else {
+                        ikb0 = null;
+                        goto label_148;
+                    label_144:
+                        ikb0 = ilc.e(iky0.a, ikx0.a);
+                    }
+                }
+
+            label_148:
+                if(ikb0 == null) {
+                label_157:
+                    object3 = null;
+                }
+                else {
+                    Object object2 = ikb0.a(this.f());
+                    if(object2 == null) {
+                        goto label_157;
+                    }
+
+                    object3 = this.a(object2);
+                }
+
+                if(object3 != null) {
+                    goto label_204;
+                    try {
+                    label_167:
+                        if(ikh.a == null) {
+                            ikh ikh0 = mh.b(context1, "com.google.android.providers.gsf.permission.READ_GSERVICES") == 0 ? new ikh(context1) : new ikh();
+                            ikh.a = ikh0;
+                        }
+
+                        ikh1 = ikh.a;
+                        __monitor_exit(class0);
+                        goto label_185;
+                    label_183:
+                        __monitor_exit(class0);
+                    }
+                    catch(Throwable throwable2) {
+                        goto label_183;
+                    }
+
+                    throw throwable2;
+                label_185:
+                    String s1 = this.b.e ? null : this.j(this.b.c);
+                    String s2 = ikh1.b(s1);
+                    if(s2 != null) {
+                        object0 = this.a(s2);
+                    }
+                }
+                else if(!this.b.e) {
+                    context1 = iky0.a;
+                    class0 = ikh.class;
+                    __monitor_enter(class0);
+                    goto label_167;
+                }
+
+                object3 = object0 == null ? this.d : object0;
+            label_204:
+                kjs kjs0 = (kjs)iky0.b.a();
+                if(kjs0.f()) {
+                    String s3 = ((idf)kjs0.c()).e(this.b.b, this.b.a, this.b.d, this.c);
+                    object3 = s3 == null ? this.d : this.a(s3);
+                }
+
+                this.j = object3;
+                this.i = v1;
+                return this.j;
+            }
+        }
+
+        return this.j;
+    }
+
+e方法解析
+   if(this.i < v1) {// i是-1，v1是0，app启动第一次会执行，后面直接返回上次的值，所以调试的时候，要每次启动app观察。
+
+   if(uri0 == null) {//ikx ikxVar = new ikx("phenotype_flags", null, "", "", false, false); 这里ikx0.b是null
+        goto label_144;//直接跳label_144
+   }
+
+            label_144:
+        ikb ikb0; ikb0 = ilc.e(iky0.a, ikx0.a); //label_144执行完毕后，往下走label_148， 
+ilc e is called, context: com.google.android.apps.classroom.application.LunchboxApplication@f67c00e, str: phenotype_flags  
+ilc e ret value is ilc@b58b60b
+            }
+        }
+    label_148: // 这里会得到object3，并跳到label_204，把object3赋值给this.j，进行返回
+        if(ikb0 == null) {
+                label_157:
+                    object3 = null;
+                }
+                else {
+                    Object object2 = ikb0.a(this.f());  
+ikb a is called, str: getTokenRefactor__gaul_token_api_evolved   
+ikb a ret value is null
+                    if(object2 == null) {
+                        goto label_157;
+                    }
+
+                    object3 = this.a(object2);
+iks a is called, obj: true
+iks a ret value is true
+                }
+                
+            label_204:
+                kjs kjs0 = (kjs)iky0.b.a();
+                if(kjs0.f()) {
+kii f is called
+kii f ret value is false
+                    String s3 = ((idf)kjs0.c()).e(this.b.b, this.b.a, this.b.d, this.c);
+                    object3 = s3 == null ? this.d : this.a(s3);
+                }
+
+                this.j = object3;
+                this.i = v1;
+                return this.j;
+
+判断是
+ikb0 = ilc.e(iky0.a, ikx0.a);   和   if(kjs0.f()) { 中间出了问题
+
+龙乐那边的正确代码：
+   } else {
+        e2 = ilc.e(ikyVar.a, ikxVar.a);
+    }
+    Object a3 = (e2 == null || (a2 = e2.a(f())) == null) ? null : a(a2);
+    if (a3 == null) {
+确定是a方法出了问题，
+e2.a(f())
+a方法是：
+    public final Object a(String str) {
+        Map<String, ?> map = this.e;
+        if (map == null) {
+            synchronized (this.d) {
+                map = this.e;
+                if (map == null) {
+                    StrictMode.ThreadPolicy allowThreadDiskReads = StrictMode.allowThreadDiskReads();
+                    Map<String, ?> all = this.b.getAll();
+                    this.e = all;
+                    StrictMode.setThreadPolicy(allowThreadDiskReads);
+                    map = all;
+                }
+            }
+        }
+        if (map != null) {
+            return map.get(str);
+        }
+        return null;
+    }
+这里的map是sharedPreferences取值的
+进原生包和虚拟包查看sharedPreferences，发现，内容完全不一样
+/data/data/com.gbox.android/_root/data/user/0/com.google.android.apps.classroom/shared_prefs/phenotype_flags.xml
+于是hook修改   <boolean name="notificationSettingsUpdate" value="true" />
+public class Line extends AppXposedHook {
+    @Override
+    public String getPackageName() {
+        return "com.google.android.apps.classroom";
+    }
+
+    @Override
+    public void onMakeApplication(Application app) throws Exception {
+        try {
+            XposedHelpers.findAndHookMethod(Activity.class.getName(), app.getClassLoader(), "onCreate", Bundle.class, new XC_MethodHook() {
+
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    AppLogger.d("onCreate--------------------->" + param.thisObject);
+                    final Activity activity = (Activity) param.thisObject;
+                    //onCreate--------------------->com.google.android.apps.classroom.application.launcher.LauncherActivity@3a6aa42
+                    // onCreate--------------------->com.google.android.apps.classroom.appsettings.AppSettingsActivity@fd8ac28
+//                    if ("com.google.android.apps.classroom.courses.CoursesActivity".contains(activity.getClass().getName())){
+                    if ("com.google.android.apps.classroom.appsettings.AppSettingsActivity".contains(activity.getClass().getName())){
+                        AppLogger.d("onCreate2-----------after---------->" + param.thisObject + "---->");
+                        activity.getSharedPreferences("phenotype_flags", 0)
+                                .edit()
+                                .putBoolean("notificationSettingsUpdate", true)
+                                .apply();
+                    }
+                }
+
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    final Activity activity = (Activity) param.thisObject;
+                    AppLogger.d("onCreate-----------after---------->" + param.thisObject + "---->");
+                }
+            });
+        } catch (Exception e) {
+            AppLogger.e("------------" + e.getMessage());
+        }
+或者
+public static void fixSharedPreferences(Activity activity, String appPkg) {
+    if (!HostContext.isAppProcess()) {
+        return;
+    }
+    if ("com.google.android.apps.classroom".equals(appPkg)) {
+        if ("com.google.android.apps.classroom.appsettings.AppSettingsActivity".contains(activity.getClass().getName())) {
+            // 修复 【Google Classroom】首页左上角菜单栏，进入设置界面，”更新照片“名称不对
+            activity.getSharedPreferences("phenotype_flags", 0)
+                    .edit()
+                    .putBoolean("notificationSettingsUpdate", true)
+                    .apply();
+        }
+    }
+}
+运行后发现正常了
+
+
+
+因为上面代码包含了业务代码，解决方式不够优雅，所以需要另外思路解决方案：
+dwo的b方法有用到 phenotype_flags，这个方法在应用启动的时候会调用：
+已经登录了，拿到账号赋值
+[Pixel 4 XL::com.google.android.apps.classroom ]-> dwo b is called, context: com.google.android.apps.classroom.application.LunchboxApplication@40a255d, str: jelly_brother@163.com
+gap d is called, str: jelly_brother@163.com, str2: jelly_brother@163.com com.google.android.apps.classroom 213034977 9 -1672528447 com.google.android.apps.classroom -1672528447 1
+gap d ret value is Configurations('jelly_brother@163.com com.google.android.apps.classroom 213034977 9 -1672528447 com.google.android.apps.classroom -1672528447 1', 'CAESiQEA8otIfBJMm3_wPGRknS1JmHojbAEdbX7yr_YJa7rQrPqP7lKds0aYiDOjX-7uvDhrpdrQ2jTidN7bKO0rW0CJBiu3a_paYgEDkI0YLPnCkfviEtuXJOfkUMHMq83XtU4ntHl1I3wveprenWeot0JsnnuWEHyoRE23xv1QHEBmFbZHv-gkgpZq5Q==', (), true, CAMSGw0e3+bxDgI/DwwFBQUFCAUTDgUFCAsFDBIYAg, 1681269900)
+dwo b ret value is true
+=============================Stack strat=======================
+dwo.b(Native Method)
+cwi.doInBackground(PG:2)
+android.os.AsyncTask$3.call(AsyncTask.java:394)
+ 
+没有登录，要等登录后，拿到账号全部赋值
+[Pixel 4 XL::com.google.android.apps.classroom ]->
+[Pixel 4 XL::com.google.android.apps.classroom ]-> dwo b is called, context: com.google.android.apps.classroom.application.LunchboxApplication@5595ba3, str: jelly_brother@163.com
+gap d is called, str: jelly_brother@163.com, str2: null
+gap d ret value is Configurations('jelly_brother@163.com com.google.android.apps.classroom 213034977 9 -1672528447 com.google.android.apps.classroom  0', 'CAESiQEA8otIfBJMm3_wPGRknS1JmHojbAEdbX7yr_YJa7rQrPqP7lKds0aYiDOjX-7uvDhrpdrQ2jTidN7bKO0rW0CJBiu3a_paYgEDkI0YLPnCkfviEtuXJOfkUMHMq83XtU4ntHl1I3wveprenWeot0JsnnuWEHyoRE23xv1QHEBmFbZHv-gkgpZq5Q==', (Configuration(0, (Flag(aboutClassroomUrl, 'https://support.google.com/edu/classroom/answer/6020279', 4, 0), Flag(accountChooseUrl, 'https://accounts.google.com/AccountChooser', 4, 0), Flag(accountQueryPipeline, false, 2, 0), Flag(addOnAttachments, true, 2, 0), Flag(allowTeachersJoinProvionedCourses, true, 2, 0), Flag(androidOSupport, true, 2, 0), Flag(annotationsCreateNewPdf, true, 2, 0), Flag(annotationsRendererMemoryUsageRatio, 0.25, 3, 0), Flag(attachmentLimit, 20, 1, 0), Flag(backToSchoolDialog2019, false, 2, 0), Flag(backgroundUploads, true, 2, 0), Flag(blockPointsQuestionReturnsWithoutGrades, false, 2, 0), Flag(bottomNavigation, true, 2, 0), Flag(bumpInPrepzoneCourse, true, 2, 0), Flag(cakemixFilePicker, true, 2, 0), Flag(checkUnicornRestrictions, true, 2, 0), Flag(chooseGradeDenominatorOnCreate, true, 2, 0), Flag(chooseProfilePhoto, false, 2, 0), Flag(classroomContentPolicyUrl, 'https://support.google.com/edu/classroom/answer/7165963', 4, 0), Flag(classroomMinSdkVersionNumber, 21, 1, 0), Flag(classroomUrl, 'https://classroom.google.com', 4, 0), Flag(classworkAppendToTop, true, 2, 0), Flag(classworkInStreamDisplayType, true, 2, 0), Flag(classworkInStreamDisplayTypeSetting, true, 2, 0), Flag(classworkLearnMoreUrl, 'https://support.google.com/edu/classroom/answer/6149237', 4, 0), Flag(classworkTopicFilter, true, 2, 0), Flag(clientErrorLogging, true, 2, 0), Flag(constraintLayoutInStudentProfile, false, 2, 0), Flag(consumerDisclaimerLearnMoreUrl, 'https://support.google.com/edu/classroom/answer/6025224', 4, 0), Flag(consumerToEduPromo, false, 2, 0), Flag(consumerToEduPromoHcUrl, 'https://support.google.com/edu/classroom?p=move_to_workspace', 4, 0), Flag(courseActionsBottomSheet, true, 2, 0), Flag(courseNotificationSettings, true, 2, 0), Flag(coursePruningOptions, true, 2, 0), Flag(coursesEmptyState, true, 2, 0), Flag(crayon, true, 2, 0), Flag(crayonCourseSettings, true, 2, 0), Flag(crayonMyWork, true, 2, 0), Flag(crayonOverviewTitle, true, 2, 0), Flag(crayonPeople, true, 2, 0), Flag(crayonRemoveTodo, false, 2, 0), Flag(crayonSectionSubjects, true, 2, 0), Flag(darkMode, false, 2, 0), Flag(decimalGrades, true, 2, 0), Flag(deprecatedSdkVersionNumber, 20, 1, 0), Flag(deprecatedVersionCode, 200620199, 1, 0), Flag(discAccountSwitcher, true, 2, 0), Flag(diskBasedCacheSize, 15728640, 1, 0), Flag(doNotUseCronet, false, 2, 0), Flag(documentScanner, true, 2, 0), Flag(driveApiOauthScope, 'oauth2:https://www.googleapis.com/auth/drive', 4, 0), Flag(driveProjector, true, 2, 0), Flag(driveProjectorExoViewer, true, 2, 0), Flag(driveRestApi, true, 2, 0), Flag(emailNotificationSettingsLinkHcUrl, 'https://support.google.com/edu/classroom?p=EmailToggle', 4, 0), Flag(flashcards, false, 2, 0), Flag(gcmToWorkmanager, false, 2, 0), Flag(generalHatsSurvey, true, 2, 0), Flag(glideApiOauthScope, 'oauth2:https://www.googleapis.com/auth/plus.contactphotos', 4, 0), Flag(gradebook, true, 2, 0), Flag(gradebookBetaSignupUrl, 'https://support.google.com/edu/classroom/answer/9191110', 4, 0), Flag(gradebookCategories, true, 2, 0), Flag(gradebookExcusedState, false, 2, 0), Flag(gradebookExternalAssignments, false, 2, 0), Flag(gradebookOverallGrades, true, 2, 0), Flag(gradebookQaOverride, false, 2, 0), Flag(gradebookResubmittedDisplayedAsTurnedIn, true, 2, 0), Flag(gradebookSettingsScreen, false, 2, 0), Flag(gradebookSortOrder, false, 2, 0), Flag(gradebookStateOverrides, false, 2, 0), Flag(growthKit, false, 2, 0), Flag(gsuiteForEducationSignupUrl, 'https://www.google.com/edu/products/productivity-tools/#how-to', 4, 0), Flag(gsuitePrivacySecurityUrl, 'https://www.google.com/edu/trust/', 4, 0), Flag(guardianEmailWithStupro, true, 2, 0), Flag(guardianSettingsExampleUrl, 'https://support.google.com/edu/classroom/answer/6386354', 4, 0), Flag(guardianSupport, true, 2, 0), Flag(handleJoinLinks, true, 2, 0), Flag(hatsRateLimit, 10, 1, 0), Flag(ipcDriveCoreMigration, true, 2, 0), Flag(joinCourseImprovements, true, 2, 0), Flag(lateSubmissionMessage, false, 2, 0), Flag(lattice, true, 2, 0), Flag(latticeGridView, true, 2, 0), Flag(launcherShortcuts, true, 2, 0), Flag(leaveCourseAsCoteacherFromCourseList, true, 2, 0), Flag(leaveCourseAsCoteacherFromRoster, true, 2, 0), Flag(m2CompleteAttachments, true, 2, 0), Flag(manageConnectedApps, true, 2, 0), Flag(manageConnectedAppsUrl, 'https://myaccount.google.com/permissions', 4, 0), Flag(marketingUrl, 'https://www.google.com/edu/products/productivity-tools/', 4, 0), Flag(materialCompleteAppSettings, true, 2, 0), Flag(materialCompleteAttic, true, 2, 0), Flag(materialCompleteClassSettings, true, 2, 0), Flag(materialCompleteCourseCreateAndEdit, true, 2, 0), Flag(materialCompleteDialogs, false, 2, 0), Flag(materialCompleteFilteredStream, true, 2, 0), Flag(materialCompleteInAppNotifications, true, 2, 0), Flag(materialCompleteJoinCourse, true, 2, 0), Flag(materialCompletePublicComments, false, 2, 0), Flag(materialCompleteReusePost, true, 2, 0), Flag(materialCompleteSavedAnnouncements, true, 2, 0), Flag(materialCompleteStreamItemCreation, true, 2, 0), Flag(materialCompleteStreamItemDetails, true, 2, 0), Flag(materialCompleteStudentSelector, true, 2, 0), Flag(materialCompleteStupro, true, 2, 0), Flag(materialCompleteSubmissionHistory, true, 2, 0), Flag(materialCompleteTodo, true, 2, 0), Flag(materialCompleteTodoWidget, true, 2, 0), Flag(materialCompleteWelcome, false, 2, 0), Flag(materialCopy, true, 2, 0), Flag(materialMVP, true, 2, 0), Flag(materialMvpSwipe, false, 2, 0), Flag(materialThemes, true, 2, 0), Flag(maxCachedAttachmentAgeSeconds, 86400, 1, 0), Flag(maxCoursePages, 100, 1, 0), Flag(maxGuardians, 20, 1, 0), Flag(maxInvite, 10, 1, 0), Flag(maxResponseLimit, 100, 1, 0), Flag(maxStreamItemCommentPages, 2, 1, 0), Flag(maxStreamItemsInTopic, 100, 1, 0), Flag(maxSubmissionCommentPages, 5, 1, 0), Flag(maxTopicsInCourse, 200, 1, 0), Flag(meetByPhoneIntegration, false, 2, 0), Flag(meetIntegration, true, 2, 0), Flag(meetIntegrationWhatsNew, true, 2, 0), Flag(meetPhase2, true, 2, 0), Flag(meetPhase2IntegrationConnectedLinkHcUrl, 'https://support.google.com/edu/classroom?p=meet_safety', 4, 0), Flag(meetPhase2IntegrationOutdatedLinkHcUrl, 'https://support.google.com/edu/classroom?p=outdated_meet_link', 4, 0), Flag(meetPhase2IntegrationUpgradeDialog, true, 2, 0), Flag(meetPhase2RemoveLinkHcUrl, 'https://support.google.com/edu/classroom?p=remove_meet_link', 4, 0), Flag(meetPhase2ResetLinkHcUrl, 'https://support.google.com/edu/classroom?p=reset_meet_link', 4, 0), Flag(meetPhase2WhatsNew, true, 2, 0), Flag(meetPhase2WhatsNewHcUrl, 'https://support.google.com/edu/classroom?p=meet_safety', 4, 0), Flag(meetSafetyWhatsNew, false, 2, 0), Flag(meetUrlExpirationTime, 90, 1, 0), Flag(menagerieProfilePhotoSetting, false, 2, 0), Flag(minEnrollmentCodeLength, 5, 1, 0), Flag(minSupportedGmscoreVersion, 11925000, 1, 0), Flag(multiSelectStudents, false, 2, 0), Flag(multipleImageAttachment, true, 2, 0), Flag(mushroom, false, 2, 0), Flag(mushroomRelease, true, 2, 0), Flag(mushroomWipe, false, 2, 0), Flag(newAttachmentsUi, true, 2, 0), Flag(newtVideoPlayer, true, 2, 0), Flag(notificationCategoryUpdateIntervalSeconds, 604800, 1, 0), Flag(notificationSettingsUpdate, true, 2, 0), Flag(notificationsPage, true, 2, 0), Flag(offlineLitePromoHcUrl, 'https://support.google.com/edu/classroom?p=offline_download', 4, 0), Flag(offlineReadForStudent, true, 2, 0), Flag(offlineUsageEnhancements, true, 2, 0), Flag(offlineUsersLimit, 2000, 1, 0), Flag(oneupParity, true, 2, 0), Flag(optimisticSync, true, 2, 0), Flag(optimisticSyncIntervalBackgroundSeconds, 120, 1, 0), Flag(optimisticSyncRequestsPerSecond, 5.0, 3, 0), Flag(originality, true, 2, 0), Flag(peopleApiOauthScope, 'oauth2:https://www.googleapis.com/auth/plus.peopleapi.readwrite', 4, 0), Flag(peopleApiUrl, 'https://people-pa.googleapis.com/v2/people/autocomplete', 4, 0), Flag(periodicMetadataSyncInBackground, true, 2, 0), Flag(periodicMetadataSyncIntervalSeconds, 86400, 1, 0), Flag(personalizedAssignmentMaxStudentCount, 100, 1, 0), Flag(playStoreUrl, 'https://play.google.com/store/apps/details?id=com.google.android.apps.classroom', 4, 0), Flag(popsicleGroupCreator, false, 2, 0), Flag(popsicleNameGenerator, true, 2, 0), Flag(postToMultipleCoursesV2, true, 2, 0), Flag(prepzone, true, 2, 0), Flag(prepzoneClassworkPage, false, 2, 0), Flag(prepzoneClassworkPageReorderStreamItem, true, 2, 0), Flag(prepzoneClassworkPageReorderTopic, true, 2, 0), Flag(prepzoneInlinePostCreation, true, 2, 0), Flag(prepzoneMigration, false, 2, 0), Flag(prepzoneOptIn, true, 2, 0), Flag(prepzoneOptOut, false, 2, 0), Flag(prepzonePilot, false, 2, 0), Flag(prepzoneResourceStreamItem, true, 2, 0), Flag(prepzoneStream, false, 2, 0), Flag(prepzoneUnsupportedVersionNotice, false, 2, 0), Flag(quizAsFormMaterial, true, 2, 0), Flag(readRequestMaxRetries, 2, 1, 0), Flag(readRequestRetryTimeoutMultiplier, 2.0, 3, 0), Flag(readRequestTimeoutMs, 10000, 1, 0), Flag(recyclerAnimationsDisabledOnComments, true, 2, 0), Flag(recyclerAnimationsDisabledOnCourseDetails, true, 2, 0), Flag(recyclerAnimationsDisabledOnStreamItemDetails, true, 2, 0), Flag(refreshOauthMaxRetries, 2, 1, 0), Flag(reorderCourseCardsSortKey, true, 2, 0), Flag(richTextDescriptions, true, 2, 0), Flag(richTextEditing, false, 2, 0), Flag(rubrics, false, 2, 0), Flag(secureCourseThemeUrls, true, 2, 0), Flag(setRuntimeProperties, false, 2, 0), Flag(shareAssignmentLinks, false, 2, 0), Flag(shareJoinLinks, true, 2, 0), Flag(shareViewOnlyDocs, true, 2, 0), Flag(sheetsApiOauthScope, 'oauth2:https://www.googleapis.com/auth/spreadsheets', 4, 0), Flag(sheetsApiUrl, 'https://sheets.googleapis.com/v4/spreadsheets/', 4, 0), Flag(showScannerOnMainMenu, true, 2, 0), Flag(streamImageCoverPhoto, true, 2, 0), Flag(streamImageCoverPhotoWrite, true, 2, 0), Flag(streamImageImprovementsHatsSurvey, false, 2, 0), Flag(streamItemDetailsPublicCommentsActivity, true, 2, 0), Flag(streamItemQueryCourseLimit, 20, 1, 0), Flag(streamSearch, false, 2, 0), Flag(studentProfile, true, 2, 0), Flag(submissionCtaInPreview, true, 2, 0), Flag(submissionDetailsV2, true, 2, 0), Flag(submissionHistory, true, 2, 0), Flag(synchronizeSettingDelaySettings, 20, 1, 0), Flag(synchronizeSettingsRequestTimeoutSeconds, 30, 1, 0), Flag(synchronizeSettingsRetryThreshold, 3, 1, 0), Flag(teacherAppreciationDay2021, true, 2, 0), Flag(teacherAppreciationDayLearnMoreUrl, 'https://blog.google/outreach-initiatives/education/world-teachers-day/', 4, 0), Flag(teacherAppreciationWeek2022, false, 2, 0), Flag(teacherAppreciationWeekLearnMoreUrlEn, 'https://g.co/edu/teacherappreciation2022', 4, 0), Flag(teacherAppreciationWeekLearnMoreUrlEs, 'https://g.co/edu/teacherappreciation2022es', 4, 0), Flag(teacherEmailTaskStatus, true, 2, 0), Flag(teacherGradingImprovements, true, 2, 0), Flag(teacherStreamPostCommentSetting, false, 2, 0), Flag(threadPoolExecutor, true, 2, 0), Flag(thumbnailForMaterial, true, 2, 0), Flag(twoPaneGrading, true, 2, 0), Flag(unsupportedVersionCode, 191819999, 1, 0), Flag(updateDriveFileWithAnnotations, false, 2, 0), Flag(updateProfilePhotoSetting, true, 2, 0), Flag(updatedEmailLink, false, 2, 0), Flag(useCronetFromGmsCore, true, 2, 0), Flag(useNewCourseUserRequests, true, 2, 0), Flag(useStreamItemsPruningOptions, true, 2, 0), Flag(userRefreshIntervalMinutes, 10, 1, 0), Flag(viewArchivedCourseDetails, true, 2, 0), Flag(whatsNewModalM2GrabooBeta, true, 2, 0), Flag(writeRequestTimeoutMs, 30000, 1, 0), Flag(youtubePicker, false, 2, 0), ), ()), ), false, CAMSGw0e3+bxDgI/DwwFBQUFCAUTDgUFCAsFDBIYAg, 1681269900)
+dwo b ret value is true
+=============================Stack strat=======================
+dwo.b(Native Method)
+cvl.doInBackground(PG:2)
+android.os.AsyncTask$3.call(AsyncTask.java:394)
+java.util.concurrent.FutureTask.run(FutureTask.java:266)
+android.os.AsyncTask$SerialExecutor$1.run(AsyncTask.java:305)
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+java.lang.Thread.run(Thread.java:923)
+=============================Stack end=========================
+
+而虚拟包不会：
+[Pixel 4 XL::PID::28508 ]-> dwo b is called, context: com.google.android.apps.classroom.application.LunchboxApplication@3029677, str: jelly_brother@163.com
+gap d is called, str: jelly_brother@163.com, str2: null
+gap d ret value is Configurations('null', 'null', (), false, null, 0)
+dwo b ret value is true
+=============================Stack strat=======================
+dwo.b(Native Method)
+cvl.doInBackground(PG:2)
+android.os.AsyncTask$3.call(AsyncTask.java:394)
+java.util.concurrent.FutureTask.run(FutureTask.java:266)
+android.os.AsyncTask$SerialExecutor$1.run(AsyncTask.java:305)
+java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+java.lang.Thread.run(Thread.java:923)
+=============================Stack end=========================
+
+gaq extends gap
+dwo.b调gap.b调gap.d
+问题在gap的d方法：
+    protected final Configurations d(String str, String str2) {
+        try {
+            return (Configurations) hop.av(this.a.c("com.google.android.apps.classroom", str, str2), this.c, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            Log.e("PhenotypeFlagCommitter", "Retrieving snapshot for com.google.android.apps.classroom failed", e);
+            return null;
+        }
+    }
+gao.c---fqr.h---fqr.a---fsc.handleMessage
+
+运行到了hop.av方法
+    public static Object av(gcd gcdVar, long j, TimeUnit timeUnit) {
+        hxc.bs();
+        hxc.by(timeUnit, "TimeUnit must not be null");
+        if (gcdVar.f()) {
+            return bH(gcdVar);
+        }
+        gch gchVar = new gch();
+        bI(gcdVar, gchVar);
+        if (!gchVar.a.await(j, timeUnit)) {
+            throw new TimeoutException("Timed out waiting for Task");
+        }
+        return bH(gcdVar);
+    }
+进了hop的bH方法
+    private static Object bH(gcd gcdVar) {
+        if (gcdVar.g()) {
+            return gcdVar.e();
+        }
+        if (((gcg) gcdVar).c) {
+            throw new CancellationException("Task is already canceled");
+        }
+        throw new ExecutionException(gcdVar.d());
+    }
+gcg extends gcd 的e方法
+    public final Object e() {
+        Object obj;
+        synchronized (this.a) {
+            o();
+            p();
+            Exception exc = this.e;
+            if (exc == null) {
+                obj = this.d;
+            } else {
+                throw new gcb(exc);
+            }
+        }
+        return obj;
+    }
+看gcg这里的this.d赋值，在r方法
+    public final void r(Object obj) {
+        synchronized (this.a) {
+            t();
+            this.b = true;
+            this.d = obj;
+        }
+        this.f.d(this);
+    }
+在XposedHelpers中发现这地方有个异常，堆栈能对上：
+        at gcg.r(PG:3)//gcg的r方法调用
+        at fsh.b(PG:1)
+        at hxc.bF(PG:2)
+        at gbi.dispatchTransaction(PG:47)
+        at cvc.onTransact(PG:2)
+        at android.os.Binder.execTransactInternal(Binder.java:1159)
+        at android.os.Binder.execTransact(Binder.java:1123)
+
+2023-04-12 17:39:35.180 25023-2271/com.google.android.gms D/GmsAuthProvider: Call get_accounts from com.google.android.apps.classroom with arg com.google
+2023-04-12 17:39:35.184 24635-27291/com.gbox.android V/AccountManagerService: getAccounts: accountType com.google, caller's uid 10003, pid 25023
+2023-04-12 17:39:35.185 25023-2271/com.google.android.gms D/GmsAuthProvider: get_accounts returns: [Account {name=jelly_brother@163.com, type=com.google}]
+2023-04-12 17:39:35.635 25023-2271/com.google.android.gms D/GmsServicesProvider: query caller=com.google.android.apps.classroom name=offlineUsersLimit value=null
+2023-04-12 17:39:35.639 2912-3266/com.google.android.apps.classroom D/falco_30: classroom dwo b-----------beforeHookedMethod---------->thisObject:dwo@f01f71c,text:jelly_brother@163.com
+2023-04-12 17:39:35.641 25023-2271/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.apps.classroom, jelly_brother@163.com, null)
+2023-04-12 17:39:35.645 2912-3266/com.google.android.apps.classroom D/falco_30: classroom dwo b-----------afterHookedMethod---------->thisObject:dwo@f01f71c,result:true
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err: java.lang.Exception
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at com.vlite.sdk.debug.hook.Line$3.afterHookedMethod(Line.java:69)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at de.robv.android.xposed.XC_MethodHook.callAfterHookedMethod(XC_MethodHook.java:68)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at com.swift.sandhook.xposedcompat.hookstub.HookStubManager.hookBridge(HookStubManager.java:314)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at com.swift.sandhook.xposedcompat.hookstub.MethodHookerStubs64.stub_hook_0(MethodHookerStubs64.java:380)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at cvl.doInBackground(PG:2)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at android.os.AsyncTask$3.call(AsyncTask.java:394)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+2023-04-12 17:39:35.646 2912-2912/com.google.android.apps.classroom D/CompatibilityChangeReporter: Compat change id reported: 119147584; UID 10009; state: DISABLED
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at android.os.AsyncTask$SerialExecutor$1.run(AsyncTask.java:305)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+2023-04-12 17:39:35.646 2912-3266/com.google.android.apps.classroom W/System.err:     at java.lang.Thread.run(Thread.java:923)
+2023-04-12 17:39:35.651 25023-2271/com.google.android.gms D/GmsServicesProvider: query caller=com.google.android.apps.classroom name=periodicMetadataSyncInBackground value=null
+2023-04-12 17:39:35.682 2912-2912/com.google.android.apps.classroom D/falco_30: startActivity--------------------->com.google.android.apps.classroom.courses.CoursesActivity---->71681581
+2023-04-12 17:39:35.683 2912-2912/com.google.android.apps.classroom D/falco_30: onInterceptStartActivity com.gbox.android com.gbox.android:vlapp03 Intent { cmp=com.google.android.apps.classroom/.courses.CoursesActivity } null
+2023-04-12 17:39:35.684 24521-25212/com.gbox.android D/falco_30: handleReceivedEvent - type = TYPE_ACTIVITY_LIFECYCLE(1006), thread = lite-2-thread-3, extras = [base_info_pid=2912, base_info_uid=10009, base_info_version_code=213034977, base_info_version_name=8.0.421.20.90.2, base_info_referrer=com.gbox.android, object_id=32121809, method_name=onPause, class_name=com.google.android.apps.classroom.setup.SetupActivity, base_info_process_name=com.google.android.apps.classroom, base_info_package_name=com.google.android.apps.classroom] com.gbox.android.activities.MainActivity$liteEventListener$1@a0ebb9c
+2023-04-12 17:39:35.686 24635-28116/com.gbox.android D/falco_30: remove task optimizeTasksLocked: 1293
+2023-04-12 17:39:35.690 24635-28116/com.gbox.android D/falco_30: put started intent -> ComponentInfo{com.google.android.apps.classroom/com.google.android.apps.classroom.courses.CoursesActivity}
+2023-04-12 17:39:35.695 1646-4035/? I/ActivityTaskManager: START u0 {typ=com.google.android.apps.classroom/com.google.android.apps.classroom.courses.CoursesActivity cmp=com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity03 (has extras)} from uid 10345
+2023-04-12 17:39:35.706 24635-28116/com.gbox.android D/falco_30: remove task optimizeTasksLocked: 1293
+2023-04-12 17:39:35.714 1646-4035/? W/ActivityTaskManager: Tried to set launchTime (0) < mLastActivityLaunchTime (71677361)
+2023-04-12 17:39:35.718 1646-4035/? W/ActivityTaskManager: Duplicate finish request for r=ActivityRecord{2c91d6b u0 com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity03 t1293 f}}
+2023-04-12 17:39:35.718 1646-4035/? W/ActivityTaskManager: Duplicate finish request for r=ActivityRecord{f6b3ce0 u0 com.gbox.android/com.vlite.sdk.proxy.ComponentProxyStubs$Activity03 t1293 f}}
+2023-04-12 17:39:35.719 24635-28116/com.gbox.android D/falco_30: activityCreated com.vlite.sdk.server.virtualservice.am.ActivityRecord@df91fa1
+2023-04-12 17:39:35.719 24635-28116/com.gbox.android D/falco_30: onActivityCreated ActivityInfo{23bb5c6 com.google.android.apps.classroom.courses.CoursesActivity} taskId: 1293
+2023-04-12 17:39:35.720 24635-28116/com.gbox.android D/falco_30: remove task optimizeTasksLocked: 1293
+2023-04-12 17:39:35.726 3667-4345/? E/FrameEvents: updateAcquireFence: Did not find frame.
+2023-04-12 17:39:35.741 2912-2912/com.google.android.apps.classroom D/falco_30: put task activity cache -> activity = com.google.android.apps.classroom.courses.CoursesActivity@f4b694e (1293) isTaskRoot = true, task count = 1, task activity count = 3
+2023-04-12 17:39:35.776 2912-2912/com.google.android.apps.classroom D/falco_30: onCreate--------------------->com.google.android.apps.classroom.courses.CoursesActivity@f4b694e
+2023-04-12 17:39:35.776 2912-2912/com.google.android.apps.classroom W/ProxyAndroidLoggerBackend: Too many Flogger logs received before configuration. Dropping old logs.
+2023-04-12 17:39:35.776 25023-2271/com.google.android.gms D/ChimeraServiceProvider: serviceIntentCall: com.google.android.gms.inappreach.service.START -> Intent { act=com.google.android.gms.inappreach.service.START pkg=com.google.android.gms cmp=com.google.android.gms/org.microg.gms.DummyService }
+2023-04-12 17:39:35.777 2912-2912/com.google.android.apps.classroom D/falco_30: onCreate-----------after---------->com.google.android.apps.classroom.courses.CoursesActivity@f4b694e---->0ms
+2023-04-12 17:39:35.783 25023-2027/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.libraries.onegoogle#com.google.android.apps.classroom, , null)
+2023-04-12 17:39:35.784 2912-3225/com.google.android.apps.classroom W/MobStoreFlagStore: Unable to update local snapshot for com.google.android.libraries.onegoogle#com.google.android.apps.classroom, may result in stale flags.
+    java.util.concurrent.ExecutionException: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Class java.lang.Object.getClass()' on a null object reference
+        at lcl.s(PG:6)
+        at lcl.get(PG:4)
+        at ifl.aa(PG:1)
+        at ifl.ao(PG:2)
+        at ilp.d(PG:1)
+        at hzc.run(PG:36)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:462)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:301)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+        at java.lang.Thread.run(Thread.java:923)
+     Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Class java.lang.Object.getClass()' on a null object reference
+        at ilg.a(PG:7)
+        at fjc.run(PG:29)
+        at lde.execute(PG:1)
+        at gbv.c(PG:8)
+        at ncp.d(PG:5)
+        at gcg.r(PG:3)//gcg的r方法调用
+        at fsh.b(PG:1)
+        at hxc.bF(PG:2)
+        at gbi.dispatchTransaction(PG:47)
+        at cvc.onTransact(PG:2)
+        at android.os.Binder.execTransactInternal(Binder.java:1159)
+        at android.os.Binder.execTransact(Binder.java:1123)
+2023-04-12 17:39:35.785 25023-2271/com.google.android.gms D/GmsAuthProvider: Call get_accounts from com.google.android.apps.classroom with arg com.google
+
+gcg.r方法后就调用了gcg e方法，产生了空指针
+gcg e ret value is Configurations('null', 'null', (), false, null, 0)
+
+gbi extends cvc 在dispatchTransaction(PG:47)里面
+public final class gbi extends cvc implements IInterface {
+    private final /* synthetic */ int a;
+    private final Object b;
+
+    /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
+    public gbi(fsh fshVar, int i, byte[] bArr, byte[] bArr2) {
+        super("com.google.android.gms.phenotype.internal.IPhenotypeCallbacks");
+        this.a = i;
+        this.b = fshVar;
+    }
+
+    /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
+    public gbi(fsh fshVar, int i, byte[] bArr) {
+        super("com.google.android.gms.pseudonymous.internal.IPseudonymousIdCallbacks");
+        this.a = i;
+        this.b = fshVar;
+    }
+
+    /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
+    public gbi(fsl fslVar, int i) {
+        super("com.google.android.gms.usagereporting.internal.IUsageReportingOptInOptionsChangedListener");
+        this.a = i;
+        this.b = fslVar;
+    }
+
+    @Override // defpackage.cvc
+    protected final boolean dispatchTransaction(int i, Parcel parcel, Parcel parcel2, int i2) {
+        switch (this.a) {
+            case 0:
+                switch (i) { 这里产生了序列化解析 进来 gah的createFromParcel方法，
+这里的判断出了问题，但是这里的parcel是外部传递进来的：
+while (parcel.dataPosition() < aR) {
+
+也就是cvc的onTransact方法的parcel有问题。
+    @Override // android.os.Binder
+    public boolean onTransact(int i, Parcel parcel, Parcel parcel2, int i2) {
+        if (routeToSuperOrEnforceInterface(i, parcel, parcel2, i2)) {
+            return true;
+        }
+        cve cveVar = globalInterceptor;
+        if (cveVar == null) {
+            return dispatchTransaction(i, parcel, parcel2, i2); 进子类gbi的dispatchTransaction方法
+        }
+        return cveVar.b();
+    }
+
+cvc onTransact is called, i: 4, parcel: android.os.Parcel@4a8cfe, parcel2: android.os.Parcel@1279c5f, i2: 17, 
+parcel2.getClass().getName(): android.os.Parcel, desc: com.google.android.gms.phenotype.internal.IPhenotypeCallbacks
+
+com.google.android.gms.phenotype.internal.IPhenotypeCallbacks在gms的源码里面
+对应我们的 \main\assets\preset_apps\MGGxx-214816097-2304101206.apk
+
+jad查看这apk
+有IPhenotypeCallbacks接口和对应的实现类PhenotypeServiceImpl
+在org.microg.gms.phenotype.PhenotypeService中调用
+
+	行  290: 2023-04-13 19:35:05.245 29838-29838/com.google.android.gms E/falco_30: [VService] org.microg.gms.phenotype.PhenotypeService@31e8b7e.onCreate
+	行  291: 2023-04-13 19:35:05.245 29838-29838/com.google.android.gms E/falco_30: [VService] org.microg.gms.phenotype.PhenotypeService@31e8b7e.onBind in onBind
+	行  292: 2023-04-13 19:35:05.245 29838-29838/com.google.android.gms D/PhenotypeService: onBind: Intent { act=com.google.android.gms.phenotype.service.START pkg=com.google.android.gms }
+	行  347: 2023-04-13 19:35:05.429 29838-5292/com.google.android.gms D/PhenotypeService: bound by: GetServiceRequest{serviceId=PHENOTYPE, gmsVersion=224212000, packageName='com.google.android.apps.classroom', extras=Bundle[{}]}
+	行  353: 2023-04-13 19:35:05.456 29838-5292/com.google.android.gms D/PhenotypeService: setAppSpecificProperties(com.google.android.apps.classroom, [B@6849c18)
+	行  475: 2023-04-13 19:35:08.504 29838-5292/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.libraries.performance.primes#com.google.android.apps.classroom, , null)
+	行 1075: 2023-04-13 19:35:35.506 29838-29901/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.apps.classroom, jelly_brother@163.com, null)
+	行 1116: 2023-04-13 19:35:35.661 29838-29858/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.libraries.onegoogle#com.google.android.apps.classroom, , null)
+	行 1162: 2023-04-13 19:35:35.777 29838-29858/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.libraries.notifications#com.google.android.apps.classroom, , null)
+	行 1190: 2023-04-13 19:35:35.780 29838-29901/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.libraries.notifications.platform#com.google.android.apps.classroom, , null)
+	行 1279: 2023-04-13 19:35:35.938 29838-29857/com.google.android.gms D/PhenotypeService: getConfigurationSnapshot2(com.google.android.libraries.mdi.sync#com.google.android.apps.classroom, , null)
+  
+  新文件 11 （匹配2次）
+	行 1802: 2023-04-13 19:19:19.580 29838-29838/com.google.android.gms E/falco_30: [VService] org.microg.gms.phenotype.PhenotypeService@e976eec.onUnbind in onUnbind
+	行 1803: 2023-04-13 19:19:19.580 29838-29838/com.google.android.gms E/falco_30: [VService] org.microg.gms.phenotype.PhenotypeService@e976eec.onDestroy in callDestroy
+
+Frida日志：
+cvc onTransact is called, i: 4, parcel: android.os.Parcel@9e84076, parcel2: android.os.Parcel@18b6711, i2: 17, parcel2.getClass().getName(): android.os.Parcel, 
+desc: com.google.android.gms.phenotype.internal.IPhenotypeCallbacks,time:1681386986305
+
+PhenotypeServiceImpl
+    @Override // com.google.android.gms.phenotype.internal.IPhenotypeService
+    public void getConfigurationSnapshot(IPhenotypeCallbacks callbacks, String str, String str2) {
+        Intrinsics.checkNotNullParameter(callbacks, "callbacks");
+        Log.d("PhenotypeService", "getConfigurationSnapshot(" + ((Object) str) + ", " + ((Object) str2) + ')');
+        Status status = Status.SUCCESS;
+        Configurations configurations = new Configurations();
+        configurations.field4 = new Configuration[0];
+        Unit unit = Unit.INSTANCE;
+        callbacks.onConfiguration(status, configurations);
+    }
+
+    @Override // com.google.android.gms.phenotype.internal.IPhenotypeService
+    public void getConfigurationSnapshot2(IPhenotypeCallbacks callbacks, String str, String str2, String str3) {
+        Intrinsics.checkNotNullParameter(callbacks, "callbacks");
+        //看studio日志是这里(com.google.android.libraries.performance.primes#com.google.android.apps.classroom, , null)
+        //但是看接收端日志确是 getConfigurationSnapshot
+        Log.d("PhenotypeService", "getConfigurationSnapshot2(" + ((Object) str) + ", " + ((Object) str2) + ", " + ((Object) str3) + ')');
+        Status status = Status.SUCCESS;
+        Configurations configurations = new Configurations();
+        configurations.field4 = new Configuration[0];
+        Unit unit = Unit.INSTANCE;
+        callbacks.onConfiguration(status, configurations);
+    }
+
+
+com.google.android.gms.phenotype.internal.IPhenotypeService$Stub$Proxy 类
+            @Override // com.google.android.gms.phenotype.internal.IPhenotypeService
+            public void getConfigurationSnapshot(IPhenotypeCallbacks iPhenotypeCallbacks, String str, String str2) throws RemoteException {
+                Parcel obtain = Parcel.obtain();
+                try {
+                    obtain.writeInterfaceToken(Stub.DESCRIPTOR);
+                    obtain.writeStrongBinder(iPhenotypeCallbacks != null ? iPhenotypeCallbacks.asBinder() : null);
+                    obtain.writeString(str);
+                    obtain.writeString(str2);
+                    if (this.mRemote.transact(4, obtain, null, 1) || Stub.getDefaultImpl() == null) {// 这里是4
+                        return;
+                    }
+                    Stub.getDefaultImpl().getConfigurationSnapshot(iPhenotypeCallbacks, str, str2);
+                } finally {
+                    obtain.recycle();
+                }
+            }
+            @Override // com.google.android.gms.phenotype.internal.IPhenotypeService
+            public void getConfigurationSnapshot2(IPhenotypeCallbacks iPhenotypeCallbacks, String str, String str2, String str3) throws RemoteException {
+                Parcel obtain = Parcel.obtain();
+                try {
+                    obtain.writeInterfaceToken(Stub.DESCRIPTOR);
+                    obtain.writeStrongBinder(iPhenotypeCallbacks != null ? iPhenotypeCallbacks.asBinder() : null);
+                    obtain.writeString(str);
+                    obtain.writeString(str2);
+                    obtain.writeString(str3);
+                    if (this.mRemote.transact(11, obtain, null, 1) || Stub.getDefaultImpl() == null) {// 这里是11
+                        return;
+                    }
+                    Stub.getDefaultImpl().getConfigurationSnapshot2(iPhenotypeCallbacks, str, str2, str3);
+                } finally {
+                    obtain.recycle();
+                }
+            }
+
+gbi 类
+         case 4:
+                        enforceNoDataAvail(parcel);
+                        hxc.bF((Status) cvd.a(parcel, Status.CREATOR), (Configurations) cvd.a(parcel, Configurations.CREATOR), (fsh) this.b);
+                        return true;
+Status类
+    public static final Parcelable.Creator CREATOR = new fqb(4);
+            case 4:
+                int aR5 = hxc.aR(parcel);
+                String str6 = null;
+                PendingIntent pendingIntent = null;
+                ConnectionResult connectionResult = null;
+                int i11 = 0;
+                int i12 = 0;
+                while (parcel.dataPosition() < aR5) {
+                    int readInt5 = parcel.readInt();
+                    switch (hxc.aN(readInt5)) {
+                        case 1:
+                            i12 = hxc.aP(parcel, readInt5);
+                            break;
+                        case 2:
+                            str6 = hxc.ba(parcel, readInt5);
+                            break;
+                        case 3:
+                            pendingIntent = (PendingIntent) hxc.aW(parcel, readInt5, PendingIntent.CREATOR);
+                            break;
+                        case 4:
+                            connectionResult = (ConnectionResult) hxc.aW(parcel, readInt5, ConnectionResult.CREATOR);
+                            break;
+                        case 1000:
+                            i11 = hxc.aP(parcel, readInt5);
+                            break;
+                        default:
+                            hxc.bh(parcel, readInt5);
+                            break;
+                    }
+                }
+                hxc.bg(parcel, aR5);
+                return new Status(i11, i12, str6, pendingIntent, connectionResult);
+                
+public class Configurations extends AbstractSafeParcelable {
+    public static final Parcelable.Creator CREATOR = new gah(8);
+gah
+  case 8:
+                int aR9 = hxc.aR(parcel);
+                long j = 0;
+                String str13 = null;
+                String str14 = null;
+                Configuration[] configurationArr = null;
+                byte[] bArr2 = null;
+                boolean z2 = false;
+                while (parcel.dataPosition() < aR9) {
+                    int readInt9 = parcel.readInt();
+                    switch (hxc.aN(readInt9)) {
+                        case 2:
+                            str13 = hxc.ba(parcel, readInt9);
+                            break;
+                        case 3:
+                            str14 = hxc.ba(parcel, readInt9);
+                            break;
+                        case 4:
+                            configurationArr = (Configuration[]) hxc.bl(parcel, readInt9, Configuration.CREATOR);
+                            break;
+                        case 5:
+                            z2 = hxc.bi(parcel, readInt9);
+                            break;
+                        case 6:
+                            bArr2 = hxc.bj(parcel, readInt9);
+                            break;
+                        case 7:
+                            j = hxc.aS(parcel, readInt9);
+                            break;
+                        default:
+                            hxc.bh(parcel, readInt9);
+                            break;
+                    }
+                }
+                hxc.bg(parcel, aR9);
+                return new Configurations(str13, str14, configurationArr, z2, bArr2, j);
+
+正常的包：
+cvc onTransact is called, i: 4, parcel: android.os.Parcel@c9493e3, parcel2: android.os.Parcel@4e451e0, i2: 17, parcel2.getClass().getName(): android.os.Parcel,
+ desc: com.google.android.gms.phenotype.internal.IPhenotypeCallbacks,time:1681388774469
+取到的Configurations
+gcg e ret value is Configurations('jelly_brother@163.com com.google.android.apps.classroom 213034977 9 -1672528447 com.google.android.apps.classroom  0',...)
+
+虚拟包取到的Configurations
+gcg e ret value is Configurations('null', 'null', (), false, null, 0)
+
+结论：
+app/src/main/assets/preset_apps/MGGxx-214816097-2304101206.apk 的 IPhenotypeService和PhenotypeServiceImpl缺少对应的服务
+导致虚拟包初始化的时候，拿到的Parcel是空的，从而SharedPreferences没法写入数据，设置页面展示的时候取默认值false，所以页面展示了五个条目。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

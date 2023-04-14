@@ -1074,7 +1074,47 @@ api 'androidx.constraintlayout:constraintlayout:2.0.1'
 mylibrary2 有布局
 compileOnly project(':mylibrary')
 
+### npm run start 启动项目时出错：error:0308010C:digital envelope routines::unsupported
+node版本太高导致，参考issue 须安装16.9及以下版本的nodejs，参考nodejs以往的版本
+本地运行，在各自目录下执行命令即可： npm install npm run dev
 
+### 在安卓11上获取不到applicationInfo
+val applicationInfo: ApplicationInfo = base.packageManager.getApplicationInfo(
+    "com.*.android",
+    PackageManager.MATCH_UNINSTALLED_PACKAGES
+)
+val installedPackages =
+   base.packageManager.getInstalledPackages(PackageManager.MATCH_UNINSTALLED_PACKAGES)
+需要在AndroidManifest.xml中添加
+    <queries>
+        <package android:name="com.*.android" />
+    </queries>
+	
+### 配置项目依赖	
+修改模块名称
+根目录内
+def path = rootDir.parent + "/GBoxAppContainer/code/vmos-lite-sdk/"
+if (localProject) {
+    include ':vmos-lite-sdk'
+    project(':vmos-lite-sdk').projectDir = new File(path + "vmos-lite-sdk")
+}
+根目录外
+def liteAliasDir = new File(rootDir.parent, 'vmos-lite')
+def liteAliasDir2 = new File(rootDir.parent, 'vmos-lite-sdk')
+def liteRootDir = liteAliasDir.exists() ? liteAliasDir : liteAliasDir2
+if (localProject && liteRootDir.exists()) {
+    def subModules = ['sandhook', 'hiddenapi-stub', 'vmos-lite-sdk', 'vmos-lite-client',
+                      'vmos-lite-base', 'vmos-lite-server', 'vmos-lite-native']
+    subModules.each { name ->
+        def subProjectDir = new File(liteRootDir, name)
+        def includeName = ":$name"
+        if (subProjectDir.exists() && subProjectDir.list().length > 0) {
+            println("include ${includeName} -> ${subProjectDir.absolutePath}")
+            include includeName
+            project(includeName).projectDir = subProjectDir
+        }
+    }
+}
 
 
 

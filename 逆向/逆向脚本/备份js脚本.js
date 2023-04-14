@@ -5,6 +5,29 @@ console.log("frida end ---->");
 //打印java堆栈
 console.log(Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Exception").$new()));
 
+// 打印堆栈
+function printStack() {
+  Java.perform(function () {
+      var Exception = Java.use("java.lang.Exception");
+      var ins = Exception.$new("Exception");
+      var straces = ins.getStackTrace();
+      if (straces != undefined && straces != null) {
+          var strace = straces.toString();
+          var replaceStr = strace.replace(/,/g, "\n");
+          console.log("=============================Stack strat=======================");
+          console.log(replaceStr);
+          console.log("=============================Stack end=========================");
+          Exception.$dispose();
+      }
+  });
+}
+
+// 打印成员变量的值
+console.log(`Activity onCreate is called this.k:+ ${this.k.value}`  + "  this.i:" + this.i.value);
+
+// 打印类名和方法入参
+console.log(`${this.getClass()} -->ActivityonCreate is called -->' + ${bundle}`);
+
 //列出加载的类
 Java.enumerateLoadedClasses(
   {
@@ -92,10 +115,37 @@ Java.perform(function () {
   }
 });
 
+// 强转
+var ArrayList = Java.use('java.util.ArrayList');
+var list = Java.cast(callbacks, ArrayList);   //类似这样，但你boolean不用强转吧，0就是false，1就是true
 
+// 打印binder通信
+let cvc = Java.use("cvc");
+cvc["onTransact"].overload('int', 'android.os.Parcel', 'android.os.Parcel', 'int')
+  .implementation = function (i, parcel, parcel2, i2) {
+    let desc = this.getInterfaceDescriptor()
+    console.log('cvc onTransact is called' + ', ' + 'i: ' + i + ', ' + 'parcel: ' + parcel + ', ' + 'parcel2: ' + parcel2 + ', ' + 'i2: ' + i2
+      + ', ' + 'parcel2.getClass().getName(): ' + parcel2.getClass().getName()
+      + ', ' + 'desc: ' + desc
+      + ',time:' + Date.now());
+    // parcel2.setDataPosition(0)
+    let ret = this.onTransact(i, parcel, parcel2, i2);
+    console.log('cvc onTransact ret value is ' + ret);
+    return ret;
+  };
 
+// 打印binder通信的序列化读取角标
+let gah = Java.use("gah");
+gah["createFromParcel"].implementation = function (parcel) {
+  console.log('gah createFromParcel is called' + ', ' + 'parcel: ' + parcel + ', ' + 'parcel.dataPosition(): ' + parcel.dataPosition()
+    + ', ' + 'this.a.value: ' + this.a.value
+    + ',time:' + Date.now());
+  let ret = this.createFromParcel(parcel);
+  console.log('gah createFromParcel ret value is ' + ret);
 
-
+  printStack();
+  return ret;
+};
 
 
 
