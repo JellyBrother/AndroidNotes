@@ -18,8 +18,6 @@
 
 ### VMOS编译机连接信息
 
-IP:192.168.22.118  (仅限公司内网使用) 账户: vmos 密码: _**\***_\*\*
-
 ### 修改代码 （Windows也能正常使用）
 
 可以通过VSCode  SSH Remote 插件，远程修改编译机上的代码. /data/android-4.4.4-vmos /data/android-5.1.3-vmos /data/android-7.1.2-vmos /data/android-9.0.0-vmos ![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/JZWGl07eyp7eO34Y/img/fb3a9b9e-7561-4af0-960f-5a8b2d3007b1.png)
