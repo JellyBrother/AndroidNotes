@@ -122,6 +122,28 @@ Java.perform(function () {
     console.log('Java.perform error:' + error);
   }
 });
+Java.perform(function () {
+  try {
+    let Service = Java.use("android.app.Service")
+    Service["onCreate"].implementation = function () {
+      console.log(`${this.getClass()} -->Service onCreate is called -->`);
+      let ret = this.onCreate();
+      return ret;
+    }
+    Service["onBind"].overload('android.content.Intent').implementation = function (intent) {
+      console.log(`${this.getClass()} -->Service onBind is called -->' + ${intent}`);
+      let ret = this.onBind(intent);
+      return ret;
+    }
+    Service["onDestroy"].implementation = function () {
+      console.log(`${this.getClass()} -->Service onDestroy is called`);
+      let ret = this.onDestroy();
+      return ret;
+    }  
+  } catch (error) {
+    console.log('Java.perform error:' + error);
+  }
+});
 
 // 强转
 var ArrayList = Java.use('java.util.ArrayList');
@@ -326,6 +348,18 @@ PowerManager["isPowerSaveMode"].implementation = function () {
   printStack();
   return ret;
 };
+PowerManager["goToSleep"].implementation = function (time,  reason,  flags) {
+  console.log('PowerManager goToSleep is called'
+  + ', ' + 'time: ' + time
+  + ', ' + 'reason: ' + reason
+  + ', ' + 'flags: ' + flags
+  );
+  let ret = this.goToSleep(time,  reason,  flags);
+  console.log('PowerManager goToSleep ret value is ' + ret);
+
+  printStack();
+  return ret;
+};
 let PowerManagerWakeLock = Java.use("android.os.PowerManager$WakeLock");
 PowerManagerWakeLock["setReferenceCounted"].implementation = function (bbfVar) {
   console.log('PowerManagerWakeLock setReferenceCounted is called' + ', ' + 'bbfVar: ' + bbfVar);
@@ -360,4 +394,33 @@ PowerManagerWakeLock["release"].overload('int').implementation = function (bbfVa
   return ret;
 };
 
+function findClass(className){
+  var cls = null;
+  try {
+      cls = Java.classFactory.use(className);
+  } catch (error) {
+      Java.enumerateClassLoaders({
+          "onMatch": (loader) => 
+          {
+              if (cls == null) 
+              {
+                  var origLoader = Java.classFactory.loader;
+                  try 
+                  {
+                      Java.classFactory.loader = loader
+                      cls = Java.classFactory.use(className);
+                  }
+                  catch (error) 
+                  {
+                      Java.classFactory.loader = origLoader;
+                  }
+              }
+          },
+          "onComplete": () => 
+          {
+          }
+      });
+  }
+  return cls;
+}
 
