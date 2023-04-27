@@ -1,0 +1,13 @@
+### binder能传递几种数据：
+binder传递数据的方法protected boolean onTransact(int code, @NonNull Parcel data, @Nullable Parcel reply, int flags) throws RemoteException {
+* 能传递普通类型的少量数据；
+* binder对象/handle(struct flat_binder_object);
+* fd(struct binder_fd_object)；由于Binder内存映射的空间最大只允许4M，binder的两个进程间需要传输大量的数据时就只能使用传递文件句柄fd方式。例如：图像声音数据、或者是一个对象。
+
+https://mp.weixin.qq.com/s/S7lGxGZApgqFTuRCMIKhJA
+
+
+
+
+
+

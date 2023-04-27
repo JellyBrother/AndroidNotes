@@ -8,6 +8,9 @@
 2. CANCEL 事件什么时候会触发？
 3. 如何解决滑动冲突？
 
+子控件的onTouch返回true，事件传递到了哪里？
+子控件onTouch返回true，意味着消费了这次事件，则跳出事件传递，交给Activity进行处理。
+
 ### 二、题目详解
 #### 2.1 安卓事件的分发
 安卓的事件分发大概会经历 Activity -> PhoneWindow -> DecorView -> ViewGroup -> View 的 dispatchTouchEvent。   
