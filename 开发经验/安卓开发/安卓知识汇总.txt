@@ -615,6 +615,17 @@ $ adb shell am set-inactive <packageName> false
     }
 }
 
+### 保活
+* 很早之前是双service守护，一个stop时启动另外一个。
+* 监听开机广播，静态注册，被禁止了。
+* 闹钟定时启动。
+* jobservice长期运行，因为是系统服务。
+* 接入厂商推送sdk，但是厂商限制免费推送次数。
+* 发短信做活动，吸引用户使用。
+* 系统应用保活：
+* 双进程守护
+* 账户管理定时同步
+
 ### 闹钟
 alarmManager.set设置的时间不准，测试看到设置为20秒，实际为5秒。 
 标准 AlarmManager 闹钟（包括 setExact() 和 setWindow()）推迟到下一个维护期。
