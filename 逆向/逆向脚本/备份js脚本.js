@@ -8,22 +8,22 @@ console.log(Java.use("android.util.Log").getStackTraceString(Java.use("java.lang
 // 打印堆栈
 function printStack() {
   Java.perform(function () {
-      var Exception = Java.use("java.lang.Exception");
-      var ins = Exception.$new("Exception");
-      var straces = ins.getStackTrace();
-      if (straces != undefined && straces != null) {
-          var strace = straces.toString();
-          var replaceStr = strace.replace(/,/g, "\n");
-          console.log("=============================Stack strat=======================");
-          console.log(replaceStr);
-          console.log("=============================Stack end=========================");
-          Exception.$dispose();
-      }
+    var Exception = Java.use("java.lang.Exception");
+    var ins = Exception.$new("Exception");
+    var straces = ins.getStackTrace();
+    if (straces != undefined && straces != null) {
+      var strace = straces.toString();
+      var replaceStr = strace.replace(/,/g, "\n");
+      console.log("=============================Stack strat=======================");
+      console.log(replaceStr);
+      console.log("=============================Stack end=========================");
+      Exception.$dispose();
+    }
   });
 }
 
 // 打印成员变量的值
-console.log(`Activity onCreate is called this.k:+ ${this.k.value}`  + "  this.i:" + this.i.value);
+console.log(`Activity onCreate is called this.k:+ ${this.k.value}` + "  this.i:" + this.i.value);
 
 // 打印类名和方法入参
 console.log(`${this.getClass()} -->ActivityonCreate is called -->' + ${bundle}`);
@@ -57,10 +57,34 @@ Java.perform(function () {
   try {
     let Activity = Java.use("android.app.Activity")
     Activity["startActivity"].overload('android.content.Intent').implementation = function (intent) {
-      console.log(`${this.getClass()} -->startActivity is called -->' + ${intent}`);
+      console.log(this.getClass() + '-->startActivity is called -->' + ',intent:' + JSON.stringify(intent));
       let ret = this.startActivity(intent);
       return ret;
     }
+    Activity["startActivityForResult"].overload('android.content.Intent',
+      'int', 'android.os.Bundle').implementation = function (intent, requestCode, options) {
+        console.log(this.getClass() + '-->startActivity is called -->'
+          + ',intent:' + JSON.stringify(intent)
+          + ',options:' + JSON.stringify(options)
+        );
+        let ret = this.startActivityForResult(intent, requestCode, options);
+        printStack();
+        console.log(this.getClass() + ' startActivityForResult ret value is ' + ret);
+        return ret;
+      }
+    Activity["startActivityForResult"].overload('java.lang.String', 'android.content.Intent',
+      'int', 'android.os.Bundle').implementation = function (who, intent, requestCode, options) {
+        console.log(this.getClass() + '-->startActivity is called -->'
+          + ',who:' + who
+          + ',intent:' + JSON.stringify(intent)
+          + ',requestCode:' + requestCode
+          + ',options:' + JSON.stringify(options)
+        );
+        let ret = this.startActivityForResult(who, intent, requestCode, options);
+        printStack();
+        console.log(this.getClass() + ' startActivityForResult ret value is ' + ret);
+        return ret;
+      }
     Activity["onCreate"].overload('android.os.Bundle').implementation = function (bundle) {
       console.log(`${this.getClass()} -->ActivityonCreate is called -->' + ${bundle}`);
       let ret = this.onCreate(bundle);
@@ -81,7 +105,7 @@ Java.perform(function () {
       let ret = this.onDestroy();
       console.log('ActivityonDestroy ret value is ' + ret);
       return ret;
-    }  
+    }
     Activity["finish"].overload().implementation = function () {
       console.log(`${this.getClass()} -->Activity finish is called`);
       let ret = this.finish();
@@ -117,7 +141,7 @@ Java.perform(function () {
       let ret = this.onDestroy();
       console.log('FragmentonDestroy ret value is ' + ret);
       return ret;
-    }    
+    }
   } catch (error) {
     console.log('Java.perform error:' + error);
   }
@@ -139,7 +163,7 @@ Java.perform(function () {
       console.log(`${this.getClass()} -->Service onDestroy is called`);
       let ret = this.onDestroy();
       return ret;
-    }  
+    }
   } catch (error) {
     console.log('Java.perform error:' + error);
   }
@@ -207,8 +231,8 @@ View["performClick"].implementation = function () {
   let Parent1 = this.getParent();
   // var Color = Java.use('android.graphics.Color');
   // Parent1.setBackgroundColor(Color.argb(127, 2, 2, 2));
-  console.log('View performClick is called getClass：'+this.getClass()
-  + ', ' + 'Parent1: ' + Parent1
+  console.log('View performClick is called getClass：' + this.getClass()
+    + ', ' + 'Parent1: ' + Parent1
   );
   let ret = this.performClick();
   console.log('View performClick ret value is ' + ret);
@@ -348,13 +372,13 @@ PowerManager["isPowerSaveMode"].implementation = function () {
   printStack();
   return ret;
 };
-PowerManager["goToSleep"].implementation = function (time,  reason,  flags) {
+PowerManager["goToSleep"].implementation = function (time, reason, flags) {
   console.log('PowerManager goToSleep is called'
-  + ', ' + 'time: ' + time
-  + ', ' + 'reason: ' + reason
-  + ', ' + 'flags: ' + flags
+    + ', ' + 'time: ' + time
+    + ', ' + 'reason: ' + reason
+    + ', ' + 'flags: ' + flags
   );
-  let ret = this.goToSleep(time,  reason,  flags);
+  let ret = this.goToSleep(time, reason, flags);
   console.log('PowerManager goToSleep ret value is ' + ret);
 
   printStack();
@@ -394,32 +418,27 @@ PowerManagerWakeLock["release"].overload('int').implementation = function (bbfVa
   return ret;
 };
 
-function findClass(className){
+function findClass(className) {
   var cls = null;
   try {
-      cls = Java.classFactory.use(className);
+    cls = Java.classFactory.use(className);
   } catch (error) {
-      Java.enumerateClassLoaders({
-          "onMatch": (loader) => 
-          {
-              if (cls == null) 
-              {
-                  var origLoader = Java.classFactory.loader;
-                  try 
-                  {
-                      Java.classFactory.loader = loader
-                      cls = Java.classFactory.use(className);
-                  }
-                  catch (error) 
-                  {
-                      Java.classFactory.loader = origLoader;
-                  }
-              }
-          },
-          "onComplete": () => 
-          {
+    Java.enumerateClassLoaders({
+      "onMatch": (loader) => {
+        if (cls == null) {
+          var origLoader = Java.classFactory.loader;
+          try {
+            Java.classFactory.loader = loader
+            cls = Java.classFactory.use(className);
           }
-      });
+          catch (error) {
+            Java.classFactory.loader = origLoader;
+          }
+        }
+      },
+      "onComplete": () => {
+      }
+    });
   }
   return cls;
 }
