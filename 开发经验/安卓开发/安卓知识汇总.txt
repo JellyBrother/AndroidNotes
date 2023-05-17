@@ -735,9 +735,6 @@ isOngoing()：检查该通知的flag是否为FLAG_ONGOING_EVENT；
 当相对布局嵌套三层以上，建议使用约束布局。
 Systrace会自动高亮这个布局的性能问题，以及一些修改它们的建议。https://developer.android.com/studio/profile/systrace.html
 
-### singleTop和singleTask复用的时候
-启动的activity不会走生命周期，会调用onNewIntent方法。
-
 ### 安卓跨进程通讯
 * Activity、Broadcast、Service可以通过Intent传递
 * Service还可以通过AIDL
@@ -889,6 +886,7 @@ fun main() {
 * 使用CountDownLatch
 * 使用volatile和while语句轮询
 给List添加volatile，一个线程执行List添加，另外一个线程B死循环判断集合大小，当判断成立后抛出异常中断循环，并进行捕获。
+* 使用Automic原子类，对于多个线程对同一个变量操作不相互排斥，而是保存每个线程对变量的修改，在读取变量的时候进行汇总，只适合一些粒度比较小的操作。
 
 ### swapper或sched的进程ID为0，负责分页，实际上是内核的一部分，而不是普通的用户模式进程。进程ID 1通常是初始化进程（init），主要负责启动和关闭系统
 
@@ -942,6 +940,7 @@ Bitmap bitmap = BitmapFactoty.decodeStream(assets.open("11.jpg"), null, Option()
 * 子线程调用Looper.prepare();和Looper.loop();更新UI，会导致该子线程无法销毁（因为Looper是死循环），从而堵塞线程池的队列，最终导致异常，触发线程池相应的策略。
 * 一个应用可以有多个进程，一个进程只有一个主线程，一个主线程(也叫UI线程)只有一个Looper。一个线程只能有一个Looper，多个线程可以有多个Looper。
 * Looper是MessageQueue的管理者。每一个MessageQueue都不能脱离Looper而存在，Looper对象的创建是通过prepare函数来实现的。同时每一个Looper对象和一个线程关联。
+* 多个线程共用一个线程池，就只有一个Looper，HandlerThread是一个线程一个线程池。
 
 ### Android如何保证一个线程最多只能有一个Looper？
 * Looper的构造方法为private，所以不能直接使用其构造方法创建。
@@ -1011,6 +1010,138 @@ PhoneWindow内部包含了一个DecorView对象。DectorView对象是所有应�
                     break;
                 }
             }
+
+### 安卓启动模式和生命周期
+* Activity2的standard模式：
+Activity1启动Activity2
+Activity1 onPause
+Activity2 onCreate
+Activity2 onStart
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+* Activity2的singleTop模式，当两者都在顶部启动自己的时候跟singleTask一样，区别在于不在顶部的时候，singleTop会重新创建，singleTask从栈内取：
+Activity1启动Activity2
+Activity1 onPause
+Activity2 onCreate
+Activity2 onStart
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+Activity2启动Activity2
+Activity2 onPause
+Activity2 onNewIntent
+Activity2 onResume
+* Activity2的singleTask模式：
+Activity1启动Activity2
+Activity1 onPause
+Activity2 onCreate
+Activity2 onStart
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+Activity2启动Activity2
+Activity2 onPause
+Activity2 onNewIntent
+Activity2 onResume
+* Activity2的singleInstance模式：
+Activity1启动Activity2
+Activity1 onPause
+Activity2 onCreate
+Activity2 onStart
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+Activity2启动Activity2
+Activity2 onPause
+Activity2 onNewIntent
+Activity2 onResume
+Activity2启动Activity1
+Activity2 onPause
+Activity1 onCreate
+Activity1 onStart
+Activity1 onResume
+Activity2 onStop
+Activity1 onSaveInstanceState
+Activity1启动Activity2
+Activity1 onPause
+Activity2 onRestart
+Activity2 onStart
+Activity2 onNewIntent
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+Activity2返回Activity1，Activity2销毁
+Activity2 onPause
+Activity1 onRestart
+Activity1 onStart
+Activity1 onResume
+Activity2 onStop
+Activity2 onDestroy
+Activity1返回Activity1，因为始终只有一个Activity2
+Activity1 onPause
+Activity1 onRestart
+Activity1 onStart
+Activity1 onResume
+Activity1 onStop
+Activity1 onDestroy
+Activity1返回
+Activity1 onPause
+Activity1 onStop
+Activity1 onDestroy
+* 总结：
+1、所有模式第一次Activity1启动Activity2：
+Activity1 onPause
+Activity2 onCreate
+Activity2 onStart
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+2、singleTop不在栈顶被启动，启动方式跟1一样。
+3、singleTop在栈顶，自己启动自己：
+Activity2 onPause
+Activity2 onNewIntent
+Activity2 onResume
+4、singleTask模式无论栈内栈顶被启动，启动方式跟3一样。
+5、singleInstance在栈顶，自己启动自己：
+Activity2 onPause
+Activity2 onNewIntent
+Activity2 onResume
+6、singleInstance不在栈顶被启动：
+Activity1 onPause
+Activity2 onRestart 多了这个
+Activity2 onStart
+Activity2 onNewIntent
+Activity2 onResume
+Activity1 onStop
+Activity1 onSaveInstanceState
+7、返回退栈都是一样的，只是返回链路变了，不会多次返回，直接返回标准模式的activity：
+Activity2 onPause
+Activity1 onRestart
+Activity1 onStart
+Activity1 onResume
+Activity2 onStop
+Activity2 onDestroy
+
+### onConfigurationChanged调用时的生命周期
+* 什么都不设置的情况下生命周期，但是很多说安卓低版本切横屏一次，切竖屏两次，但是我在Pixel4手机都是一次。  https://www.shuzhiduo.com/A/x9J2oAPj56/
+Activity1 onPause
+Activity1 onStop
+Activity1 onSaveInstanceState 安卓3.0是onPause之前，3.0-9.0是onStop之前，安卓9.0版本之后是onStop之后
+Activity1 onDestroy
+Activity1 onCreate
+Activity1 onStart
+Activity1 onRestoreInstanceState
+Activity1 onResume
+* 当只配置android:configChanges="orientation"，切横、竖屏时只会执行一次。在Pixel4手机也都是一次。
+* 配置android:configChanges="keyboardHidden|orientation|screenSize"，只执行onConfigurationChanged，不重新走生命周期。
+
+
+
+
+
+
+
 
 
 

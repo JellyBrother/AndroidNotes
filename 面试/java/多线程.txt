@@ -160,5 +160,30 @@ AtomicInteger ai = new AtomicInteger(5);
 ai.incrementAndGet(); // 6 或者 ai.decrementAndGet(); // 4
 ai.get();
 
+### Thread.sleep(1)和wait区别
+* wait必须配合synchronized使用，而sleep不用；
+* wait属于Object（对象）的方法，而sleep属于Thread（线程）的方法；
+* sleep不释放锁持有锁，而wait要释放锁；
+* sleep必须要传递一个数值型的参数，而wait可以不传参；
+* sleep让线程进入到TIMED_WAITING状态，而无参的wait方法让线程进入了WAITING状态；
+* 一般情况下，sleep只能等待超过时间之后才能恢复执行，而wait可以接收notify、notifyAll之后就可以执行。
+
+### Thread.join()和Thread.yield()区别
+* 把指定的线程加入到当前线程，可以将两个交替执行的线程合并为顺序执行的线程。
+* 线程1调用线程2的join方法，会阻塞线程1，直到线程2执行完毕，才会接着往下执行。
+* join方法被Synchronized关键字修饰，锁对象是线程2，会阻塞线程1。
+* join方法是通过wait()方法实现的。只要线程2是活的，线程1就不停的等待。 
+* yield方法会让当前线程交出CPU资源，让CPU去执行其他的线程。
+* 调用yield方法并不会让线程进入阻塞状态，而是让线程重回就绪状态，等待重新得到 CPU的执行。
+* yield不会释放锁。
+
+
+
+
+
+
+
+
+
 
 
