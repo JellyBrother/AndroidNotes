@@ -1,0 +1,68 @@
+### 异常执行流程
+try {
+  System.out.println("try");
+  return "return try";
+} catch (Exception e) {
+  System.out.println("return Exception");
+  return "return Exception";
+} finally {
+  System.out.println("finally");
+  return "return finally";
+}
+* finally是通过汇编直接嵌套在try和catch执行完毕的return前面的。
+* finally里面有return，执行顺序为：try finally return finally
+* finally没有return，执行顺序为：try finally return try
+* catch是在try执行过程中出现异常，进行捕获的。没有异常不会执行catch的内容。
+
+### LruCache的使用，以图片缓存为例
+int maxMemory = (int) (Runtime.getRuntime().totalMemory()/1024);
+int cacheSize = maxMemory/8;
+mMemoryCache = new LruCache<String,Bitmap>(cacheSize){
+    @Override
+    protected int sizeOf(String key, Bitmap value) {
+        return value.getRowBytes()*value.getHeight()/1024;
+    }
+};
+* 设置LruCache缓存的大小，一般为当前进程可用容量的1/8。 
+* 重写sizeOf方法，计算出要缓存的每张图片的大小。
+**注意：缓存的总容量和每个缓存对象的大小所用单位要一致。**
+* 成员变量有：size;//当前cache的大小，maxSize;//cache最大大小，putCount;//put的次数
+* createCount;//create的次数，evictionCount;//驱逐剔除的次数，hitCount;//命中的次数，missCount;//未命中次数
+
+### LruCache使用的是LinkedHashMap，LinkedHashMap的理解
+* HashMap的两个属性Entry<K,V>  before,after。Entry的构造函数还有一个next指针，用于维护before,after的连接顺序。
+* LinkedHashMap在HashMap功能上，增加Entry<K,V>  header(链表的头结点)，跟before,after组成一个双向链表，来实现按插入顺序或访问顺序排序。
+* LinkedHashMap多线程不安全
+* LinkedHashMap<>(0, 0.75f, true);构造函数的三个参数：初始容量,客座率，默认0.75f, true：基于访问顺序,默认是false，基于插入顺序
+* true：基于访问顺序。最近访问的对象会被放到队尾，然后最后输出。
+* LruCache正是用了LinkedHashMap的accessOrder=true构造参数实现LRU访问顺序。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

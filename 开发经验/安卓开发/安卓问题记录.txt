@@ -83,6 +83,7 @@ Runtime.getRuntime().freeMemory();//可用内存
 long use = total - free;//使用了的内存
 
 ### 应用程序无响应（ANR）
+* anr文件在/data/anr/文件夹下面，root获取。
 * 在events_log文件里面找到进程id： am_anr|am_low_memory
 * dropbox的anr日志看main线程打印
 * 在main_log文件里面找到报ANR的时间点：Application is not responding:  和 ANR in
