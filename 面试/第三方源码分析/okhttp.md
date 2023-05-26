@@ -52,11 +52,21 @@ interceptors.add(new ConnectInterceptor(client));
 * RealInterceptorChain的proceed方法循环遍历interceptors，返回Response，先遍历自定义的拦截器。
 * RealCall的run方法请求成功回调onResponse，请求异常回调onFailure，最后在finally中关闭调用client.dispatcher.finished(this)
 
+### 自定义拦截器
+class TokenInvalidInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        var request = chain.request()
+        val response: Response = chain.proceed(request)
+        return response
+    }
+}
+
 ### BridgeInterceptor拦截器
 https://blog.51cto.com/u_13794952/5558186
 客户端发起请求时在请求头里增加 Accept-Encoding: gzip，服务端响应时在返回的头信息里增加 Content-Encoding: gzip，这表示传输的数据是采用 gzip 压缩的。
 
-
+### CacheInterceptor拦截器
+https://blog.51cto.com/u_15456329/4801700
 
 
 

@@ -352,9 +352,9 @@ class Loader implements LoaderManager.LoaderCallbacks<Cursor> {
     }
     return uri;
 }
-* resolver.registerContentObserver(uri, true, mObserver);
+* getContext().getContentResolver().registerContentObserver(uri, true, mObserver);
 Uri uri = Uri.parse(NOTIFIER_URI + "/keyword"); 
-// 由getContext().getContentResolver().notifyChange(NOTIFIER_URI, null);触发
+// 由getContext().getContentResolver().notifyChange(NOTIFIER_URI, mObserver);触发
 ContentObserver mObserver = new ContentObserver(new Handler()) {
     @Override
     public void onChange(boolean selfChange) {

@@ -1019,7 +1019,7 @@ Activity2 onCreate
 Activity2 onStart
 Activity2 onResume
 Activity1 onStop
-Activity1 onSaveInstanceState
+Activity1 onSaveInstanceState  安卓3.0是onPause之前，3.0-9.0是onStop之前，安卓9.0版本之后是onStop之后
 * Activity2的singleTop模式，当两者都在顶部启动自己的时候跟singleTask一样，区别在于不在顶部的时候，singleTop会重新创建，singleTask从栈内取：
 Activity1启动Activity2
 Activity1 onPause
@@ -1080,6 +1080,7 @@ Activity2 onStop
 Activity2 onDestroy
 Activity1返回Activity1，因为始终只有一个Activity2
 Activity1 onPause
+Activity1 onActivityResult
 Activity1 onRestart
 Activity1 onStart
 Activity1 onResume
