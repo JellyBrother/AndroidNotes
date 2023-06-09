@@ -1121,6 +1121,15 @@ if (localProject && liteRootDir.exists()) {
     }
 }
 
+### Android studio无法启动模拟器，报错：The emulator process for AVD hasterminated
+* 查资料，配置环境变量：https://www.jianshu.com/p/fc278242453c
+* C:\Users\admin\AppData\Local\Google\AndroidStudio2021.2\log下idea.log，提示：Please update the emulator to one that supports the feature(s): Vulkan
+百度找不到，又搜索Failed to create Vulkan instance.
+找到一个回答：https://stackoverflow.com/questions/61358662/failed-to-create-vulkan-instance-android-studio-windows-10
+要下载英特尔的驱动：https://github.com/intel/haxm/releases
+我下载了最新的，还是不行，studio提示了应该是7.6.5版本的
+把最新的卸载，重新安卓7.6.5的就行了。
+
 
 
 
