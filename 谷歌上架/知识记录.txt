@@ -1,0 +1,39 @@
+### a面、b面什么意思
+谷歌马甲包用的是插件化技术，a面是底座，b面是插件。
+
+### 马甲包代码
+* 复制apk
+* 解压
+* 加载so
+* 加载dex
+* 加载资源
+
+### 马甲包修改
+* 复制b包到assets下
+* AndroidManifest.xml 一致
+- gadx打开b包，复制AndroidManifest内容
+- 对齐包名
+- 对齐版本号compileSdkVersion、compileSdkVersionCodename
+- 添加Application        android:name="com.jelly.app.base.fix.App"
+- 添加图标icon
+- 修改app名字 label
+- 创建四大组件文件目录
+- 创建四大组件类
+- activity添加主题  不一定要跟app的主题一致
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+- 有meta-data的在gadx中查找出来添加上去
+
+### 上架思路
+插件化代码加密混淆，防止反编译
+a插件和b插件要隐藏，文件分割等等
+提交上架前是a插件，上架成功后是b插件
+印度卡 root 印度时区 google归因 google框架
+
+
+### 软件
+https://www.cocos.com/creator-download
+https://www.python.org/downloads/release/python-3114/
+
+
+

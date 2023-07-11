@@ -1130,10 +1130,21 @@ if (localProject && liteRootDir.exists()) {
 我下载了最新的，还是不行，studio提示了应该是7.6.5版本的
 把最新的卸载，重新安卓7.6.5的就行了。
 
+### android studio创建c++项目运行不了
+需要下载visualstudio并搭建好开发环境。
+https://visualstudio.microsoft.com/zh-hans/downloads/
 
+### 反射framework层的api，反射不了
+需要跳过隐藏api
+implementation 'io.github.windysha:bypassHiddenApiRestriction:1.0.2'
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.startBypass();
+    }
 
-
-
+### 解决 tinkerId is not set!
+https://blog.51cto.com/u_13045684/6106769
+在gradle.properties中加入下面2行代码
+TINKER_ID=1.0 TINKER_ENABLE=true
 
 
 
