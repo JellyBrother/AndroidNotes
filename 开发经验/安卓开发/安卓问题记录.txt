@@ -1146,6 +1146,14 @@ https://blog.51cto.com/u_13045684/6106769
 在gradle.properties中加入下面2行代码
 TINKER_ID=1.0 TINKER_ENABLE=true
 
+### 22.2以下的studio报：ModelCache.safeGet(androidProjectResult.androidProject::getNdkVersion, "") must not be null
+http://www.manongjc.com/detail/61-zvptbzccmqmnqta.html#google_vignette
+需要在local.properties设置NDK路径
+sdk.dir=C\:\\Users\\1\\AppData\\Local\\Android\\Sdk
+ndk.dir=C\:\\Users\\1\\AppData\\Local\\Android\\Sdk\\ndk\\25.2.9519653
+添加完成后，又报：Both android.ndkPath and ndk.dir in local.properties are set
+这个时候注释掉就可以
+#ndk.dir=C\:\\Users\\1\\AppData\\Local\\Android\\Sdk\\ndk\\25.2.9519653
 
 
 

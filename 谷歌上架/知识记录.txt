@@ -7,14 +7,52 @@
 * 加载so
 * 加载dex
 * 加载资源
+* 改成jni反射
+* apk分卷加密
+* 多个apk按需求加载
+* 基座--判断需求--加载a插件还是b插件
+
+### 上架思路
+插件化代码加密混淆，防止反编译
+a插件和b插件要隐藏，文件分割等等
+提交上架前是a插件，上架成功后是b插件
+印度卡 root 印度时区 google归因 google框架
+就判断印度卡和自然量，非自然进b面
+印度卡 & 非ROOT模拟器设备云手机 & 印度IP & 印度时间 & VPN不开,单个或多个满足进A，全部条件满足进B（测试机型：谷歌android 13、华为鸿蒙2.0.0）
+
+### 软件
+https://www.cocos.com/creator-download
+https://www.python.org/downloads/release/python-3114/
+
+### cocos使用
+安装cocos、安装python
+
+### cocos制作a面
+A20230705_41_HappyTeenPatti.zip
+找个随机密钥：http://www.atoolbox.net/Tool.php?Id=921
+构建工程，直接新建，然后填入密钥
+构建完后，删除cc.js的日志：
+console.time(`LoadScene ${t}`),
+console.timeEnd(`LoadScene ${t}`),
+找到安卓工程，填写项目信息---最新方案不需要了，只要出apk就行
+运行createChannlAndroid.py脚本---最新方案不需要了，只要出apk就行
 
 ### 马甲包修改
-* 复制b包到assets下
-* AndroidManifest.xml 一致
+* 安卓b面，看看啥样。
+* 拿到a面工程
+* cocos导入工程，下载对应编辑器版本。
+* cocos修改脚本密钥，随机网站找一个 http://www.atoolbox.net/Tool.php?Id=921
+* 构建工程，删除build\android\data\src\cocos-js文件夹下cc.js的日志：console.time
+* Androidstudio打开工程：build\android\proj
+* local.properties填入ndk路径：ndk.dir=C\:\\Users\\1\\AppData\\Local\\Android\\Sdk\\ndk\\25.2.9519653
+* 检查gradle.properties配置的路径
+* 启动a面
+* 复制b包到assets下，并分卷加密-用随机数包名，并记录
+* AndroidManifest.xml 一致，添加a面和b面
 - gadx打开b包，复制AndroidManifest内容
-- 对齐包名
-- 对齐版本号compileSdkVersion、compileSdkVersionCodename
-- 添加Application        android:name="com.jelly.app.base.fix.App"
+- 对齐包名--不需要，以b面为准
+- 对齐版本号compileSdkVersion、compileSdkVersionCodename--不需要，以基座为准
+- 添加Application        android:name="com.jelly.app.base.fix.App"--不需要，在基座主界面判断再加载哪个插件
 - 添加图标icon
 - 修改app名字 label
 - 创建四大组件文件目录
@@ -22,18 +60,18 @@
 - activity添加主题  不一定要跟app的主题一致
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
+- activity添加属性
 - 有meta-data的在gadx中查找出来添加上去
+* 准备签名文件--用b面apk名字作为密码
+* 修改库路径，随机字母，用b面包名
+* 新建MainActivity，引用库，也使用随机路径
+* so加密-目前没有，针对方法命名使用b面包名
+* 自定义java混淆规则-替换混淆规则为b面包名
+* 上传包名，填写上架信息给测试
+* 打debug包（无谷歌归因限制带其余限制）
+* 打aab包（带有谷歌归因限制）
 
-### 上架思路
-插件化代码加密混淆，防止反编译
-a插件和b插件要隐藏，文件分割等等
-提交上架前是a插件，上架成功后是b插件
-印度卡 root 印度时区 google归因 google框架
 
-
-### 软件
-https://www.cocos.com/creator-download
-https://www.python.org/downloads/release/python-3114/
 
 
 
