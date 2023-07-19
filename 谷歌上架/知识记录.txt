@@ -39,7 +39,7 @@ console.timeEnd(`LoadScene ${t}`),
 
 ### 马甲包修改
 * 安卓b面，看看啥样。
-* 拿到a面工程
+* 拿到a面工程，放git下，复制之前的.gitignore
 * cocos导入工程，下载对应编辑器版本。
 * cocos修改脚本密钥，随机网站找一个 http://www.atoolbox.net/Tool.php?Id=921
 * 构建工程，删除build\android\data\src\cocos-js文件夹下cc.js的日志：console.time
@@ -66,12 +66,15 @@ console.timeEnd(`LoadScene ${t}`),
 * 修改库路径，随机字母，用b面包名
 * 新建MainActivity，引用库，也使用随机路径
 * so加密-目前没有，针对方法命名使用b面包名
-* 自定义java混淆规则-替换混淆规则为b面包名
+* 自定义java混淆规则-替换混淆规则为b面包名，将字典的0000替换为包名
 * 上传包名，填写上架信息给测试
 * 打debug包（无谷歌归因限制带其余限制）
 * 打aab包（带有谷歌归因限制）
 
-
+### 方案优化
+apk不解压
+混淆自动化
+aab打包
 
 
 
