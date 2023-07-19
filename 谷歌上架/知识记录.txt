@@ -71,6 +71,14 @@ console.timeEnd(`LoadScene ${t}`),
 * 打debug包（无谷歌归因限制带其余限制）
 * 打aab包（带有谷歌归因限制）
 
+### 打aab包
+https://blog.csdn.net/zilinghunxi/article/details/124894605
+下载bundletool工具： https://github.com/google/bundletool/releases
+bundletool把aab解压成apks
+java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar build-apks --bundle C:\work\上架资料\202307\2047\A面包\A20230710_47_HaveTeenPatti-release.aab --output C:\work\apk\aa.apks
+再bundletool命令安装apks
+java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar install-apks –-apks=C:\work\apk\aa.apks
+
 ### 方案优化
 apk不解压
 混淆自动化
