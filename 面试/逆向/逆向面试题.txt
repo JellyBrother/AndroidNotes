@@ -1,0 +1,69 @@
+### 安卓逆向反调试
+* ptrace检测
+ptrace 目标进程后可读写目标进程的内存、寄存器，调试，一个进程只能被ptrace一次，自己ptrace自己占坑。
+系统调用，可查看导入表函数是否有 ptrace，静态修改检测函数或者hook
+ida/frida应用此类技术
+* TracerPid检测
+TracerPid是进程的一个属性值，不为0表示被调试，TracePid 就是调试该进程的进程的的Pid。
+静态修改检测函数或者hook
+编译安卓源码使让 TracerPid永久为0。
+* android.os.Debug.isDebuggerConnected()
+返回 true表示被调试
+* 端口检测
+读取 /proc/net/tcp 文件，修改逆向工具默认端口号，android_server 默认端口 23946，frida-server 默认端口 27042
+* 运行时间差
+获取时间相关函数time、gmtime、localtime、gettimeofday
+cpu执行时间 clock
+绕过：静态修改检测函数或者hook
+
+### xposed/Edxposed原理
+安卓所有的APP进程是用 Zygote进程启动的。Xposed替换了 Zygote 进程对应的可执行文件/system/bin/app_process。
+每启动一个新的进程，都会先启动xposed替换过的文件，都会加载xposed相关代码。这样就注入了每一个app进程。
+虚拟机在处理的时候有区别，一种是directMethod，即Java世界里面实现的方法，一种是nativeMethod。
+Xposed在对java方法进行hook时，先将虚拟机里面这个方法的Method改为nativeMethod(其实就是一个标识字段)，
+然后将该方法的nativeFunc指向自己实现的一个native方法，这样方法在调用时，就会调用到这个native方法，接管了控制权。
+
+### ida/frida原理
+使用的是动态二进制插桩技术（DBI），对进程ptrace。
+
+### magisk面具
+magisk工具对boot.img打补丁，在ramdisk中植入新的init程序。
+
+### FIddler原理
+中间人代理双向校验证书，证书校验使用了fiddler自定义证书，本地证书校验可以hook不使用证书。服务端证书校验，可以app导出证书。
+
+### dex加固
+原始dex做加固处理，在运行时还原内存结构。（动态加载，类抽取，混淆，vmp）
+
+### 安卓的安全机制
+https://blog.csdn.net/yaxuan88521/article/details/115305587
+* Android进程沙箱隔离机制
+进程沙箱隔离机制，使Android应用程序在安装时被赋予独特的用户标识（UID），并永久保持。
+* 应用程序签名机制
+规定 APK 文件必须被开发者进行数字签名，以便标识应用程序作者和在应用程序之间的信任关系。
+在安装应用程序APK时，系统安装程序首先检查APK是否被签名，有签名才能安装。
+* 权限声明机制
+要想在对象上进行操作，就需要把权限和此对象的操作进行绑定。
+不同级别要求应用程序行使权限的认证方式也不一样，Normal级申请就可以使用，Dangerous级需要安装时由用户确认，
+Signature和SignatureOrSystem级则必须是系统用户才可用。
+* 进程通信机制
+基于共享内存的 Binder 实现，提供轻量级的远程进程调用（RPC）。
+通过接口描述语言（AIDL）定义接口与交换数据的类型，确保进程间通信的数据不会溢出越界
+* 内存管理机制
+基于Linux的低内存管理机制，设计实现了独特的LMK，将进程重要性分级、分组，当内存不足时，自动清理级别进程所占用的内存空间。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
