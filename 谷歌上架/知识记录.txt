@@ -80,9 +80,13 @@ java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar build-apks --bundle C:\w
 java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar install-apks –-apks=C:\work\apk\aa.apks
 
 ### 方案优化
-apk不解压
-混淆自动化
-aab打包
+apk不解压，我的方案做不到
+so加密
+混淆自动化，写脚本
+多套插件化方案
+python
+a面进b面，a面不销毁就会闪退
+
 
 
 
