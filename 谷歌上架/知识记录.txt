@@ -7,10 +7,13 @@
 * 加载so
 * 加载dex
 * 加载资源
+* 清单文件hook整合
 * 改成jni反射
 * apk分卷加密
 * 多个apk按需求加载
 * 基座--判断需求--加载a插件还是b插件
+* 密码隐藏，敏感常量隐藏，so命名隐藏
+* 加垃圾代码，可以接入第三方sdk，然后混淆 AndroidJunkCode
 
 ### 上架思路
 插件化代码加密混淆，防止反编译
@@ -79,13 +82,16 @@ java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar build-apks --bundle C:\w
 再bundletool命令安装apks
 java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar install-apks –-apks=C:\work\apk\aa.apks
 
+### a面进b面，a面不销毁就会闪退
+是因为a面demo有布局文件，插件化替换的时候，a面的资源全部没有了，是b面的资源，所以会报a面找不到资源闪退。
+不给a面设置布局文件资源就可以。
+
 ### 方案优化
-apk不解压，我的方案做不到
-so加密
-混淆自动化，写脚本
-多套插件化方案
+多套插件化方案，有纯c，然后jni提供给java调用
+清单文件hook整合
 python
-a面进b面，a面不销毁就会闪退
+
+查看源码
 
 
 
