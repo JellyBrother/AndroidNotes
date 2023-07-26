@@ -45,11 +45,12 @@ console.timeEnd(`LoadScene ${t}`),
 * 拿到a面工程，放git下，复制之前的.gitignore
 * cocos导入工程，下载对应编辑器版本。
 * cocos修改脚本密钥，随机网站找一个 http://www.atoolbox.net/Tool.php?Id=921
-* 构建工程，删除build\android\data\src\cocos-js文件夹下cc.js的日志：console.time
+* 构建工程，删除build\android\data\src\cocos-js文件夹下cc.js的日志：console.time--后面不用删除了
 * Androidstudio打开工程：build\android\proj
-* local.properties填入ndk路径：ndk.dir=C\:\\Users\\1\\AppData\\Local\\Android\\Sdk\\ndk\\25.2.9519653
+* local.properties填入ndk路径：ndk.dir=C\:\\Users\\1\\AppData\\Local\\Android\\Sdk\\ndk\\25.2.9519653--切换jdk8后不用了
 * 检查gradle.properties配置的路径
-* 启动a面
+* 自己生成jks，并配置
+* 启动a面，并提交
 * 复制b包到assets下，并分卷加密-用随机数包名，并记录
 * AndroidManifest.xml 一致，添加a面和b面
 - gadx打开b包，复制AndroidManifest内容
@@ -92,7 +93,7 @@ java -jar C:\software\aab2apk\bundletool-all-1.15.2.jar install-apks –-apks=C:
 python
 
 查看源码
-
+研究jks签名文件的公钥信息，看看怎么修改，不让他一致，这个跟电脑有关，每台电脑，公钥都是一样的
 
 
 
